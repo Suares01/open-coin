@@ -550,11 +550,11 @@ T19 → T20 → T21 → T22 → T23 → T24 → T25
 
 **Done when**:
 
-- [ ] Todos os repositories recebem exatamente o executor fornecido.
-- [ ] Todos gravam no mesmo coletor fornecido.
-- [ ] Shape contém somente books/accounts/journalEntries/facts.
-- [ ] Quatro testes unitários de composição passam.
-- [ ] Test count: 4 novos casos; nenhum teste removido.
+- [x] Todos os repositories recebem exatamente o executor fornecido.
+- [x] Todos gravam no mesmo coletor fornecido.
+- [x] Shape contém somente books/accounts/journalEntries/facts.
+- [x] Quatro testes unitários de composição passam.
+- [x] Test count: 4 novos casos; nenhum teste removido.
 
 **Tests**: unit
 **Gate**: quick
