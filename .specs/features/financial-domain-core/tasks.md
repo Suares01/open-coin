@@ -834,10 +834,10 @@ T34 -> T35 -> T36 -> T37 -> T38 -> T39 -> T40 -> T41
 
 **Done when**:
 
-- [ ] Cada caso de uso obtém `recordedAt` do `Clock` e reserva uma sequência no repository dentro da transação.
-- [ ] Sequências são únicas, estritamente crescentes por `bookId` e independentes entre livros.
-- [ ] Falha ou rollback não publica evento nem reutiliza uma sequência já confirmada.
-- [ ] O Full gate passa com testes determinísticos de todos os comandos de journal.
+- [x] Cada caso de uso obtém `recordedAt` do `Clock` e reserva uma sequência no repository dentro da transação.
+- [x] Sequências são únicas, estritamente crescentes por `bookId` e independentes entre livros.
+- [x] Falha ou rollback não publica evento nem reutiliza uma sequência já confirmada.
+- [x] O Full gate passa com testes determinísticos de todos os comandos de journal.
 
 **Tests**: integration
 **Gate**: Full

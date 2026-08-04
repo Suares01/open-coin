@@ -9,18 +9,29 @@ export interface InMemoryStoreSnapshot {
   readonly books: readonly FinancialBookSnapshot[];
   readonly accounts: readonly LedgerAccountSnapshot[];
   readonly journalEntries: readonly JournalEntrySnapshot[];
+  readonly journalSequences: readonly JournalSequenceSnapshot[];
+}
+
+export interface JournalSequenceSnapshot {
+  readonly bookId: BookId;
+  readonly lastSequence: string;
 }
 
 export class InMemoryStore {
   private readonly books = new Map<string, FinancialBookSnapshot>();
   private readonly accounts = new Map<string, LedgerAccountSnapshot>();
   private readonly journalEntries = new Map<string, JournalEntrySnapshot>();
+  private readonly journalSequences = new Map<string, bigint>();
 
   snapshot(): InMemoryStoreSnapshot {
     return {
       books: [...this.books.values()].map(cloneBook),
       accounts: [...this.accounts.values()].map(cloneAccount),
       journalEntries: [...this.journalEntries.values()].map(cloneJournalEntry),
+      journalSequences: [...this.journalSequences.entries()].map(([bookId, lastSequence]) => ({
+        bookId: bookId as BookId,
+        lastSequence: lastSequence.toString(),
+      })),
     };
   }
 
@@ -28,6 +39,7 @@ export class InMemoryStore {
     this.books.clear();
     this.accounts.clear();
     this.journalEntries.clear();
+    this.journalSequences.clear();
 
     for (const book of snapshot.books) {
       this.books.set(book.id, cloneBook(book));
@@ -37,6 +49,9 @@ export class InMemoryStore {
     }
     for (const entry of snapshot.journalEntries) {
       this.journalEntries.set(entry.id, cloneJournalEntry(entry));
+    }
+    for (const sequence of snapshot.journalSequences) {
+      this.journalSequences.set(sequence.bookId, BigInt(sequence.lastSequence));
     }
   }
 
@@ -77,6 +92,12 @@ export class InMemoryStore {
 
   putJournalEntry(snapshot: JournalEntrySnapshot): void {
     this.journalEntries.set(snapshot.id, cloneJournalEntry(snapshot));
+  }
+
+  reserveNextSequence(bookId: BookId): string {
+    const nextSequence = (this.journalSequences.get(bookId) ?? 0n) + 1n;
+    this.journalSequences.set(bookId, nextSequence);
+    return nextSequence.toString();
   }
 }
 

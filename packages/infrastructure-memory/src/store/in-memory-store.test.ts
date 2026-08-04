@@ -17,6 +17,8 @@ const journalEntry: JournalEntrySnapshot = {
   id: "entry-1" as never,
   bookId: "book-1" as never,
   occurredOn: "2026-08-04",
+  recordedAt: "2026-08-04T12:00:00.000Z",
+  sequence: "1",
   description: "Opening",
   currency: "BRL",
   origin: "SYSTEM",
@@ -105,12 +107,13 @@ describe("InMemoryStore", () => {
     store.putBook(book);
     store.putJournalEntry(journalEntry);
 
-    store.restore({ books: [], accounts: [], journalEntries: [] });
+    store.restore({ books: [], accounts: [], journalEntries: [], journalSequences: [] });
 
     expect(store.snapshot()).toEqual({
       books: [],
       accounts: [],
       journalEntries: [],
+      journalSequences: [],
     });
   });
 });

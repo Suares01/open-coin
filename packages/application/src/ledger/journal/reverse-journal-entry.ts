@@ -4,6 +4,7 @@ import {
   LocalDate,
 } from "@open-coin/domain";
 import type {
+  Clock,
   IdGenerator,
   ReverseJournalEntryCommand,
   TransactionManager,
@@ -17,6 +18,7 @@ export class ReverseJournalEntry {
     private readonly transactionManager: TransactionManager,
     private readonly eventDispatcher: DomainEventDispatcher,
     private readonly ids: IdGenerator,
+    private readonly clock: Clock,
   ) {}
 
   async execute(command: ReverseJournalEntryCommand) {
@@ -53,6 +55,8 @@ export class ReverseJournalEntry {
         const reversal = original.createReversal({
           id: journalEntryIdFromString(this.ids.nextJournalEntryId()),
           occurredOn: LocalDate.parse(command.occurredOn),
+          recordedAt: this.clock.now(),
+          sequence: await repositories.journalEntries.reserveNextSequence(book.id),
           description: command.description,
           postingIds: original.postings.map(() => this.ids.nextPostingId()),
         });

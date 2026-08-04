@@ -37,6 +37,8 @@ function entry() {
     id: "entry-1" as never,
     bookId: "book-1" as never,
     occurredOn: LocalDate.parse("2026-08-04"),
+    recordedAt: "2026-08-04T12:00:00.000Z",
+    sequence: "1",
     description: "Opening",
     currency: Currency.parse("BRL"),
     origin: "SYSTEM",
@@ -56,6 +58,26 @@ function entry() {
 }
 
 describe("InMemoryTransactionManager", () => {
+  it("rolls back an uncommitted sequence reservation and keeps confirmed values", async () => {
+    const store = new InMemoryStore();
+    const manager = new InMemoryTransactionManager(store);
+
+    await manager.execute(async (repositories) => {
+      expect(await repositories.journalEntries.reserveNextSequence("book-1" as never)).toBe("1");
+    });
+
+    await expect(
+      manager.execute(async (repositories) => {
+        expect(await repositories.journalEntries.reserveNextSequence("book-1" as never)).toBe("2");
+        throw new Error("rollback");
+      }),
+    ).rejects.toThrow("rollback");
+
+    await manager.execute(async (repositories) => {
+      expect(await repositories.journalEntries.reserveNextSequence("book-1" as never)).toBe("2");
+    });
+  });
+
   it("commits all repository writes and returns collected facts", async () => {
     const store = new InMemoryStore();
     const manager = new InMemoryTransactionManager(store);
@@ -109,6 +131,7 @@ describe("InMemoryTransactionManager", () => {
       books: [],
       accounts: [],
       journalEntries: [],
+      journalSequences: [],
     });
   });
 

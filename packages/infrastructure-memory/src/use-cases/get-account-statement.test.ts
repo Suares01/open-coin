@@ -39,6 +39,7 @@ async function preparedExpense() {
     harness.transactionManager,
     harness.dispatcher,
     harness.ids,
+    harness.clock,
   ).execute({
     bookId: "book-1",
     accountId: "account-5",
@@ -67,6 +68,7 @@ async function completeFlow() {
     harness.transactionManager,
     harness.dispatcher,
     harness.ids,
+    harness.clock,
   ).execute({
     bookId: "book-1",
     accountId: "account-5",
@@ -81,6 +83,7 @@ async function completeFlow() {
     harness.transactionManager,
     harness.dispatcher,
     harness.ids,
+    harness.clock,
   ).execute({
     bookId: "book-1",
     accountId: "account-5",
@@ -96,6 +99,7 @@ async function completeFlow() {
     harness.transactionManager,
     harness.dispatcher,
     harness.ids,
+    harness.clock,
   ).execute({
     bookId: "book-1",
     accountId: "account-5",
@@ -111,6 +115,7 @@ async function completeFlow() {
     harness.transactionManager,
     harness.dispatcher,
     harness.ids,
+    harness.clock,
   ).execute({
     bookId: "book-1",
     sourceAccountId: "account-5",
@@ -126,6 +131,7 @@ async function completeFlow() {
     harness.transactionManager,
     harness.dispatcher,
     harness.ids,
+    harness.clock,
   ).execute({
     bookId: "book-1",
     journalEntryId: expense.value.id,
@@ -190,6 +196,7 @@ describe("GetAccountStatement", () => {
       harness.transactionManager,
       harness.dispatcher,
       harness.ids,
+      harness.clock,
     ).execute({
       bookId: "book-1",
       accountId: "account-5",

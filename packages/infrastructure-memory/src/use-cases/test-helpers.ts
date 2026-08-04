@@ -18,13 +18,14 @@ export function createHarness() {
   const ids = new SequentialIdGenerator();
   const publisher = new CollectingDomainEventPublisher();
   const transactionManager = new InMemoryTransactionManager(store);
+  const clock = new FixedClock("2026-08-04T12:00:00.000Z", "2026-08-04");
   const dispatcher = new DomainEventDispatcher(
-    new FixedClock("2026-08-04T12:00:00.000Z", "2026-08-04"),
+    clock,
     ids,
     publisher,
   );
 
-  return { store, ids, publisher, transactionManager, dispatcher };
+  return { store, ids, publisher, transactionManager, dispatcher, clock };
 }
 
 export const validBookCommand = {

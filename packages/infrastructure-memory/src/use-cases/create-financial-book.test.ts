@@ -154,7 +154,7 @@ describe("CreateFinancialBook", () => {
     const result = await useCase.execute({ ...validCommand, name: "   " });
 
     expect(result).toMatchObject({ ok: false, error: { code: "INVALID_BOOK_NAME" } });
-    expect(store.snapshot()).toEqual({ books: [], accounts: [], journalEntries: [] });
+    expect(store.snapshot()).toEqual({ books: [], accounts: [], journalEntries: [], journalSequences: [] });
     expect(publisher.events).toEqual([]);
   });
 
@@ -164,7 +164,7 @@ describe("CreateFinancialBook", () => {
     const result = await useCase.execute({ ...validCommand, timezone: "   " });
 
     expect(result).toMatchObject({ ok: false, error: { code: "INVALID_TIMEZONE" } });
-    expect(store.snapshot()).toEqual({ books: [], accounts: [], journalEntries: [] });
+    expect(store.snapshot()).toEqual({ books: [], accounts: [], journalEntries: [], journalSequences: [] });
     expect(publisher.events).toEqual([]);
   });
 
@@ -174,7 +174,7 @@ describe("CreateFinancialBook", () => {
     const result = await useCase.execute({ ...validCommand, baseCurrency: "brl" });
 
     expect(result).toMatchObject({ ok: false, error: { code: "INVALID_CURRENCY" } });
-    expect(store.snapshot()).toEqual({ books: [], accounts: [], journalEntries: [] });
+    expect(store.snapshot()).toEqual({ books: [], accounts: [], journalEntries: [], journalSequences: [] });
     expect(publisher.events).toEqual([]);
   });
 
@@ -207,7 +207,7 @@ describe("CreateFinancialBook", () => {
     const result = await useCase.execute(validCommand);
 
     expect(result).toMatchObject({ ok: false, error: { code: "UNEXPECTED_ERROR", message: "forced account failure" } });
-    expect(store.snapshot()).toEqual({ books: [], accounts: [], journalEntries: [] });
+    expect(store.snapshot()).toEqual({ books: [], accounts: [], journalEntries: [], journalSequences: [] });
     expect(publisher.events).toEqual([]);
   });
 

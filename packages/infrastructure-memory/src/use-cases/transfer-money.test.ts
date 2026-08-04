@@ -18,6 +18,7 @@ function useCase(harness: ReturnType<typeof createHarness>) {
     harness.transactionManager,
     harness.dispatcher,
     harness.ids,
+    harness.clock,
   );
 }
 

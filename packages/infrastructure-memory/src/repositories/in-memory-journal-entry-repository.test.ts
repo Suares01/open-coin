@@ -11,6 +11,15 @@ function entry(overrides: Parameters<typeof journalEntrySnapshot>[0] = {}) {
 }
 
 describe("InMemoryJournalEntryRepository", () => {
+  it("reserves independent monotonic sequences per book", async () => {
+    const repository = new InMemoryJournalEntryRepository(new InMemoryStore());
+
+    expect(await repository.reserveNextSequence("book-1" as never)).toBe("1");
+    expect(await repository.reserveNextSequence("book-1" as never)).toBe("2");
+    expect(await repository.reserveNextSequence("book-2" as never)).toBe("1");
+    expect(await repository.reserveNextSequence("book-1" as never)).toBe("3");
+  });
+
   it("adds and rehydrates postings as independent values", async () => {
     const repository = new InMemoryJournalEntryRepository(new InMemoryStore());
     const original = entry();

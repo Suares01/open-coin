@@ -21,6 +21,7 @@ function useCase(
     transactionManager,
     harness.dispatcher,
     harness.ids,
+    harness.clock,
   );
 }
 
@@ -43,6 +44,7 @@ async function prepared() {
     harness.transactionManager,
     harness.dispatcher,
     harness.ids,
+    harness.clock,
   ).execute({
     bookId: "book-1",
     accountId: "account-5",
@@ -65,6 +67,9 @@ function conflictTransactionManager(base: TransactionManager): TransactionManage
       return base.execute((repositories) => {
         const journalEntries = {
           findById: repositories.journalEntries.findById.bind(repositories.journalEntries),
+          reserveNextSequence: repositories.journalEntries.reserveNextSequence.bind(
+            repositories.journalEntries,
+          ),
           add: repositories.journalEntries.add.bind(repositories.journalEntries),
           save: async () => {
             throw new ApplicationError(

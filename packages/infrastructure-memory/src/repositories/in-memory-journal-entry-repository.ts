@@ -24,6 +24,10 @@ export class InMemoryJournalEntryRepository implements JournalEntryRepository {
     return snapshot === undefined ? null : JournalEntry.restore(snapshot);
   }
 
+  async reserveNextSequence(bookId: BookId): Promise<string> {
+    return this.store.reserveNextSequence(bookId);
+  }
+
   async add(entry: JournalEntry): Promise<void> {
     if (this.store.getJournalEntry(entry.id) !== undefined) {
       throw new ApplicationError(
@@ -71,6 +75,8 @@ export function journalEntrySnapshot(
     id: "entry-1" as JournalEntryId,
     bookId: "book-1" as BookId,
     occurredOn: "2026-08-04",
+    recordedAt: "2026-08-04T12:00:00.000Z",
+    sequence: "1",
     description: "Opening",
     currency: "BRL",
     origin: "SYSTEM",

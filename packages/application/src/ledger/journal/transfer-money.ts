@@ -8,6 +8,7 @@ import {
   Money,
 } from "@open-coin/domain";
 import type {
+  Clock,
   IdGenerator,
   TransactionManager,
   TransferMoneyCommand,
@@ -21,6 +22,7 @@ export class TransferMoney {
     private readonly transactionManager: TransactionManager,
     private readonly eventDispatcher: DomainEventDispatcher,
     private readonly ids: IdGenerator,
+    private readonly clock: Clock,
   ) {}
 
   async execute(command: TransferMoneyCommand) {
@@ -62,6 +64,8 @@ export class TransferMoney {
           originAccount,
           destinationAccount,
           occurredOn: LocalDate.parse(command.occurredOn),
+          recordedAt: this.clock.now(),
+          sequence: await repositories.journalEntries.reserveNextSequence(book.id),
           description: command.description,
           amount: Money.of(
             BigInt(command.amountMinor),

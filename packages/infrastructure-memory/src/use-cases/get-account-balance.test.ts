@@ -37,6 +37,8 @@ function journalEntry(
     id: id as never,
     bookId,
     occurredOn,
+    recordedAt: "2026-08-04T12:00:00.000Z",
+    sequence: "1",
     description: id,
     currency: "BRL",
     origin: "MANUAL",
