@@ -1,0 +1,63 @@
+{
+  "schema": 1,
+  "promote_threshold": 2,
+  "window_days": 45,
+  "quarantine_threshold": 2,
+  "next_id": 4,
+  "lessons": [
+    {
+      "id": "L-001",
+      "key": "ac_gap::when an ac promises atomicity or concurrency ordering assert the failure or concurrency boundary and every persisted side effect not only the final happy path state",
+      "text": "When an AC promises atomicity or concurrency ordering, assert the failure or concurrency boundary and every persisted side effect, not only the final happy-path state.",
+      "signal": "ac_gap",
+      "scope": "sqlite,transactions",
+      "status": "candidate",
+      "features": [
+        "financial-sqlite-persistence"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "FSP-37/FSP-38/FSP-43 (sqlite,transactions)"
+      ],
+      "created": "2026-08-04T21:54:25Z",
+      "last_seen": "2026-08-04T21:54:25Z"
+    },
+    {
+      "id": "L-002",
+      "key": "spec_precision_gap::when a spec requires a concrete sql or lifecycle predicate add an observable assertion for that predicate instead of inferring it from an end state result",
+      "text": "When a spec requires a concrete SQL or lifecycle predicate, add an observable assertion for that predicate instead of inferring it from an end-state result.",
+      "signal": "spec_precision_gap",
+      "scope": "sqlite,contracts",
+      "status": "candidate",
+      "features": [
+        "financial-sqlite-persistence"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "FSP-03/FSP-11/FSP-13/FSP-30/FSP-35/FSP-39 (sqlite,contracts)"
+      ],
+      "created": "2026-08-04T21:54:25Z",
+      "last_seen": "2026-08-04T21:54:25Z"
+    },
+    {
+      "id": "L-003",
+      "key": "gate_fail::treat build warnings as gate failures whenever the acceptance criterion requires warning free execution even when the process exits zero",
+      "text": "Treat build warnings as gate failures whenever the acceptance criterion requires warning-free execution, even when the process exits zero.",
+      "signal": "gate_fail",
+      "scope": "workspace,gates",
+      "status": "candidate",
+      "features": [
+        "financial-sqlite-persistence"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "validation.md:163 (workspace,gates)"
+      ],
+      "created": "2026-08-04T21:54:25Z",
+      "last_seen": "2026-08-04T21:54:25Z"
+    }
+  ]
+}
