@@ -26,5 +26,12 @@
 - **Date**: 2026-08-04
 - **Status**: active
 
-## Handoff
+### AD-004
+- **Decision**: Adapters SQLite dependerão de `SqliteExecutor` e `SqliteDatabase` neutros de plataforma; drivers concretos de Node, Tauri ou outros runtimes permanecerão fora dos repositories e do entrypoint neutro.
+- **Reason**: A mesma implementação de migrations, mappers, repositories, queries e transaction manager deve funcionar sobre uma conexão ou transação garantida pelo runtime.
+- **Trade-off**: Cada runtime precisará fornecer e testar seu próprio driver, e o pacote neutro não poderá abrir o banco sozinho.
+- **Scope**: Persistência SQLite, drivers locais e integrações de runtime presentes e futuras.
+- **Date**: 2026-08-04
+- **Status**: active
 
+## Handoff
