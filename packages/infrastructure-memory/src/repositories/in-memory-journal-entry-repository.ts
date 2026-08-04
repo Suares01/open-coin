@@ -1,0 +1,94 @@
+import {
+  ApplicationError,
+  type DomainFactCollector,
+  type JournalEntryRepository,
+} from "@open-coin/application";
+import {
+  JournalEntry,
+  type BookId,
+  type JournalEntryId,
+  type JournalEntrySnapshot,
+  type LedgerAccountId,
+  type PostingId,
+} from "@open-coin/domain";
+import { InMemoryStore } from "../store/in-memory-store.js";
+
+export class InMemoryJournalEntryRepository implements JournalEntryRepository {
+  constructor(
+    private readonly store: InMemoryStore,
+    private readonly facts?: DomainFactCollector,
+  ) {}
+
+  async findById(id: JournalEntryId): Promise<JournalEntry | null> {
+    const snapshot = this.store.getJournalEntry(id);
+    return snapshot === undefined ? null : JournalEntry.restore(snapshot);
+  }
+
+  async add(entry: JournalEntry): Promise<void> {
+    if (this.store.getJournalEntry(entry.id) !== undefined) {
+      throw new ApplicationError(
+        "DUPLICATE_ENTITY",
+        `Journal entry ${entry.id} already exists`,
+      );
+    }
+
+    if (entry.version !== 0) {
+      throw new ApplicationError(
+        "OPTIMISTIC_CONCURRENCY_FAILURE",
+        "A new journal entry must start at version zero",
+      );
+    }
+
+    this.store.putJournalEntry(entry.toSnapshot());
+    this.facts?.record(entry.pullDomainFacts());
+  }
+
+  async save(entry: JournalEntry, expectedVersion: number): Promise<void> {
+    const persisted = this.store.getJournalEntry(entry.id);
+    if (persisted === undefined) {
+      throw new ApplicationError(
+        "ENTITY_NOT_FOUND",
+        `Journal entry ${entry.id} was not found`,
+      );
+    }
+
+    if (persisted.version !== expectedVersion || entry.version !== expectedVersion + 1) {
+      throw new ApplicationError(
+        "OPTIMISTIC_CONCURRENCY_FAILURE",
+        `Journal entry ${entry.id} has a conflicting version`,
+      );
+    }
+
+    this.store.putJournalEntry(entry.toSnapshot());
+    this.facts?.record(entry.pullDomainFacts());
+  }
+}
+
+export function journalEntrySnapshot(
+  overrides: Partial<JournalEntrySnapshot> = {},
+): JournalEntrySnapshot {
+  return {
+    id: "entry-1" as JournalEntryId,
+    bookId: "book-1" as BookId,
+    occurredOn: "2026-08-04",
+    description: "Opening",
+    currency: "BRL",
+    origin: "SYSTEM",
+    postings: [
+      {
+        id: "posting-1" as PostingId,
+        accountId: "account-1" as LedgerAccountId,
+        amountMinor: 100n,
+        currency: "BRL",
+      },
+      {
+        id: "posting-2" as PostingId,
+        accountId: "account-2" as LedgerAccountId,
+        amountMinor: -100n,
+        currency: "BRL",
+      },
+    ],
+    version: 0,
+    ...overrides,
+  };
+}

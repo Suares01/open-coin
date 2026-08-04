@@ -479,10 +479,10 @@ T29 -> T30 -> T31 -> T32 -> T33
 
 **Done when**:
 
-- [ ] Add/find/save preservam postings e vínculos de reversão.
-- [ ] Alteração carregada sem `save` não vaza para o store.
-- [ ] Duplicidade e conflito preservam o snapshot anterior.
-- [ ] Pelo menos 7 testes de contrato passam.
+- [x] Add/find/save preservam postings e vínculos de reversão.
+- [x] Alteração carregada sem `save` não vaza para o store.
+- [x] Duplicidade e conflito preservam o snapshot anterior.
+- [x] Pelo menos 7 testes de contrato passam.
 
 **Tests**: integration
 **Gate**: Full
