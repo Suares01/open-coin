@@ -897,10 +897,10 @@ T34 -> T35 -> T36 -> T37 -> T38 -> T39 -> T40 -> T41
 
 **Done when**:
 
-- [ ] Data anterior falha com `REVERSAL_DATE_BEFORE_ORIGINAL` sem mutação.
-- [ ] Alvo com `reversalOf` falha com `JOURNAL_ENTRY_REVERSAL_NOT_REVERSIBLE` sem mutação.
-- [ ] Mesma data e data posterior continuam aceitas com postings opostos exatos.
-- [ ] O Full gate passa com testes unitários e cross-layer para cada transição.
+- [x] Data anterior falha com `REVERSAL_DATE_BEFORE_ORIGINAL` sem mutação.
+- [x] Alvo com `reversalOf` falha com `JOURNAL_ENTRY_REVERSAL_NOT_REVERSIBLE` sem mutação.
+- [x] Mesma data e data posterior continuam aceitas com postings opostos exatos.
+- [x] O Full gate passa com testes unitários e cross-layer para cada transição.
 
 **Tests**: integration
 **Gate**: Full

@@ -173,6 +173,40 @@ describe("ReverseJournalEntry", () => {
     expect(fixture.harness.publisher.events).toEqual([]);
   });
 
+  it("rejects reversing a reversal without partial state or events", async () => {
+    const fixture = await prepared();
+    await useCase(fixture.harness).execute(command());
+    fixture.harness.publisher.clear();
+    const before = fixture.harness.store.snapshot();
+
+    const result = await useCase(fixture.harness).execute(
+      command({ journalEntryId: "entry-2", occurredOn: "2026-08-06" }),
+    );
+
+    expect(result).toMatchObject({
+      ok: false,
+      error: { code: "JOURNAL_ENTRY_REVERSAL_NOT_REVERSIBLE" },
+    });
+    expect(fixture.harness.store.snapshot()).toEqual(before);
+    expect(fixture.harness.publisher.events).toEqual([]);
+  });
+
+  it("rejects a reversal before the original date without partial state or events", async () => {
+    const fixture = await prepared();
+    const before = fixture.harness.store.snapshot();
+
+    const result = await useCase(fixture.harness).execute(
+      command({ occurredOn: "2026-08-03" }),
+    );
+
+    expect(result).toMatchObject({
+      ok: false,
+      error: { code: "REVERSAL_DATE_BEFORE_ORIGINAL" },
+    });
+    expect(fixture.harness.store.snapshot()).toEqual(before);
+    expect(fixture.harness.publisher.events).toEqual([]);
+  });
+
   it("rejects a missing journal entry without state or events", async () => {
     const fixture = await prepared();
     const before = fixture.harness.store.snapshot();

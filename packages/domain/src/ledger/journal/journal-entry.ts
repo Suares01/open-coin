@@ -170,10 +170,24 @@ export class JournalEntry extends AggregateRoot<
   }
 
   createReversal(input: CreateJournalEntryReversalInput): JournalEntry {
+    if (this.reversalOf !== undefined) {
+      throw new DomainError(
+        "JOURNAL_ENTRY_REVERSAL_NOT_REVERSIBLE",
+        "A journal entry reversal cannot be reversed",
+      );
+    }
+
     if (this.reversedBy !== undefined) {
       throw new DomainError(
         "JOURNAL_ENTRY_ALREADY_REVERSED",
         "Journal entry has already been reversed",
+      );
+    }
+
+    if (input.occurredOn.value < this.occurredOn.value) {
+      throw new DomainError(
+        "REVERSAL_DATE_BEFORE_ORIGINAL",
+        "A reversal cannot occur before the original journal entry",
       );
     }
 

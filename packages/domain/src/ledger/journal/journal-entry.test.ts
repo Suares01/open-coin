@@ -226,6 +226,29 @@ describe("JournalEntry", () => {
     ]);
   });
 
+  it.each(["2026-08-04", "2026-08-05"] as const)(
+    "accepts a reversal on the original date or later (%s)",
+    (occurredOn) => {
+      const reversal = validEntry().createReversal({
+        id: journalEntryIdFromString("reversal-1"),
+        occurredOn: LocalDate.parse(occurredOn),
+        recordedAt: "2026-08-05T12:00:00.000Z",
+        sequence: "8",
+        description: "Reverse",
+        postingIds: [
+          postingIdFromString("reversal-posting-a"),
+          postingIdFromString("reversal-posting-b"),
+        ],
+      });
+
+      expect(reversal.reversalOf).toBe("entry-1");
+      expect(reversal.postings.map((posting) => posting.amount.amountMinor)).toEqual([
+        -100n,
+        100n,
+      ]);
+    },
+  );
+
   it("does not mutate the original while creating a reversal", () => {
     const entry = validEntry();
     entry.pullDomainFacts();
@@ -319,6 +342,60 @@ describe("JournalEntry", () => {
         postingIds: [postingIdFromString("reversal-posting-a")],
       }),
     ).toThrowError(expect.objectContaining({ code: "INVALID_REVERSAL_POSTINGS" }));
+  });
+
+  it("rejects a reversal before the original date without mutating it", () => {
+    const entry = validEntry();
+    entry.pullDomainFacts();
+    const before = entry.toSnapshot();
+
+    expect(() =>
+      entry.createReversal({
+        id: journalEntryIdFromString("reversal-1"),
+        occurredOn: LocalDate.parse("2026-08-03"),
+        recordedAt: "2026-08-03T12:00:00.000Z",
+        sequence: "8",
+        description: "Invalid reverse",
+        postingIds: [
+          postingIdFromString("reversal-posting-a"),
+          postingIdFromString("reversal-posting-b"),
+        ],
+      }),
+    ).toThrowError(expect.objectContaining({ code: "REVERSAL_DATE_BEFORE_ORIGINAL" }));
+    expect(entry.toSnapshot()).toEqual(before);
+    expect(entry.pullDomainFacts()).toEqual([]);
+  });
+
+  it("rejects reversing an existing reversal without mutating it", () => {
+    const reversal = validEntry().createReversal({
+      id: journalEntryIdFromString("reversal-1"),
+      occurredOn: LocalDate.parse("2026-08-05"),
+      recordedAt: "2026-08-05T12:00:00.000Z",
+      sequence: "8",
+      description: "Reverse",
+      postingIds: [
+        postingIdFromString("reversal-posting-a"),
+        postingIdFromString("reversal-posting-b"),
+      ],
+    });
+    const before = reversal.toSnapshot();
+
+    expect(() =>
+      reversal.createReversal({
+        id: journalEntryIdFromString("reversal-2"),
+        occurredOn: LocalDate.parse("2026-08-06"),
+        recordedAt: "2026-08-06T12:00:00.000Z",
+        sequence: "9",
+        description: "Reverse twice",
+        postingIds: [
+          postingIdFromString("second-reversal-a"),
+          postingIdFromString("second-reversal-b"),
+        ],
+      }),
+    ).toThrowError(
+      expect.objectContaining({ code: "JOURNAL_ENTRY_REVERSAL_NOT_REVERSIBLE" }),
+    );
+    expect(reversal.toSnapshot()).toEqual(before);
   });
 
   it.each([
