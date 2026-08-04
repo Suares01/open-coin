@@ -544,11 +544,11 @@ T29 -> T30 -> T31 -> T32 -> T33
 
 **Done when**:
 
-- [ ] Command primitivo cria livro e propósitos/tipos exatos das quatro contas.
-- [ ] Falha intermediária deixa zero agregados e zero eventos.
-- [ ] Sucesso publica um `FinancialBookCreated` seguido de quatro `LedgerAccountCreated` após commit.
-- [ ] Output contém somente primitivos serializáveis.
-- [ ] Pelo menos 10 testes cross-layer passam.
+- [x] Command primitivo cria livro e propósitos/tipos exatos das quatro contas.
+- [x] Falha intermediária deixa zero agregados e zero eventos.
+- [x] Sucesso publica um `FinancialBookCreated` seguido de quatro `LedgerAccountCreated` após commit.
+- [x] Output contém somente primitivos serializáveis.
+- [x] Pelo menos 10 testes cross-layer passam.
 
 **Tests**: integration
 **Gate**: Full

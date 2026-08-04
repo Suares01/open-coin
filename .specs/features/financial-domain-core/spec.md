@@ -249,10 +249,10 @@ Toda ambiguidade está resolvida ou registrada aqui.
 | FDC-03 | P1: Primitivas financeiras seguras | Design | Pending |
 | FDC-04 | P1: Primitivas financeiras seguras | Design | Pending |
 | FDC-05 | P1: Primitivas financeiras seguras | Design | Pending |
-| FDC-06 | P1: Criar um livro financeiro isolado | Design | Pending |
-| FDC-07 | P1: Criar um livro financeiro isolado | Design | Pending |
-| FDC-08 | P1: Criar um livro financeiro isolado | Design | Pending |
-| FDC-09 | P1: Criar um livro financeiro isolado | Design | Pending |
+| FDC-06 | P1: Criar um livro financeiro isolado | Design | Verified |
+| FDC-07 | P1: Criar um livro financeiro isolado | Design | Verified |
+| FDC-08 | P1: Criar um livro financeiro isolado | Design | Verified |
+| FDC-09 | P1: Criar um livro financeiro isolado | Design | Verified |
 | FDC-10 | P1: Criar um livro financeiro isolado | Design | Pending |
 | FDC-11 | P1: Criar um livro financeiro isolado | Design | Pending |
 | FDC-12 | P1: Criar contas financeiras e categorias | Design | Pending |
@@ -295,7 +295,7 @@ Toda ambiguidade está resolvida ou registrada aqui.
 | FDC-49 | P1: Execução atômica e determinística | Design | Pending |
 | FDC-50 | P1: Execução atômica e determinística | Design | Pending |
 | FDC-51 | P1: Execução atômica e determinística | Design | Pending |
-| FDC-52 | P1: Execução atômica e determinística | Design | Pending |
+| FDC-52 | P1: Execução atômica e determinística | Design | Verified |
 | FDC-53 | P1: Execução atômica e determinística | Design | Pending |
 | FDC-54 | P1: Execução atômica e determinística | Design | Pending |
 | FDC-55 | P1: Execução atômica e determinística | Design | Pending |
