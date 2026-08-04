@@ -692,11 +692,11 @@ T19 → T20 → T21 → T22 → T23 → T24 → T25
 
 **Done when**:
 
-- [ ] Postings, sinais, erros, fatos e ausência de partial writes são idênticos.
-- [ ] Repetição de saldo inicial e sequência transacional são cobertas.
-- [ ] 29 cenários são definidos e executados duas vezes: 58 casos passam.
-- [ ] Tests memory originais permanecem intactos e verdes.
-- [ ] Test count: 58 execuções compartilhadas; nenhum teste removido.
+- [x] Postings, sinais, erros, fatos e ausência de partial writes são idênticos.
+- [x] Repetição de saldo inicial e sequência transacional são cobertas.
+- [x] 29 cenários são definidos e executados duas vezes: 58 casos passam.
+- [x] Tests memory originais permanecem intactos e verdes.
+- [x] Test count: 58 execuções compartilhadas; nenhum teste removido.
 
 **Tests**: integration
 **Gate**: full
