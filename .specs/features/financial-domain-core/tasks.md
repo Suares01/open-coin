@@ -373,10 +373,10 @@ T29 -> T30 -> T31 -> T32 -> T33
 
 **Done when**:
 
-- [ ] Repositories existem apenas para três aggregate roots.
-- [ ] `LedgerQueries` retorna views e não agregados.
-- [ ] Commands e DTOs não contêm `Money`, `LocalDate`, `bigint` ou entidades.
-- [ ] Contratos compilam sem import de infraestrutura.
+- [x] Repositories existem apenas para três aggregate roots.
+- [x] `LedgerQueries` retorna views e não agregados.
+- [x] Commands e DTOs não contêm `Money`, `LocalDate`, `bigint` ou entidades.
+- [x] Contratos compilam sem import de infraestrutura.
 
 **Tests**: build-only (matrix: none)
 **Gate**: Quick application
