@@ -177,10 +177,10 @@ T29 -> T30 -> T31 -> T32 -> T33
 
 **Done when**:
 
-- [ ] Criação, zero, soma, subtração, negação, absoluto e igualdade usam somente `bigint`.
-- [ ] Operações entre moedas diferentes retornam o erro exato.
-- [ ] Inputs não sofrem mutação.
-- [ ] Pelo menos 9 testes direcionados cobrem todas as branches.
+- [x] Criação, zero, soma, subtração, negação, absoluto e igualdade usam somente `bigint`.
+- [x] Operações entre moedas diferentes retornam o erro exato.
+- [x] Inputs não sofrem mutação.
+- [x] Pelo menos 9 testes direcionados cobrem todas as branches.
 
 **Tests**: unit
 **Gate**: Quick domain
