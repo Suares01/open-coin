@@ -120,11 +120,11 @@ T19 → T20 → T21 → T22 → T23 → T24 → T25
 
 **Done when**:
 
-- [ ] Os tipos aceitam somente string, number, Uint8Array e null.
-- [ ] `SqliteDatabase` estende `SqliteExecutor` com transaction e close.
-- [ ] O build prova as assinaturas genéricas e declarações emitidas.
-- [ ] Nenhum import de plataforma entra nos contratos.
-- [ ] Test count: 0 novos casos; matrix confirma build-only.
+- [x] Os tipos aceitam somente string, number, Uint8Array e null.
+- [x] `SqliteDatabase` estende `SqliteExecutor` com transaction e close.
+- [x] O build prova as assinaturas genéricas e declarações emitidas.
+- [x] Nenhum import de plataforma entra nos contratos.
+- [x] Test count: 0 novos casos; matrix confirma build-only.
 
 **Tests**: none (build gate only)
 **Gate**: build
