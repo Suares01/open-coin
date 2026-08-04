@@ -394,11 +394,11 @@ T29 -> T30 -> T31 -> T32 -> T33
 
 **Done when**:
 
-- [ ] Erro interno esperado ou inesperado vira `Result.fail` estável.
-- [ ] Fatos só são envelopados e publicados após callback transacional bem-sucedido.
-- [ ] Falha publica zero eventos.
-- [ ] Clock e ID generator fixos produzem envelopes idênticos.
-- [ ] Pelo menos 8 testes unitários passam.
+- [x] Erro interno esperado ou inesperado vira `Result.fail` estável.
+- [x] Fatos só são envelopados e publicados após callback transacional bem-sucedido.
+- [x] Falha publica zero eventos.
+- [x] Clock e ID generator fixos produzem envelopes idênticos.
+- [x] Pelo menos 8 testes unitários passam.
 
 **Tests**: unit
 **Gate**: Quick application
