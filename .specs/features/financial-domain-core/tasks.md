@@ -458,10 +458,10 @@ T29 -> T30 -> T31 -> T32 -> T33
 
 **Done when**:
 
-- [ ] Add/find/save e busca por system purpose retornam cópias reidratadas.
-- [ ] Busca de nome respeita livro, tipo e normalized name.
-- [ ] Duplicidade e conflito preservam o snapshot anterior.
-- [ ] Pelo menos 8 testes de contrato passam.
+- [x] Add/find/save e busca por system purpose retornam cópias reidratadas.
+- [x] Busca de nome respeita livro, tipo e normalized name.
+- [x] Duplicidade e conflito preservam o snapshot anterior.
+- [x] Pelo menos 8 testes de contrato passam.
 
 **Tests**: integration
 **Gate**: Full
