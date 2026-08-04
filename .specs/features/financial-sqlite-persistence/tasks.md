@@ -175,15 +175,15 @@ T19 → T20 → T21 → T22 → T23 → T24 → T25
 
 **Done when**:
 
-- [ ] Parâmetros posicionais/nomeados são vinculados sem interpolação.
-- [ ] Execute/query/batch retornam o contrato definido.
-- [ ] Toda operação pública respeita FIFO.
-- [ ] Query externa espera uma transação ativa e não participa dela.
-- [ ] Executor escopado falha depois de commit ou rollback.
-- [ ] Callback/commit failure reverte quando ativo e preserva o erro original.
-- [ ] Close rejeita novas submissões e fecha uma única vez.
-- [ ] Doze testes de integração passam.
-- [ ] Test count: 12 novos casos; nenhum teste removido.
+- [x] Parâmetros posicionais/nomeados são vinculados sem interpolação.
+- [x] Execute/query/batch retornam o contrato definido.
+- [x] Toda operação pública respeita FIFO.
+- [x] Query externa espera uma transação ativa e não participa dela.
+- [x] Executor escopado falha depois de commit ou rollback.
+- [x] Callback/commit failure reverte quando ativo e preserva o erro original.
+- [x] Close rejeita novas submissões e fecha uma única vez.
+- [x] Doze testes de integração passam.
+- [x] Test count: 12 novos casos; nenhum teste removido.
 
 **Tests**: integration
 **Gate**: full
