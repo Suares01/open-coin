@@ -2,6 +2,7 @@ export { Posting } from "./posting.js";
 export type { CreatePostingInput, PostingSnapshot } from "./posting.js";
 export { JournalEntry } from "./journal-entry.js";
 export type {
+  CreateJournalEntryReversalInput,
   JournalEntryOrigin,
   JournalEntrySnapshot,
   PostJournalEntryInput,

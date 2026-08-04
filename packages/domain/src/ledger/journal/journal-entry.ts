@@ -2,6 +2,7 @@ import { Currency } from "../../shared/identity/currency.js";
 import type {
   BookId,
   JournalEntryId,
+  PostingId,
 } from "../../shared/identity/ids.js";
 import { AggregateRoot } from "../../shared/kernel/aggregate-root.js";
 import { DomainError } from "../../shared/kernel/domain-error.js";
@@ -32,6 +33,13 @@ export interface PostJournalEntryInput {
   readonly currency: Currency;
   readonly origin: JournalEntryOrigin;
   readonly postings: readonly Posting[];
+}
+
+export interface CreateJournalEntryReversalInput {
+  readonly id: JournalEntryId;
+  readonly occurredOn: LocalDate;
+  readonly description: string;
+  readonly postingIds: readonly PostingId[];
 }
 
 export type RestoreJournalEntryInput = JournalEntrySnapshot;
@@ -140,9 +148,78 @@ export class JournalEntry extends AggregateRoot<
     return this.entryVersion;
   }
 
+  createReversal(input: CreateJournalEntryReversalInput): JournalEntry {
+    if (this.reversedBy !== undefined) {
+      throw new DomainError(
+        "JOURNAL_ENTRY_ALREADY_REVERSED",
+        "Journal entry has already been reversed",
+      );
+    }
+
+    if (input.postingIds.length !== this.postings.length) {
+      throw new DomainError(
+        "INVALID_REVERSAL_POSTINGS",
+        "A reversal requires one posting id for each original posting",
+      );
+    }
+
+    const reversedPostings = this.postings.map((posting, index) => {
+      const postingId = input.postingIds[index];
+      if (postingId === undefined) {
+        throw new DomainError(
+          "INVALID_REVERSAL_POSTINGS",
+          "A reversal requires one posting id for each original posting",
+        );
+      }
+
+      return posting.reverse(postingId);
+    });
+    const description = input.description.trim();
+    if (description.length === 0) {
+      throw new DomainError(
+        "INVALID_JOURNAL_DESCRIPTION",
+        "Journal entry description cannot be empty",
+      );
+    }
+
+    const reversal = new JournalEntry(
+      input.id,
+      this.bookId,
+      input.occurredOn,
+      description,
+      this.currency,
+      "SYSTEM",
+      reversedPostings,
+      this.id,
+      undefined,
+      0,
+    );
+    reversal.recordFact({
+      type: "JournalEntryPosted",
+      aggregateId: reversal.id,
+      payload: reversal.toSnapshot(),
+    });
+    return reversal;
+  }
+
   markReversedBy(id: JournalEntryId): void {
+    if (this.reversedBy !== undefined) {
+      throw new DomainError(
+        "JOURNAL_ENTRY_ALREADY_REVERSED",
+        "Journal entry has already been reversed",
+      );
+    }
+
     this.entryReversedBy = id;
     this.entryVersion += 1;
+    this.recordFact({
+      type: "JournalEntryReversed",
+      aggregateId: this.id,
+      payload: {
+        originalId: this.id,
+        reversalId: id,
+      },
+    });
   }
 
   toSnapshot(): JournalEntrySnapshot {

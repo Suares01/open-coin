@@ -174,4 +174,122 @@ describe("JournalEntry", () => {
     expect(entry.reversedBy).toBe("reversal-1");
     expect(entry.version).toBe(1);
   });
+
+  it("creates a system reversal with opposite postings and a new identity", () => {
+    const entry = validEntry();
+
+    const reversal = entry.createReversal({
+      id: journalEntryIdFromString("reversal-1"),
+      occurredOn: LocalDate.parse("2026-08-05"),
+      description: "  Reverse opening balance  ",
+      postingIds: [
+        postingIdFromString("reversal-posting-a"),
+        postingIdFromString("reversal-posting-b"),
+      ],
+    });
+
+    expect(reversal.id).toBe("reversal-1");
+    expect(reversal.origin).toBe("SYSTEM");
+    expect(reversal.reversalOf).toBe("entry-1");
+    expect(reversal.reversedBy).toBeUndefined();
+    expect(reversal.postings.map((posting) => posting.toSnapshot())).toEqual([
+      {
+        id: "reversal-posting-a",
+        accountId: "account-a",
+        amountMinor: -100n,
+        currency: "USD",
+      },
+      {
+        id: "reversal-posting-b",
+        accountId: "account-b",
+        amountMinor: 100n,
+        currency: "USD",
+      },
+    ]);
+  });
+
+  it("does not mutate the original while creating a reversal", () => {
+    const entry = validEntry();
+    entry.pullDomainFacts();
+    const before = entry.toSnapshot();
+
+    entry.createReversal({
+      id: journalEntryIdFromString("reversal-1"),
+      occurredOn: LocalDate.parse("2026-08-05"),
+      description: "Reverse",
+      postingIds: [
+        postingIdFromString("reversal-posting-a"),
+        postingIdFromString("reversal-posting-b"),
+      ],
+    });
+
+    expect(entry.toSnapshot()).toEqual(before);
+    expect(entry.pullDomainFacts()).toEqual([]);
+  });
+
+  it("records the reversal link and fact on the original", () => {
+    const entry = validEntry();
+    entry.pullDomainFacts();
+
+    entry.markReversedBy(journalEntryIdFromString("reversal-1"));
+
+    expect(entry.reversedBy).toBe("reversal-1");
+    expect(entry.version).toBe(1);
+    expect(entry.pullDomainFacts()).toEqual([
+      expect.objectContaining({
+        type: "JournalEntryReversed",
+        aggregateId: "entry-1",
+        payload: { originalId: "entry-1", reversalId: "reversal-1" },
+      }),
+    ]);
+  });
+
+  it("rejects a second reversal without changing the original", () => {
+    const entry = validEntry();
+    entry.markReversedBy(journalEntryIdFromString("reversal-1"));
+    entry.pullDomainFacts();
+    const before = entry.toSnapshot();
+
+    expect(() =>
+      entry.createReversal({
+        id: journalEntryIdFromString("reversal-2"),
+        occurredOn: LocalDate.parse("2026-08-05"),
+        description: "Reverse again",
+        postingIds: [
+          postingIdFromString("reversal-posting-a"),
+          postingIdFromString("reversal-posting-b"),
+        ],
+      }),
+    ).toThrowError(
+      expect.objectContaining({ code: "JOURNAL_ENTRY_ALREADY_REVERSED" }),
+    );
+    expect(entry.toSnapshot()).toEqual(before);
+    expect(entry.pullDomainFacts()).toEqual([]);
+  });
+
+  it("rejects a second link without mutating version or facts", () => {
+    const entry = validEntry();
+    entry.markReversedBy(journalEntryIdFromString("reversal-1"));
+    entry.pullDomainFacts();
+    const before = entry.toSnapshot();
+
+    expect(() =>
+      entry.markReversedBy(journalEntryIdFromString("reversal-2")),
+    ).toThrowError(
+      expect.objectContaining({ code: "JOURNAL_ENTRY_ALREADY_REVERSED" }),
+    );
+    expect(entry.toSnapshot()).toEqual(before);
+    expect(entry.pullDomainFacts()).toEqual([]);
+  });
+
+  it("rejects a reversal with an incomplete posting id list", () => {
+    expect(() =>
+      validEntry().createReversal({
+        id: journalEntryIdFromString("reversal-1"),
+        occurredOn: LocalDate.parse("2026-08-05"),
+        description: "Reverse",
+        postingIds: [postingIdFromString("reversal-posting-a")],
+      }),
+    ).toThrowError(expect.objectContaining({ code: "INVALID_REVERSAL_POSTINGS" }));
+  });
 });

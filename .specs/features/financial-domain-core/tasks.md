@@ -307,10 +307,10 @@ T29 -> T30 -> T31 -> T32 -> T33
 
 **Done when**:
 
-- [ ] Reversor possui valores exatamente opostos, `reversalOf` e nova identidade.
-- [ ] Original recebe `reversedBy`, incrementa versão e preserva seus postings.
-- [ ] Segunda reversão retorna `JOURNAL_ENTRY_ALREADY_REVERSED` sem mutação.
-- [ ] Pelo menos 7 testes direcionados passam.
+- [x] Reversor possui valores exatamente opostos, `reversalOf` e nova identidade.
+- [x] Original recebe `reversedBy`, incrementa versão e preserva seus postings.
+- [x] Segunda reversão retorna `JOURNAL_ENTRY_ALREADY_REVERSED` sem mutação.
+- [x] Pelo menos 7 testes direcionados passam.
 
 **Tests**: unit
 **Gate**: Quick domain
