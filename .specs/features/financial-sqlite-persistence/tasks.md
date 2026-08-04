@@ -746,11 +746,11 @@ T19 → T20 → T21 → T22 → T23 → T24 → T25
 
 **Done when**:
 
-- [ ] DTOs, signs, asOf, ordering, running balance, reversals e isolamento são idênticos.
-- [ ] Values acima de Number.MAX_SAFE_INTEGER permanecem strings exatas.
-- [ ] 16 cenários são definidos e executados duas vezes: 32 casos passam.
-- [ ] Tests memory originais permanecem intactos e verdes.
-- [ ] Test count: 32 execuções compartilhadas; nenhum teste removido.
+- [x] DTOs, signs, asOf, ordering, running balance, reversals e isolamento são idênticos.
+- [x] Values acima de Number.MAX_SAFE_INTEGER permanecem strings exatas.
+- [x] 16 cenários são definidos e executados duas vezes: 32 casos passam.
+- [x] Tests memory originais permanecem intactos e verdes.
+- [x] Test count: 32 execuções compartilhadas; nenhum teste removido.
 
 **Tests**: integration
 **Gate**: full
