@@ -221,10 +221,10 @@ T29 -> T30 -> T31 -> T32 -> T33
 
 **Done when**:
 
-- [ ] Nome usa `trim`, timezone não vazio e versão inicial é zero.
-- [ ] Moeda-base não possui transição de alteração.
-- [ ] Snapshot/restauração preservam valor e não preservam fatos pendentes.
-- [ ] Pelo menos 7 testes direcionados passam.
+- [x] Nome usa `trim`, timezone não vazio e versão inicial é zero.
+- [x] Moeda-base não possui transição de alteração.
+- [x] Snapshot/restauração preservam valor e não preservam fatos pendentes.
+- [x] Pelo menos 7 testes direcionados passam.
 
 **Tests**: unit
 **Gate**: Quick domain
