@@ -16,7 +16,6 @@ import { describe, expect, it } from "vitest";
 import type {
   SqliteExecutionResult,
   SqliteExecutor,
-  SqliteParameters,
 } from "../database/index.js";
 import { createSqliteRepositoryContext } from "./create-sqlite-repository-context.js";
 
@@ -26,7 +25,6 @@ class RecordingExecutor implements SqliteExecutor {
 
   public async execute(
     sql: string,
-    _parameters?: SqliteParameters,
   ): Promise<SqliteExecutionResult> {
     this.executions.push(sql);
     return { rowsAffected: 1, lastInsertRowId: "1" };
@@ -34,13 +32,12 @@ class RecordingExecutor implements SqliteExecutor {
 
   public async query<Row extends Record<string, unknown>>(
     sql: string,
-    _parameters?: SqliteParameters,
   ): Promise<Row[]> {
     this.queries.push(sql);
     return [];
   }
 
-  public async executeBatch(_sql: string): Promise<void> {}
+  public async executeBatch(): Promise<void> {}
 }
 
 class RecordingFacts implements DomainFactCollector {

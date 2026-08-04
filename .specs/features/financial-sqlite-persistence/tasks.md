@@ -577,14 +577,14 @@ T19 → T20 → T21 → T22 → T23 → T24 → T25
 
 **Done when**:
 
-- [ ] Commit retorna valor e fatos na ordem confirmada.
-- [ ] Falha após cada write e reserva reverte todo o estado.
-- [ ] Fatos revertidos não vazam para a próxima transação.
-- [ ] Erro application/domain preserva identidade; driver error é sanitizado.
-- [ ] Callbacks concorrentes e queries externas não intercalam.
-- [ ] Nove testes de integração passam.
-- [ ] Gate de fase Build passa com baseline preservado.
-- [ ] Test count: 9 novos casos; nenhum teste removido.
+- [x] Commit retorna valor e fatos na ordem confirmada.
+- [x] Falha após cada write e reserva reverte todo o estado.
+- [x] Fatos revertidos não vazam para a próxima transação.
+- [x] Erro application/domain preserva identidade; driver error é sanitizado.
+- [x] Callbacks concorrentes e queries externas não intercalam.
+- [x] Nove testes de integração passam.
+- [x] Gate de fase Build passa com baseline preservado.
+- [x] Test count: 9 novos casos; nenhum teste removido.
 
 **Tests**: integration
 **Gate**: build
