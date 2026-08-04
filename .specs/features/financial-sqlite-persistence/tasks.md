@@ -293,12 +293,12 @@ T19 → T20 → T21 → T22 → T23 → T24 → T25
 
 **Done when**:
 
-- [ ] PRAGMAs são aplicados antes da primeira transação do runner.
-- [ ] Migrations padrão podem ser substituídas somente para testes.
-- [ ] Inicialização repetida preserva schema e histórico.
-- [ ] Quatro testes de integração cobrem memória, arquivo, ordem e repetição.
-- [ ] Gate de fase Build passa com contagem preservada.
-- [ ] Test count: 4 novos casos; nenhum teste removido.
+- [x] PRAGMAs são aplicados antes da primeira transação do runner.
+- [x] Migrations padrão podem ser substituídas somente para testes.
+- [x] Inicialização repetida preserva schema e histórico.
+- [x] Quatro testes de integração cobrem memória, arquivo, ordem e repetição.
+- [x] Gate de fase Build passa com contagem preservada.
+- [x] Test count: 4 novos casos; nenhum teste removido.
 
 **Tests**: integration
 **Gate**: build
