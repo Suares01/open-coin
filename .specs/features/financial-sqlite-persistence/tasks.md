@@ -377,13 +377,13 @@ T19 → T20 → T21 → T22 → T23 → T24 → T25
 
 **Done when**:
 
-- [ ] Find retorna null ou nova instância equivalente.
-- [ ] Add rejeita versão e ID inválidos com códigos exatos.
-- [ ] Save usa WHERE version e exige versão N+1.
-- [ ] Zero rows separa ausência de conflito sem sobrescrever estado.
-- [ ] Fatos são coletados somente depois da escrita bem-sucedida.
-- [ ] Oito testes de integração passam.
-- [ ] Test count: 8 novos casos; nenhum teste removido.
+- [x] Find retorna null ou nova instância equivalente.
+- [x] Add rejeita versão e ID inválidos com códigos exatos.
+- [x] Save usa WHERE version e exige versão N+1.
+- [x] Zero rows separa ausência de conflito sem sobrescrever estado.
+- [x] Fatos são coletados somente depois da escrita bem-sucedida.
+- [x] Oito testes de integração passam.
+- [x] Test count: 8 novos casos; nenhum teste removido.
 
 **Tests**: integration
 **Gate**: full
