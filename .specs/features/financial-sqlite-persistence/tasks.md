@@ -321,13 +321,13 @@ T19 → T20 → T21 → T22 → T23 → T24 → T25
 
 **Done when**:
 
-- [ ] Driver error preserva code, extendedCode, message e cause internamente.
-- [ ] UNIQUE/PRIMARY KEY mapeiam para DUPLICATE_ENTITY.
-- [ ] Demais constraints/overflow mapeiam para UNEXPECTED_ERROR.
-- [ ] ApplicationError e DomainError existentes não são remapeados.
-- [ ] Mensagem pública não contém SQL, parâmetros ou caminho.
-- [ ] Oito testes unitários cobrem todos os branches.
-- [ ] Test count: 8 novos casos; nenhum teste removido.
+- [x] Driver error preserva code, extendedCode, message e cause internamente.
+- [x] UNIQUE/PRIMARY KEY mapeiam para DUPLICATE_ENTITY.
+- [x] Demais constraints/overflow mapeiam para UNEXPECTED_ERROR.
+- [x] ApplicationError e DomainError existentes não são remapeados.
+- [x] Mensagem pública não contém SQL, parâmetros ou caminho.
+- [x] Oito testes unitários cobrem todos os branches.
+- [x] Test count: 8 novos casos; nenhum teste removido.
 
 **Tests**: unit
 **Gate**: quick
