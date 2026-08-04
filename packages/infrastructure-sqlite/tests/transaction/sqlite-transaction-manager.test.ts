@@ -67,6 +67,41 @@ function entryWithMissingAccount(): JournalEntry {
   });
 }
 
+function persistedEntry(
+  id: string,
+  sequence: string,
+  overrides: {
+    readonly reversalOf?: string;
+  } = {},
+): JournalEntry {
+  return JournalEntry.restore({
+    id: journalEntryIdFromString(id),
+    bookId: "book-1" as never,
+    occurredOn: "2026-08-04",
+    recordedAt: "2026-08-04T12:00:00.000Z",
+    sequence,
+    description: id,
+    currency: "BRL",
+    origin: "MANUAL",
+    postings: [
+      {
+        id: `${id}-posting-1` as never,
+        accountId: ledgerAccountIdFromString("account-1"),
+        amountMinor: 100n,
+        currency: "BRL",
+      },
+      {
+        id: `${id}-posting-2` as never,
+        accountId: ledgerAccountIdFromString("account-2"),
+        amountMinor: -100n,
+        currency: "BRL",
+      },
+    ],
+    version: 0,
+    ...overrides,
+  });
+}
+
 describe("SqliteTransactionManager", () => {
   let database: BetterSqliteDatabase;
   let manager: SqliteTransactionManager;
@@ -257,5 +292,58 @@ describe("SqliteTransactionManager", () => {
       value: "empty",
       facts: [],
     });
+  });
+
+  it("restores pre-existing version, reversal link and sequence on rollback", async () => {
+    await manager.execute(async (repositories) => {
+      await repositories.books.add(book());
+      await repositories.accounts.add(account("account-1"));
+      await repositories.accounts.add(account("account-2"));
+      await repositories.journalEntries.reserveNextSequence("book-1" as never);
+      await repositories.journalEntries.add(persistedEntry("entry-1", "1"));
+      await repositories.journalEntries.reserveNextSequence("book-1" as never);
+      await repositories.journalEntries.add(
+        persistedEntry("reversal-entry", "2", { reversalOf: "entry-1" }),
+      );
+    });
+
+    await expect(
+      manager.execute(async (repositories) => {
+        await expect(
+          repositories.journalEntries.reserveNextSequence("book-1" as never),
+        ).resolves.toBe("3");
+        await repositories.journalEntries.save(
+          JournalEntry.restore({
+            ...persistedEntry("entry-1", "1").toSnapshot(),
+            version: 1,
+            reversedBy: "reversal-entry" as never,
+          }),
+          0,
+        );
+        throw new Error("restore state");
+      }),
+    ).rejects.toThrow("restore state");
+
+    const state = await manager.execute(async (repositories) => ({
+      original: await repositories.journalEntries.findById(
+        journalEntryIdFromString("entry-1"),
+      ),
+      reversal: await repositories.journalEntries.findById(
+        journalEntryIdFromString("reversal-entry"),
+      ),
+    }));
+    expect(state.value.original?.toSnapshot()).toMatchObject({
+      version: 0,
+    });
+    expect(state.value.original?.toSnapshot()).not.toHaveProperty("reversedBy");
+    expect(state.value.reversal?.toSnapshot()).toMatchObject({
+      reversalOf: "entry-1",
+    });
+    expect(
+      await database.query<{ readonly sequence: string }>(
+        "SELECT CAST(last_sequence AS TEXT) AS sequence FROM journal_sequences WHERE book_id = ?",
+        ["book-1"],
+      ),
+    ).toEqual([{ sequence: "2" }]);
   });
 });
