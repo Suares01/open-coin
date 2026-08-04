@@ -55,6 +55,8 @@ export class InMemoryLedgerQueries implements LedgerQueries {
       return {
         journalEntryId: entry.journalEntryId,
         occurredOn: entry.occurredOn,
+        recordedAt: entry.recordedAt,
+        sequence: entry.sequence,
         description: entry.description,
         amountMinor: entry.amountMinor.toString(),
         runningBalanceMinor: toDisplayedAmount(rawRunningBalance, account.kind),
@@ -75,6 +77,8 @@ export class InMemoryLedgerQueries implements LedgerQueries {
           .map((posting) => ({
             journalEntryId: entry.id,
             occurredOn: entry.occurredOn,
+            recordedAt: entry.recordedAt,
+            sequence: entry.sequence,
             description: entry.description,
             amountMinor: posting.amountMinor,
             currency: posting.currency,
@@ -90,6 +94,8 @@ export class InMemoryLedgerQueries implements LedgerQueries {
 interface AccountPosting {
   readonly journalEntryId: string;
   readonly occurredOn: string;
+  readonly recordedAt: string;
+  readonly sequence: string;
   readonly description: string;
   readonly amountMinor: bigint;
   readonly currency: string;
@@ -97,9 +103,21 @@ interface AccountPosting {
 
 function compareAscending(left: AccountPosting, right: AccountPosting): number {
   const dateOrder = left.occurredOn.localeCompare(right.occurredOn);
-  return dateOrder === 0
-    ? left.journalEntryId.localeCompare(right.journalEntryId)
-    : dateOrder;
+  if (dateOrder !== 0) {
+    return dateOrder;
+  }
+
+  return compareDecimalStrings(left.sequence, right.sequence);
+}
+
+function compareDecimalStrings(left: string, right: string): number {
+  const normalizedLeft = left.replace(/^0+(?=\d)/, "");
+  const normalizedRight = right.replace(/^0+(?=\d)/, "");
+  if (normalizedLeft.length !== normalizedRight.length) {
+    return normalizedLeft.length - normalizedRight.length;
+  }
+
+  return normalizedLeft.localeCompare(normalizedRight);
 }
 
 function toDisplayedAmount(amountMinor: bigint, kind: Parameters<typeof normalBalanceOf>[0]): string {

@@ -855,10 +855,10 @@ T34 -> T35 -> T36 -> T37 -> T38 -> T39 -> T40 -> T41
 
 **Done when**:
 
-- [ ] O cálculo usa `occurredOn ASC, sequence ASC` e o retorno usa a ordem inversa.
-- [ ] IDs fora de ordem lexical não alteram a ordem real de registro.
-- [ ] Saldos intermediários de quatro movimentações no mesmo dia correspondem à sequência confirmada.
-- [ ] O Full gate passa com ao menos três novos cenários de ordenação e sem regressão nos 264 testes existentes.
+- [x] O cálculo usa `occurredOn ASC, sequence ASC` e o retorno usa a ordem inversa.
+- [x] IDs fora de ordem lexical não alteram a ordem real de registro.
+- [x] Saldos intermediários de quatro movimentações no mesmo dia correspondem à sequência confirmada.
+- [x] O Full gate passa com ao menos três novos cenários de ordenação e sem regressão nos 264 testes existentes.
 
 **Tests**: integration
 **Gate**: Full

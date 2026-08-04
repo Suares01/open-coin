@@ -181,6 +181,8 @@ describe("GetAccountStatement", () => {
         {
           journalEntryId: "entry-1",
           occurredOn: "2026-08-04",
+          recordedAt: "2026-08-04T12:00:00.000Z",
+          sequence: "1",
           description: "Lunch",
           amountMinor: "-2500",
           runningBalanceMinor: "-2500",
@@ -190,7 +192,7 @@ describe("GetAccountStatement", () => {
     });
   });
 
-  it("returns statement items in descending date and ID order with chronological balances", async () => {
+  it("returns statement items in descending date and sequence order with chronological balances", async () => {
     const harness = await preparedExpense();
     await new RecordExpense(
       harness.transactionManager,
@@ -218,6 +220,8 @@ describe("GetAccountStatement", () => {
         {
           journalEntryId: "entry-2",
           occurredOn: "2026-08-05",
+          recordedAt: "2026-08-04T12:00:00.000Z",
+          sequence: "2",
           description: "Dinner",
           amountMinor: "-1000",
           runningBalanceMinor: "-3500",
@@ -226,6 +230,8 @@ describe("GetAccountStatement", () => {
         {
           journalEntryId: "entry-1",
           occurredOn: "2026-08-04",
+          recordedAt: "2026-08-04T12:00:00.000Z",
+          sequence: "1",
           description: "Lunch",
           amountMinor: "-2500",
           runningBalanceMinor: "-2500",
@@ -327,6 +333,8 @@ describe("GetAccountStatement", () => {
       {
         journalEntryId: "entry-5",
         occurredOn: "2026-08-05",
+        recordedAt: "2026-08-04T12:00:00.000Z",
+        sequence: "5",
         description: "Reverse lunch",
         amountMinor: "2500",
         runningBalanceMinor: "13000",
@@ -335,6 +343,8 @@ describe("GetAccountStatement", () => {
       {
         journalEntryId: "entry-4",
         occurredOn: "2026-08-04",
+        recordedAt: "2026-08-04T12:00:00.000Z",
+        sequence: "4",
         description: "Move to card",
         amountMinor: "-2000",
         runningBalanceMinor: "10500",
@@ -343,6 +353,8 @@ describe("GetAccountStatement", () => {
       {
         journalEntryId: "entry-3",
         occurredOn: "2026-08-03",
+        recordedAt: "2026-08-04T12:00:00.000Z",
+        sequence: "3",
         description: "Salary",
         amountMinor: "5000",
         runningBalanceMinor: "12500",
@@ -351,6 +363,8 @@ describe("GetAccountStatement", () => {
       {
         journalEntryId: "entry-2",
         occurredOn: "2026-08-02",
+        recordedAt: "2026-08-04T12:00:00.000Z",
+        sequence: "2",
         description: "Lunch",
         amountMinor: "-2500",
         runningBalanceMinor: "7500",
@@ -359,6 +373,8 @@ describe("GetAccountStatement", () => {
       {
         journalEntryId: "entry-1",
         occurredOn: "2026-08-01",
+        recordedAt: "2026-08-04T12:00:00.000Z",
+        sequence: "1",
         description: "Opening",
         amountMinor: "10000",
         runningBalanceMinor: "10000",
@@ -374,6 +390,8 @@ describe("GetAccountStatement", () => {
       {
         journalEntryId: "entry-4",
         occurredOn: "2026-08-04",
+        recordedAt: "2026-08-04T12:00:00.000Z",
+        sequence: "4",
         description: "Move to card",
         amountMinor: "2000",
         runningBalanceMinor: "-2000",

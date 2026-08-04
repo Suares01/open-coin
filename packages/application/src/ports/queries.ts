@@ -14,6 +14,8 @@ export interface AccountBalanceView {
 export interface AccountStatementItemView {
   readonly journalEntryId: string;
   readonly occurredOn: string;
+  readonly recordedAt: string;
+  readonly sequence: string;
   readonly description: string;
   readonly amountMinor: string;
   readonly runningBalanceMinor: string;

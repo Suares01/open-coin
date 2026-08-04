@@ -39,6 +39,8 @@ export class GetAccountStatement {
       return Result.ok(items.map((item) => ({
         journalEntryId: item.journalEntryId,
         occurredOn: item.occurredOn,
+        recordedAt: item.recordedAt,
+        sequence: item.sequence,
         description: item.description,
         amountMinor: item.amountMinor,
         runningBalanceMinor: item.runningBalanceMinor,

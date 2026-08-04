@@ -37,13 +37,14 @@ function entry(
   amountMinor: bigint,
   currentBookId: BookId = bookId,
   description = id,
+  sequence = "1",
 ): JournalEntrySnapshot {
   return {
     id: id as never,
     bookId: currentBookId,
     occurredOn,
     recordedAt: "2026-08-04T12:00:00.000Z",
-    sequence: "1",
+    sequence,
     description,
     currency: "BRL",
     origin: "MANUAL",
@@ -149,6 +150,8 @@ describe("InMemoryLedgerQueries", () => {
       {
         journalEntryId: "entry-2",
         occurredOn: "2026-08-02",
+        recordedAt: "2026-08-04T12:00:00.000Z",
+        sequence: "1",
         description: "Liability payment",
         amountMinor: "-40",
         runningBalanceMinor: "-60",
@@ -157,6 +160,8 @@ describe("InMemoryLedgerQueries", () => {
       {
         journalEntryId: "entry-1",
         occurredOn: "2026-08-01",
+        recordedAt: "2026-08-04T12:00:00.000Z",
+        sequence: "1",
         description: "Liability opening",
         amountMinor: "100",
         runningBalanceMinor: "-100",
@@ -165,11 +170,11 @@ describe("InMemoryLedgerQueries", () => {
     ]);
   });
 
-  it("orders same-day statement items by journal ID descending", async () => {
+  it("orders same-day statement items by sequence descending, not journal ID", async () => {
     const { store, queries } = prepared();
     store.putAccount(account("account-asset", "ASSET"));
-    store.putJournalEntry(entry("entry-a", "2026-08-01", "account-asset", 10n));
-    store.putJournalEntry(entry("entry-b", "2026-08-01", "account-asset", 20n));
+    store.putJournalEntry(entry("entry-z", "2026-08-01", "account-asset", 10n, bookId, "First", "1"));
+    store.putJournalEntry(entry("entry-a", "2026-08-01", "account-asset", 20n, bookId, "Second", "2"));
 
     const result = await queries.getAccountStatement({
       bookId,
@@ -177,8 +182,33 @@ describe("InMemoryLedgerQueries", () => {
     });
 
     expect(result.map(({ journalEntryId }) => journalEntryId)).toEqual([
-      "entry-b",
       "entry-a",
+      "entry-z",
+    ]);
+  });
+
+  it("calculates four same-day running balances in confirmed sequence order", async () => {
+    const { store, queries } = prepared();
+    store.putAccount(account("account-asset", "ASSET"));
+    store.putJournalEntry(entry("entry-z", "2026-08-01", "account-asset", 100n, bookId, "One", "1"));
+    store.putJournalEntry(entry("entry-y", "2026-08-01", "account-asset", -25n, bookId, "Two", "2"));
+    store.putJournalEntry(entry("entry-x", "2026-08-01", "account-asset", 10n, bookId, "Three", "3"));
+    store.putJournalEntry(entry("entry-a", "2026-08-01", "account-asset", -5n, bookId, "Four", "4"));
+
+    const result = await queries.getAccountStatement({
+      bookId,
+      accountId: "account-asset" as never,
+    });
+
+    expect(result.map(({ journalEntryId, sequence, runningBalanceMinor }) => ({
+      journalEntryId,
+      sequence,
+      runningBalanceMinor,
+    }))).toEqual([
+      { journalEntryId: "entry-a", sequence: "4", runningBalanceMinor: "80" },
+      { journalEntryId: "entry-x", sequence: "3", runningBalanceMinor: "85" },
+      { journalEntryId: "entry-y", sequence: "2", runningBalanceMinor: "75" },
+      { journalEntryId: "entry-z", sequence: "1", runningBalanceMinor: "100" },
     ]);
   });
 
