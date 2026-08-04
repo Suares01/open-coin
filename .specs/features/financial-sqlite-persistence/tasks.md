@@ -463,13 +463,13 @@ T19 → T20 → T21 → T22 → T23 → T24 → T25
 
 **Done when**:
 
-- [ ] Todos os campos do entry e postings fazem round-trip exato.
-- [ ] Ordem das rows define ordem dos postings sem compartilhar arrays.
-- [ ] Valores acima de Number.MAX_SAFE_INTEGER são preservados.
-- [ ] Amount fora de 64 bits é rejeitado antes dos parâmetros.
-- [ ] Rows vazias/inconsistentes e enums inválidos falham.
-- [ ] Sete testes unitários passam.
-- [ ] Test count: 7 novos casos; nenhum teste removido.
+- [x] Todos os campos do entry e postings fazem round-trip exato.
+- [x] Ordem das rows define ordem dos postings sem compartilhar arrays.
+- [x] Valores acima de Number.MAX_SAFE_INTEGER são preservados.
+- [x] Amount fora de 64 bits é rejeitado antes dos parâmetros.
+- [x] Rows vazias/inconsistentes e enums inválidos falham.
+- [x] Sete testes unitários passam.
+- [x] Test count: 7 novos casos; nenhum teste removido.
 
 **Tests**: unit
 **Gate**: quick
