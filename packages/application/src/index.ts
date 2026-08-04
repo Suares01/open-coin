@@ -5,3 +5,4 @@ export { CreateFinancialAccount } from "./ledger/accounts/create-financial-accou
 export { CreateIncomeCategory } from "./ledger/accounts/create-income-category.js";
 export { CreateExpenseCategory } from "./ledger/accounts/create-expense-category.js";
 export { SetOpeningBalance } from "./ledger/journal/set-opening-balance.js";
+export { RecordExpense } from "./ledger/journal/record-expense.js";

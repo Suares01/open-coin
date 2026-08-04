@@ -650,10 +650,10 @@ T29 -> T30 -> T31 -> T32 -> T33
 
 **Done when**:
 
-- [ ] Sucesso persiste débito na despesa e crédito na conta financeira.
-- [ ] Papel, estado, livro, moeda, descrição e valor inválidos falham sem escrita/evento.
-- [ ] Output e evento contêm os valores serializáveis exatos.
-- [ ] Pelo menos 8 testes cross-layer passam.
+- [x] Sucesso persiste débito na despesa e crédito na conta financeira.
+- [x] Papel, estado, livro, moeda, descrição e valor inválidos falham sem escrita/evento.
+- [x] Output e evento contêm os valores serializáveis exatos.
+- [x] Pelo menos 8 testes cross-layer passam.
 
 **Tests**: integration
 **Gate**: Full

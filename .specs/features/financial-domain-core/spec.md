@@ -267,13 +267,13 @@ Toda ambiguidade está resolvida ou registrada aqui.
 | FDC-21 | P1: Preservar as invariantes de todo lançamento | Design | Verified |
 | FDC-22 | P1: Preservar as invariantes de todo lançamento | Design | Pending |
 | FDC-23 | P1: Preservar as invariantes de todo lançamento | Design | Verified |
-| FDC-24 | P1: Preservar as invariantes de todo lançamento | Design | Pending |
+| FDC-24 | P1: Preservar as invariantes de todo lançamento | Design | Verified |
 | FDC-25 | P1: Definir saldo inicial e registrar fluxo financeiro | Design | Verified |
 | FDC-26 | P1: Definir saldo inicial e registrar fluxo financeiro | Design | Verified |
 | FDC-27 | P1: Definir saldo inicial e registrar fluxo financeiro | Design | Verified |
-| FDC-28 | P1: Definir saldo inicial e registrar fluxo financeiro | Design | Pending |
+| FDC-28 | P1: Definir saldo inicial e registrar fluxo financeiro | Design | Verified |
 | FDC-29 | P1: Definir saldo inicial e registrar fluxo financeiro | Design | Pending |
-| FDC-30 | P1: Definir saldo inicial e registrar fluxo financeiro | Design | Pending |
+| FDC-30 | P1: Definir saldo inicial e registrar fluxo financeiro | Design | Verified |
 | FDC-31 | P1: Definir saldo inicial e registrar fluxo financeiro | Design | Pending |
 | FDC-32 | P1: Transferir entre contas | Design | Pending |
 | FDC-33 | P1: Transferir entre contas | Design | Pending |

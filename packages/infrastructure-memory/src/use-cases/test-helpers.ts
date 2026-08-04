@@ -1,6 +1,8 @@
 import {
   CreateFinancialAccount,
   CreateFinancialBook,
+  CreateExpenseCategory,
+  CreateIncomeCategory,
   DomainEventDispatcher,
 } from "@open-coin/application";
 import {
@@ -59,6 +61,32 @@ export async function createFinancialAccount(
   });
   if (!result.ok) {
     throw new Error(`Account fixture failed: ${result.error.code}`);
+  }
+  harness.publisher.clear();
+  return result.value;
+}
+
+export async function createExpenseCategory(harness: ReturnType<typeof createHarness>) {
+  const result = await new CreateExpenseCategory(
+    harness.transactionManager,
+    harness.dispatcher,
+    harness.ids,
+  ).execute({ bookId: "book-1", name: "Food", kind: "EXPENSE" });
+  if (!result.ok) {
+    throw new Error(`Expense category fixture failed: ${result.error.code}`);
+  }
+  harness.publisher.clear();
+  return result.value;
+}
+
+export async function createIncomeCategory(harness: ReturnType<typeof createHarness>) {
+  const result = await new CreateIncomeCategory(
+    harness.transactionManager,
+    harness.dispatcher,
+    harness.ids,
+  ).execute({ bookId: "book-1", name: "Salary", kind: "INCOME" });
+  if (!result.ok) {
+    throw new Error(`Income category fixture failed: ${result.error.code}`);
   }
   harness.publisher.clear();
   return result.value;
