@@ -523,11 +523,11 @@ T19 → T20 → T21 → T22 → T23 → T24 → T25
 
 **Done when**:
 
-- [ ] Record preserva ordem e aceita batches vazios.
-- [ ] Pull devolve os fatos correntes e esvazia o coletor.
-- [ ] Segundo pull é vazio e arrays do chamador não alteram estado.
-- [ ] Cinco testes unitários passam.
-- [ ] Test count: 5 novos casos; nenhum teste removido.
+- [x] Record preserva ordem e aceita batches vazios.
+- [x] Pull devolve os fatos correntes e esvazia o coletor.
+- [x] Segundo pull é vazio e arrays do chamador não alteram estado.
+- [x] Cinco testes unitários passam.
+- [x] Test count: 5 novos casos; nenhum teste removido.
 
 **Tests**: unit
 **Gate**: quick
