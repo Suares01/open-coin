@@ -234,13 +234,13 @@ T19 → T20 → T21 → T22 → T23 → T24 → T25
 
 **Done when**:
 
-- [ ] Plano inválido falha antes de tocar o banco.
-- [ ] `schema_migrations` é criado em transação curta.
-- [ ] Unknown version e checksum modificado falham antes de pendências.
-- [ ] Cada migration e sua row confirmam ou revertem juntas.
-- [ ] Segunda execução é no-op.
-- [ ] Dez testes de integração cobrem todos os estados aprovados.
-- [ ] Test count: 10 novos casos; nenhum teste removido.
+- [x] Plano inválido falha antes de tocar o banco.
+- [x] `schema_migrations` é criado em transação curta.
+- [x] Unknown version e checksum modificado falham antes de pendências.
+- [x] Cada migration e sua row confirmam ou revertem juntas.
+- [x] Segunda execução é no-op.
+- [x] Dez testes de integração cobrem todos os estados aprovados.
+- [x] Test count: 10 novos casos; nenhum teste removido.
 
 **Tests**: integration
 **Gate**: full
