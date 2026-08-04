@@ -256,11 +256,11 @@ Toda ambiguidade está resolvida ou registrada aqui.
 | FDC-10 | P1: Criar um livro financeiro isolado | Design | Pending |
 | FDC-11 | P1: Criar um livro financeiro isolado | Design | Pending |
 | FDC-12 | P1: Criar contas financeiras e categorias | Design | Pending |
-| FDC-13 | P1: Criar contas financeiras e categorias | Design | Pending |
-| FDC-14 | P1: Criar contas financeiras e categorias | Design | Pending |
+| FDC-13 | P1: Criar contas financeiras e categorias | Design | Verified |
+| FDC-14 | P1: Criar contas financeiras e categorias | Design | Verified |
 | FDC-15 | P1: Criar contas financeiras e categorias | Design | Pending |
 | FDC-16 | P1: Criar contas financeiras e categorias | Design | Pending |
-| FDC-17 | P1: Criar contas financeiras e categorias | Design | Pending |
+| FDC-17 | P1: Criar contas financeiras e categorias | Design | Verified |
 | FDC-18 | P1: Preservar as invariantes de todo lançamento | Design | Pending |
 | FDC-19 | P1: Preservar as invariantes de todo lançamento | Design | Pending |
 | FDC-20 | P1: Preservar as invariantes de todo lançamento | Design | Pending |
@@ -296,7 +296,7 @@ Toda ambiguidade está resolvida ou registrada aqui.
 | FDC-50 | P1: Execução atômica e determinística | Design | Pending |
 | FDC-51 | P1: Execução atômica e determinística | Design | Pending |
 | FDC-52 | P1: Execução atômica e determinística | Design | Verified |
-| FDC-53 | P1: Execução atômica e determinística | Design | Pending |
+| FDC-53 | P1: Execução atômica e determinística | Design | Verified |
 | FDC-54 | P1: Execução atômica e determinística | Design | Pending |
 | FDC-55 | P1: Execução atômica e determinística | Design | Pending |
 | FDC-56 | P1: Execução atômica e determinística | Design | Pending |

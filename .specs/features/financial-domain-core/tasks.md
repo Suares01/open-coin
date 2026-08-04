@@ -566,10 +566,10 @@ T29 -> T30 -> T31 -> T32 -> T33
 
 **Done when**:
 
-- [ ] Tipos financeiros válidos criam conta ativa versão zero.
-- [ ] Tipo inválido, livro ausente e nome normalizado duplicado falham sem escrita/evento.
-- [ ] Sucesso publica exatamente um `LedgerAccountCreated`.
-- [ ] Pelo menos 7 testes cross-layer passam.
+- [x] Tipos financeiros válidos criam conta ativa versão zero.
+- [x] Tipo inválido, livro ausente e nome normalizado duplicado falham sem escrita/evento.
+- [x] Sucesso publica exatamente um `LedgerAccountCreated`.
+- [x] Pelo menos 7 testes cross-layer passam.
 
 **Tests**: integration
 **Gate**: Full
