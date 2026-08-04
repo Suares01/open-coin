@@ -165,6 +165,19 @@ describe("LedgerAccount", () => {
     expect(restored.pullDomainFacts()).toEqual([]);
   });
 
+  it("records a version-zero creation fact", () => {
+    const account = createAccount();
+
+    expect(account.pullDomainFacts()).toEqual([
+      expect.objectContaining({
+        type: "LedgerAccountCreated",
+        aggregateId: "account-ASSET",
+        aggregateVersion: 0,
+        payload: expect.objectContaining({ version: 0 }),
+      }),
+    ]);
+  });
+
   it("exposes immutable properties through getters", () => {
     const account = createAccount();
 

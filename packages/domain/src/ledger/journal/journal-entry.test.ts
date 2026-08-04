@@ -143,6 +143,7 @@ describe("JournalEntry", () => {
       expect.objectContaining({
         type: "JournalEntryPosted",
         aggregateId: "entry-1",
+        aggregateVersion: 0,
       }),
     ]);
     expect(entry.toSnapshot()).not.toHaveProperty("pendingFacts");
@@ -282,6 +283,7 @@ describe("JournalEntry", () => {
       expect.objectContaining({
         type: "JournalEntryReversed",
         aggregateId: "entry-1",
+        aggregateVersion: 1,
         payload: {
           bookId: "book-1",
           originalId: "entry-1",

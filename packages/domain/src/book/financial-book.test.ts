@@ -106,6 +106,7 @@ describe("FinancialBook", () => {
       expect.objectContaining({
         type: "FinancialBookCreated",
         aggregateId: "book-1",
+        aggregateVersion: 0,
         payload: expect.objectContaining({ version: 0 }),
       }),
     ]);

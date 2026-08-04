@@ -47,6 +47,7 @@ export class FinancialBook extends AggregateRoot<
     book.recordFact({
       type: "FinancialBookCreated",
       aggregateId: input.id,
+      aggregateVersion: book.version,
       payload: book.toSnapshot(),
     });
     return book;

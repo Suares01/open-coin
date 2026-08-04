@@ -918,10 +918,10 @@ T34 -> T35 -> T36 -> T37 -> T38 -> T39 -> T40 -> T41
 
 **Done when**:
 
-- [ ] Todo `DomainFact` contém `aggregateVersion` no instante em que a transição produz o fato.
-- [ ] Fatos de criação usam versão `0`; `JournalEntryReversed` usa a versão incrementada do original.
-- [ ] Pull, cópia e persistência não alteram a versão capturada.
-- [ ] O Quick domain gate passa com assertions exatas para todos os tipos de fato.
+- [x] Todo `DomainFact` contém `aggregateVersion` no instante em que a transição produz o fato.
+- [x] Fatos de criação usam versão `0`; `JournalEntryReversed` usa a versão incrementada do original.
+- [x] Pull, cópia e persistência não alteram a versão capturada.
+- [x] O Quick domain gate passa com assertions exatas para todos os tipos de fato.
 
 **Tests**: unit
 **Gate**: Quick domain

@@ -99,6 +99,7 @@ export class JournalEntry extends AggregateRoot<
     entry.recordFact({
       type: "JournalEntryPosted",
       aggregateId: input.id,
+      aggregateVersion: entry.version,
       payload: entry.toSnapshot(),
     });
     return entry;
@@ -234,6 +235,7 @@ export class JournalEntry extends AggregateRoot<
     reversal.recordFact({
       type: "JournalEntryPosted",
       aggregateId: reversal.id,
+      aggregateVersion: reversal.version,
       payload: reversal.toSnapshot(),
     });
     return reversal;
@@ -252,6 +254,7 @@ export class JournalEntry extends AggregateRoot<
     this.recordFact({
       type: "JournalEntryReversed",
       aggregateId: this.id,
+      aggregateVersion: this.version,
       payload: {
         bookId: this.bookId,
         originalId: this.id,

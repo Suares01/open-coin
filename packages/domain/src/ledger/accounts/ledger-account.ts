@@ -89,6 +89,7 @@ export class LedgerAccount extends AggregateRoot<
     account.recordFact({
       type: "LedgerAccountCreated",
       aggregateId: input.id,
+      aggregateVersion: account.version,
       payload: account.toSnapshot(),
     });
     return account;

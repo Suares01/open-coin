@@ -13,11 +13,13 @@ const facts = [
   {
     type: "FinancialBookCreated",
     aggregateId: "book-1",
+    aggregateVersion: 0,
     payload: { id: "book-1", name: "Main" },
   },
   {
     type: "LedgerAccountCreated",
     aggregateId: "account-1",
+    aggregateVersion: 0,
     payload: { id: "account-1", bookId: "book-1", kind: "ASSET" },
   },
 ] as const;

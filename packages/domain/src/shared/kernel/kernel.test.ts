@@ -28,6 +28,7 @@ class TestAggregate extends AggregateRoot<string, TestSnapshot> {
     const fact: DomainFact = {
       type,
       aggregateId: this.id,
+      aggregateVersion: 0,
       payload,
     };
     this.recordFact(fact);
@@ -79,11 +80,13 @@ describe("AggregateRoot", () => {
       {
         type: "FirstFact",
         aggregateId: "aggregate-1",
+        aggregateVersion: 0,
         payload: { sequence: 1 },
       },
       {
         type: "SecondFact",
         aggregateId: "aggregate-1",
+        aggregateVersion: 0,
         payload: { sequence: 2 },
       },
     ]);
