@@ -960,10 +960,10 @@ T34 -> T35 -> T36 -> T37 -> T38 -> T39 -> T40 -> T41
 
 **Done when**:
 
-- [ ] Despesa em `ASSET` e `LIABILITY` mantém débito na categoria e crédito na conta.
-- [ ] Transferências `ASSET -> ASSET`, `ASSET -> LIABILITY`, `LIABILITY -> ASSET` e `LIABILITY -> LIABILITY` mantêm crédito na origem e débito no destino.
-- [ ] Cada cenário confere postings, saldos exibidos e ausência de `INCOME`/`EXPENSE` em transferências.
-- [ ] O Build gate passa com ao menos seis novos cenários e sem regressão nos 264 testes v1.0.0.
+- [x] Despesa em `ASSET` e `LIABILITY` mantém débito na categoria e crédito na conta.
+- [x] Transferências `ASSET -> ASSET`, `ASSET -> LIABILITY`, `LIABILITY -> ASSET` e `LIABILITY -> LIABILITY` mantêm crédito na origem e débito no destino.
+- [x] Cada cenário confere postings, saldos exibidos e ausência de `INCOME`/`EXPENSE` em transferências.
+- [x] O Build gate passa com ao menos seis novos cenários e sem regressão nos 264 testes v1.0.0.
 
 **Tests**: integration
 **Gate**: Build
