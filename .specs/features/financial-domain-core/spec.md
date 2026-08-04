@@ -1,15 +1,23 @@
 # Especificação do Núcleo Financeiro
 
+**Status**: Implemented (v1.0.0); amendment specified (v1.1.0)
+**Feature version**: 1.1.0
+**Implementation commit range (v1.0.0)**: `d1c1c79^..570afc1`
+**Validation date (v1.0.0)**: 2026-08-04
+
 ## Problem Statement
 
 O Open Coin precisa de um núcleo financeiro confiável antes de receber interface, banco local, integrações, planejamento ou sincronização. O primeiro recorte deve provar que um livro financeiro isolado registra e consulta movimentações por partidas dobradas sem depender de frameworks ou infraestrutura externa.
 
 ## Goals
 
-- [ ] Permitir que um consumidor da camada de aplicação execute o fluxo completo de criação do livro, contas, saldo inicial, despesas, receitas, transferências e reversões.
-- [ ] Garantir que todo lançamento persistido permaneça balanceado, auditável e isolado por livro.
-- [ ] Consultar saldo e extrato a partir dos lançamentos, sem armazenar saldos mutáveis como fonte de verdade.
-- [ ] Validar o comportamento da aplicação com repositórios e transações em memória determinísticos.
+- [x] Permitir que um consumidor da camada de aplicação execute o fluxo completo de criação do livro, contas, saldo inicial, despesas, receitas, transferências e reversões.
+- [x] Garantir que todo lançamento persistido permaneça balanceado, auditável e isolado por livro.
+- [x] Consultar saldo e extrato a partir dos lançamentos, sem armazenar saldos mutáveis como fonte de verdade.
+- [x] Validar o comportamento da aplicação com repositórios e transações em memória determinísticos.
+- [ ] Ordenar lançamentos do mesmo dia pela sequência real de registro, sem depender do formato do ID.
+- [ ] Impedir saldo inicial ativo duplicado e fechar as regras temporais e de encadeamento de reversões.
+- [ ] Versionar envelopes de evento antes da introdução de persistência durável e outbox.
 
 ## Out of Scope
 
@@ -18,9 +26,9 @@ Explicitamente excluído deste recorte para evitar que capacidades futuras defin
 | Feature | Reason |
 | --- | --- |
 | Interface React, Tauri, mobile ou web | Esta especificação cobre somente domínio, aplicação e infraestrutura em memória. |
-| SQLite, migrations e adapters nativos | Entram depois que os contratos forem provados em memória. |
+| SQLite, migrations e adapters nativos | Terão spec própria com migrations reais, foreign keys habilitadas, transações e a mesma suíte de contratos dos repositories em memória. |
 | Autenticação, servidor self-hosted e sincronização | O núcleo deve funcionar localmente e sem conta. |
-| Importação CSV/OFX, Pluggy e outras integrações | Integrações futuras usarão os mesmos casos de uso desta especificação. |
+| Importação CSV/OFX, Pluggy e outras integrações | Uma camada externa mutável fará staging e conciliação antes de criar `JournalEntry` imutável e idempotente. |
 | Planejamento, recorrências, orçamentos, objetivos e projeções | Dependem do ledger já estável. |
 | Investimentos, posições e cotações | Dependem do ledger e de tipos numéricos próprios. |
 | Payees, tags, projetos, pessoas e categorização automática | Não são necessários para provar o primeiro recorte. |
@@ -41,16 +49,20 @@ Toda ambiguidade está resolvida ou registrada aqui.
 | Convenção de sinal dos postings | Positivo representa débito; negativo representa crédito | A convenção está explícita na proposta e permite soma zero em todo lançamento. | Sim |
 | Papel das categorias | Categorias são `LedgerAccount` de tipo `INCOME` ou `EXPENSE` | Evita um modelo paralelo desconectado do ledger. | Sim |
 | Saldo informado ao definir saldo inicial | O comando recebe um saldo de exibição positivo; o tipo da conta determina o sinal contábil | Mantém a entrada orientada ao usuário e preserva o saldo normal de ativos e passivos. | Sim |
-| Comandos manuais repetidos | Não são idempotentes sem uma chave explícita; cada execução aceita cria um novo agregado | O recorte não possui transporte externo nem chave de deduplicação. IDs duplicados continuam sendo rejeitados. | Sim |
+| Comandos manuais repetidos | Não são idempotentes sem uma chave explícita; cada execução aceita cria um novo agregado, exceto `SetOpeningBalance`, que rejeita a repetição enquanto houver saldo inicial ativo | O recorte não possui transporte externo nem chave de deduplicação, mas o nome `SetOpeningBalance` exige semântica de definição única. IDs duplicados continuam sendo rejeitados. | Sim |
 | Publicação de eventos | O publisher deste recorte é local, síncrono e não falha depois do commit | Garantia de entrega, outbox e recuperação de falha pertencem à persistência/sincronização futura. | Sim |
-| Ordenação de extrato no mesmo dia | `occurredOn` decrescente e, em empate, ID decrescente | Produz resultado determinístico sem introduzir um timestamp financeiro ausente do domínio. | Sim |
 | Precisão monetária | Valores entram como string inteira em unidades mínimas e viram `bigint` no domínio | Evita perda de precisão e mantém a fronteira serializável. | Sim |
 | Formato de moeda | O núcleo aceita códigos com exatamente três letras ASCII maiúsculas e exige a moeda-base do livro em todos os lançamentos | É um contrato determinístico para a V1 sem introduzir catálogo ou conversão cambial. | Sim |
-| Identificadores de produção | São opacos e gerados por uma porta da aplicação; o algoritmo concreto será decidido no design | A regra essencial é não gerar IDs dentro do domínio. | Sim |
+| Identificadores de produção | São opacos e gerados por uma porta da aplicação; nenhuma regra funcional depende de sua ordenação | A regra essencial é não gerar IDs dentro do domínio nem inferir tempo pelo seu formato. | Sim |
 | Nome e timezone do livro | Nome é normalizado com `trim`; timezone é uma string IANA não vazia, sem validação da base IANA neste recorte | A validação completa exigiria uma dependência externa não necessária ao núcleo. | Sim |
 | Normalização para nomes duplicados | Comparar `trim`, normalização Unicode NFC e conversão para minúsculas independente de locale | Evita duplicatas apenas por espaços, caixa ou representação Unicode sem impor regras linguísticas. | Sim |
 | Descrição de lançamento | É obrigatória depois de `trim` e preservada como texto fornecido | Lançamentos auditáveis precisam de descrição, mas regras de tamanho e sanitização pertencem à fronteira futura. | Sim |
 | Autorização | Não existe no núcleo local; isolamento é feito por `bookId` | Autenticação só surge com servidor ou compartilhamento, ambos fora do escopo. | Sim |
+| Ordem intradiária | Cada lançamento persiste `recordedAt` e uma `sequence` reservada transacionalmente pelo `JournalEntryRepository`, estritamente crescente por livro; o extrato usa `occurredOn DESC, sequence DESC` | A ordem deve refletir o registro real, resistir à concorrência no adapter persistente e não depender do algoritmo de IDs opacos. | Sim |
+| Repetição de saldo inicial | Cada conta pode ter somente um lançamento de saldo inicial sem `reversedBy`; uma correção exige reverter o anterior e executar o comando novamente | `SetOpeningBalance` define um ponto de partida, não um incremento cumulativo. | Sim |
+| Data de reversão | `reversal.occurredOn` deve ser igual ou posterior a `original.occurredOn` | Uma reversão anterior ao fato original cria um saldo histórico impossível. | Sim |
+| Reversão de reversão | Um lançamento com `reversalOf` não pode ser alvo de `ReverseJournalEntry` | A V1 mantém o grafo de correção simples; uma nova correção usa um lançamento substituto explícito. | Sim |
+| Evolução de eventos | Todo envelope inclui `eventVersion` e `aggregateVersion`; a versão inicial de cada evento é `1` | Persistência e consumidores futuros precisam distinguir evolução de payload e versão do agregado. | Sim |
 
 **Open questions: none** — requisitos e defaults confirmados em 2026-08-04.
 
@@ -62,11 +74,11 @@ Toda ambiguidade está resolvida ou registrada aqui.
 | Failure / partial-failure states | Coberta por FDC-09, FDC-49, FDC-50 e FDC-56. |
 | Idempotency / retry / duplicate handling | Coberta por FDC-48 para IDs duplicados. Comandos manuais sem chave são explicitamente não idempotentes neste recorte. |
 | Auth boundaries & rate limits | N/A porque o pacote local não expõe endpoint, usuário autenticado ou transporte remoto. |
-| Concurrency / ordering | Coberta por FDC-42, FDC-47, FDC-49 e FDC-50. |
+| Concurrency / ordering | Coberta por FDC-42, FDC-47, FDC-49, FDC-50 e FDC-64. A unicidade e monotonicidade da sequência são verificadas por livro. |
 | Data lifecycle / expiry | N/A porque não há exclusão, expiração, retenção ou sincronização neste recorte. |
 | Observability | N/A porque o núcleo puro não escolhe logging, métricas ou tracing; os erros tipados são cobertos por FDC-57. |
 | External-dependency failure | N/A porque todos os adapters deste recorte são locais e em memória. |
-| State-transition integrity | Coberta por FDC-16, FDC-31 e FDC-35 a FDC-38. |
+| State-transition integrity | Coberta por FDC-16, FDC-31, FDC-35 a FDC-38 e FDC-59 a FDC-61. |
 
 ---
 
@@ -155,6 +167,7 @@ Toda ambiguidade está resolvida ou registrada aqui.
 5. WHEN `RecordIncome` receber uma conta financeira, categoria `INCOME` e valor positivo THEN a aplicação SHALL criar débito na conta financeira e crédito de igual valor na categoria. (`FDC-29`)
 6. IF `RecordExpense` ou `RecordIncome` receber valor zero, valor negativo ou moeda incompatível THEN a aplicação SHALL rejeitar o comando sem persistir lançamento. (`FDC-30`)
 7. WHILE um `JournalEntry` estiver registrado o domínio SHALL impedir alteração direta de data, descrição, postings, moeda ou contas. (`FDC-31`)
+8. IF já existir para a conta um lançamento de saldo inicial sem `reversedBy` THEN `SetOpeningBalance` SHALL rejeitar o comando com `OPENING_BALANCE_ALREADY_SET` sem persistir lançamento ou publicar evento. (`FDC-59`)
 
 **Independent Test**: Definir saldos iniciais de ativo e passivo, registrar uma despesa e uma receita e conferir os postings assinados exatos de cada lançamento.
 
@@ -169,6 +182,7 @@ Toda ambiguidade está resolvida ou registrada aqui.
 1. WHEN `TransferMoney` receber origem, destino e valor válidos THEN a aplicação SHALL criar crédito na origem e débito de igual valor no destino. (`FDC-32`)
 2. IF origem e destino forem iguais, não forem contas financeiras ativas, pertencerem a livros diferentes, o valor não for positivo ou sua moeda diferir da moeda-base THEN a aplicação SHALL rejeitar a transferência sem persistir lançamento. (`FDC-33`)
 3. WHEN uma transferência for registrada THEN o lançamento SHALL conter somente as contas financeiras de origem e destino, sem posting em conta `INCOME` ou `EXPENSE`. (`FDC-34`)
+4. WHEN os cenários usarem despesa em `ASSET`, despesa em `LIABILITY` ou transferência em qualquer par ordenado de `ASSET` e `LIABILITY` THEN a aplicação SHALL aceitar cada combinação válida e manter os sinais definidos por `FDC-28` e `FDC-32`. (`FDC-62`)
 
 **Independent Test**: Transferir entre duas contas e provar que o saldo se desloca pelo valor exato enquanto o total de receita e despesa permanece zero.
 
@@ -184,6 +198,8 @@ Toda ambiguidade está resolvida ou registrada aqui.
 2. WHEN a reversão for confirmada THEN a aplicação SHALL persistir atomicamente o novo lançamento, `reversalOf` no reversor e `reversedBy` no original. (`FDC-36`)
 3. IF um lançamento já possuir `reversedBy` THEN a aplicação SHALL rejeitar nova reversão com `JOURNAL_ENTRY_ALREADY_REVERSED`. (`FDC-37`)
 4. WHEN uma reversão for criada THEN a aplicação SHALL preservar sem alteração o lançamento e os postings originais. (`FDC-38`)
+5. IF a data solicitada para a reversão for anterior a `original.occurredOn` THEN a aplicação SHALL rejeitar o comando com `REVERSAL_DATE_BEFORE_ORIGINAL` sem persistir mudanças ou publicar eventos. (`FDC-60`)
+6. IF o lançamento alvo possuir `reversalOf` THEN a aplicação SHALL rejeitar o comando com `JOURNAL_ENTRY_REVERSAL_NOT_REVERSIBLE` sem persistir mudanças ou publicar eventos. (`FDC-61`)
 
 **Independent Test**: Reverter uma despesa, verificar os vínculos entre entradas, comparar posting a posting e provar que a soma combinada é zero.
 
@@ -198,7 +214,7 @@ Toda ambiguidade está resolvida ou registrada aqui.
 1. WHEN `GetAccountBalance` consultar uma conta em uma data-limite THEN a aplicação SHALL somar somente os postings dessa conta com `occurredOn` menor ou igual à data informada. (`FDC-39`)
 2. WHEN um saldo for exibido THEN a aplicação SHALL manter o sinal bruto para `ASSET` e `EXPENSE` e invertê-lo para `LIABILITY`, `INCOME` e `EQUITY`. (`FDC-40`)
 3. WHEN `GetAccountStatement` consultar uma conta THEN a aplicação SHALL retornar um item por posting da conta com ID do lançamento, data, descrição, valor assinado e saldo corrente. (`FDC-41`)
-4. WHEN itens de extrato compartilharem a mesma data THEN a aplicação SHALL ordená-los por `occurredOn` decrescente e depois por ID do lançamento decrescente. (`FDC-42`)
+4. WHEN itens de extrato compartilharem a mesma data THEN a aplicação SHALL ordená-los por `occurredOn` decrescente e depois por `sequence` decrescente. (`FDC-42`)
 5. IF uma consulta solicitar uma conta ausente ou de outro livro THEN a aplicação SHALL retornar `ENTITY_NOT_FOUND` sem expor dados de outro livro. (`FDC-43`)
 6. WHEN um lançamento e sua reversão estiverem no período consultado THEN a aplicação SHALL exibir ambos no extrato e refletir efeito líquido zero no saldo. (`FDC-44`)
 
@@ -226,6 +242,10 @@ Toda ambiguidade está resolvida ou registrada aqui.
 12. IF uma transação de escrita falhar ou sofrer rollback THEN a aplicação SHALL publicar zero eventos dessa transação. (`FDC-56`)
 13. IF uma regra esperada de domínio ou aplicação falhar THEN o caso de uso SHALL retornar um `Result` de falha com código estável, sem expor uma exceção de infraestrutura ao consumidor. (`FDC-57`)
 14. WHEN testes fornecerem `Clock`, `IdGenerator` e event publisher determinísticos THEN a aplicação SHALL produzir os mesmos IDs, datas, eventos e resultados em execuções equivalentes. (`FDC-58`)
+15. WHEN um `JournalEntry` for confirmado THEN a aplicação SHALL persistir `recordedAt` como o instante ISO 8601 fornecido por `Clock`. (`FDC-63`)
+16. WHEN um `JournalEntry` for confirmado THEN a aplicação SHALL persistir `sequence` como uma string decimal reservada dentro da mesma transação por `JournalEntryRepository.reserveNextSequence(bookId)`, única e estritamente crescente dentro do `bookId`. (`FDC-64`)
+17. WHEN um evento de domínio for envelopado THEN a aplicação SHALL incluir `eventVersion` igual a `1`. (`FDC-65`)
+18. WHEN um evento de domínio for envelopado THEN a aplicação SHALL incluir `aggregateVersion` igual à versão do agregado que produziu o fato. (`FDC-66`)
 
 **Independent Test**: Executar os casos de uso contra um store em memória, provocar duplicidade, conflito de versão e falha intermediária e comparar estado, eventos e resultados antes e depois.
 
@@ -236,81 +256,117 @@ Toda ambiguidade está resolvida ou registrada aqui.
 - `FDC-02`, `FDC-21`, `FDC-27`, `FDC-30` e `FDC-33` cobrem incompatibilidades de moeda.
 - `FDC-18` a `FDC-24` impedem qualquer forma de lançamento estruturalmente inválido.
 - `FDC-09` e `FDC-49` cobrem rollback de alterações em múltiplos agregados.
-- `FDC-35` a `FDC-38` cobrem reversão exata e tentativa de reversão duplicada.
-- `FDC-41`, `FDC-42` e `FDC-44` cobrem extrato determinístico e saldos correntes após reversões.
+- `FDC-35` a `FDC-38`, `FDC-60` e `FDC-61` cobrem reversão exata, data válida e encadeamento proibido.
+- `FDC-41`, `FDC-42`, `FDC-44`, `FDC-63` e `FDC-64` cobrem extrato temporalmente determinístico e saldos correntes após reversões.
+- `FDC-59` impede que `SetOpeningBalance` some acidentalmente dois saldos iniciais ativos.
+- `FDC-62` cobre explicitamente despesas e transferências entre os tipos financeiros `ASSET` e `LIABILITY`.
 - `FDC-47` e `FDC-50` impedem que referências compartilhadas ou escritas concorrentes alterem o estado sem persistência válida.
 
 ## Requirement Traceability
 
 | Requirement ID | Story | Phase | Status |
 | --- | --- | --- | --- |
-| FDC-01 | P1: Primitivas financeiras seguras | Design | Pending |
-| FDC-02 | P1: Primitivas financeiras seguras | Design | Pending |
-| FDC-03 | P1: Primitivas financeiras seguras | Design | Pending |
-| FDC-04 | P1: Primitivas financeiras seguras | Design | Pending |
-| FDC-05 | P1: Primitivas financeiras seguras | Design | Pending |
-| FDC-06 | P1: Criar um livro financeiro isolado | Design | Verified |
-| FDC-07 | P1: Criar um livro financeiro isolado | Design | Verified |
-| FDC-08 | P1: Criar um livro financeiro isolado | Design | Verified |
-| FDC-09 | P1: Criar um livro financeiro isolado | Design | Verified |
-| FDC-10 | P1: Criar um livro financeiro isolado | Design | Pending |
-| FDC-11 | P1: Criar um livro financeiro isolado | Design | Pending |
-| FDC-12 | P1: Criar contas financeiras e categorias | Design | Pending |
-| FDC-13 | P1: Criar contas financeiras e categorias | Design | Verified |
-| FDC-14 | P1: Criar contas financeiras e categorias | Design | Verified |
-| FDC-15 | P1: Criar contas financeiras e categorias | Design | Verified |
-| FDC-16 | P1: Criar contas financeiras e categorias | Design | Pending |
-| FDC-17 | P1: Criar contas financeiras e categorias | Design | Verified |
-| FDC-18 | P1: Preservar as invariantes de todo lançamento | Design | Pending |
-| FDC-19 | P1: Preservar as invariantes de todo lançamento | Design | Pending |
-| FDC-20 | P1: Preservar as invariantes de todo lançamento | Design | Pending |
-| FDC-21 | P1: Preservar as invariantes de todo lançamento | Design | Verified |
-| FDC-22 | P1: Preservar as invariantes de todo lançamento | Design | Pending |
-| FDC-23 | P1: Preservar as invariantes de todo lançamento | Design | Verified |
-| FDC-24 | P1: Preservar as invariantes de todo lançamento | Design | Verified |
-| FDC-25 | P1: Definir saldo inicial e registrar fluxo financeiro | Design | Verified |
-| FDC-26 | P1: Definir saldo inicial e registrar fluxo financeiro | Design | Verified |
-| FDC-27 | P1: Definir saldo inicial e registrar fluxo financeiro | Design | Verified |
-| FDC-28 | P1: Definir saldo inicial e registrar fluxo financeiro | Design | Verified |
-| FDC-29 | P1: Definir saldo inicial e registrar fluxo financeiro | Design | Verified |
-| FDC-30 | P1: Definir saldo inicial e registrar fluxo financeiro | Design | Verified |
-| FDC-31 | P1: Definir saldo inicial e registrar fluxo financeiro | Design | Pending |
-| FDC-32 | P1: Transferir entre contas | Design | Verified |
-| FDC-33 | P1: Transferir entre contas | Design | Verified |
-| FDC-34 | P1: Transferir entre contas | Design | Verified |
-| FDC-35 | P1: Reverter uma movimentação | Design | Verified |
-| FDC-36 | P1: Reverter uma movimentação | Design | Verified |
-| FDC-37 | P1: Reverter uma movimentação | Design | Verified |
-| FDC-38 | P1: Reverter uma movimentação | Design | Verified |
-| FDC-39 | P1: Consultar saldo e extrato | Design | Verified |
-| FDC-40 | P1: Consultar saldo e extrato | Design | Verified |
-| FDC-41 | P1: Consultar saldo e extrato | Design | Verified |
-| FDC-42 | P1: Consultar saldo e extrato | Design | Verified |
-| FDC-43 | P1: Consultar saldo e extrato | Design | Verified |
-| FDC-44 | P1: Consultar saldo e extrato | Design | Verified |
-| FDC-45 | P1: Execução atômica e determinística | Design | Verified |
-| FDC-46 | P1: Execução atômica e determinística | Design | Pending |
-| FDC-47 | P1: Execução atômica e determinística | Design | Pending |
-| FDC-48 | P1: Execução atômica e determinística | Design | Pending |
-| FDC-49 | P1: Execução atômica e determinística | Design | Pending |
-| FDC-50 | P1: Execução atômica e determinística | Design | Pending |
-| FDC-51 | P1: Execução atômica e determinística | Design | Pending |
-| FDC-52 | P1: Execução atômica e determinística | Design | Verified |
-| FDC-53 | P1: Execução atômica e determinística | Design | Verified |
-| FDC-54 | P1: Execução atômica e determinística | Design | Verified |
-| FDC-55 | P1: Execução atômica e determinística | Design | Pending |
-| FDC-56 | P1: Execução atômica e determinística | Design | Pending |
-| FDC-57 | P1: Execução atômica e determinística | Design | Pending |
-| FDC-58 | P1: Execução atômica e determinística | Design | Verified |
+| FDC-01 | P1: Primitivas financeiras seguras | Validation | Verified |
+| FDC-02 | P1: Primitivas financeiras seguras | Validation | Verified |
+| FDC-03 | P1: Primitivas financeiras seguras | Validation | Verified |
+| FDC-04 | P1: Primitivas financeiras seguras | Validation | Verified |
+| FDC-05 | P1: Primitivas financeiras seguras | Validation | Verified |
+| FDC-06 | P1: Criar um livro financeiro isolado | Validation | Verified |
+| FDC-07 | P1: Criar um livro financeiro isolado | Validation | Verified |
+| FDC-08 | P1: Criar um livro financeiro isolado | Validation | Verified |
+| FDC-09 | P1: Criar um livro financeiro isolado | Validation | Verified |
+| FDC-10 | P1: Criar um livro financeiro isolado | Validation | Verified |
+| FDC-11 | P1: Criar um livro financeiro isolado | Validation | Verified |
+| FDC-12 | P1: Criar contas financeiras e categorias | Validation | Verified |
+| FDC-13 | P1: Criar contas financeiras e categorias | Validation | Verified |
+| FDC-14 | P1: Criar contas financeiras e categorias | Validation | Verified |
+| FDC-15 | P1: Criar contas financeiras e categorias | Validation | Verified |
+| FDC-16 | P1: Criar contas financeiras e categorias | Validation | Verified |
+| FDC-17 | P1: Criar contas financeiras e categorias | Validation | Verified |
+| FDC-18 | P1: Preservar as invariantes de todo lançamento | Validation | Verified |
+| FDC-19 | P1: Preservar as invariantes de todo lançamento | Validation | Verified |
+| FDC-20 | P1: Preservar as invariantes de todo lançamento | Validation | Verified |
+| FDC-21 | P1: Preservar as invariantes de todo lançamento | Validation | Verified |
+| FDC-22 | P1: Preservar as invariantes de todo lançamento | Validation | Verified |
+| FDC-23 | P1: Preservar as invariantes de todo lançamento | Validation | Verified |
+| FDC-24 | P1: Preservar as invariantes de todo lançamento | Validation | Verified |
+| FDC-25 | P1: Definir saldo inicial e registrar fluxo financeiro | Validation | Verified |
+| FDC-26 | P1: Definir saldo inicial e registrar fluxo financeiro | Validation | Verified |
+| FDC-27 | P1: Definir saldo inicial e registrar fluxo financeiro | Validation | Verified |
+| FDC-28 | P1: Definir saldo inicial e registrar fluxo financeiro | Validation | Verified |
+| FDC-29 | P1: Definir saldo inicial e registrar fluxo financeiro | Validation | Verified |
+| FDC-30 | P1: Definir saldo inicial e registrar fluxo financeiro | Validation | Verified |
+| FDC-31 | P1: Definir saldo inicial e registrar fluxo financeiro | Validation | Verified |
+| FDC-32 | P1: Transferir entre contas | Validation | Verified |
+| FDC-33 | P1: Transferir entre contas | Validation | Verified |
+| FDC-34 | P1: Transferir entre contas | Validation | Verified |
+| FDC-35 | P1: Reverter uma movimentação | Validation | Verified |
+| FDC-36 | P1: Reverter uma movimentação | Validation | Verified |
+| FDC-37 | P1: Reverter uma movimentação | Validation | Verified |
+| FDC-38 | P1: Reverter uma movimentação | Validation | Verified |
+| FDC-39 | P1: Consultar saldo e extrato | Validation | Verified |
+| FDC-40 | P1: Consultar saldo e extrato | Validation | Verified |
+| FDC-41 | P1: Consultar saldo e extrato | Validation | Verified |
+| FDC-42 | P1: Consultar saldo e extrato | Validation | Verified |
+| FDC-43 | P1: Consultar saldo e extrato | Validation | Verified |
+| FDC-44 | P1: Consultar saldo e extrato | Validation | Verified |
+| FDC-45 | P1: Execução atômica e determinística | Validation | Verified |
+| FDC-46 | P1: Execução atômica e determinística | Validation | Verified |
+| FDC-47 | P1: Execução atômica e determinística | Validation | Verified |
+| FDC-48 | P1: Execução atômica e determinística | Validation | Verified |
+| FDC-49 | P1: Execução atômica e determinística | Validation | Verified |
+| FDC-50 | P1: Execução atômica e determinística | Validation | Verified |
+| FDC-51 | P1: Execução atômica e determinística | Validation | Verified |
+| FDC-52 | P1: Execução atômica e determinística | Validation | Verified |
+| FDC-53 | P1: Execução atômica e determinística | Validation | Verified |
+| FDC-54 | P1: Execução atômica e determinística | Validation | Verified |
+| FDC-55 | P1: Execução atômica e determinística | Validation | Verified |
+| FDC-56 | P1: Execução atômica e determinística | Validation | Verified |
+| FDC-57 | P1: Execução atômica e determinística | Validation | Verified |
+| FDC-58 | P1: Execução atômica e determinística | Validation | Verified |
+| FDC-59 | P1: Definir saldo inicial e registrar fluxo financeiro | Validation | Verified |
+| FDC-60 | P1: Reverter uma movimentação | Validation | Verified |
+| FDC-61 | P1: Reverter uma movimentação | Validation | Verified |
+| FDC-62 | P1: Transferir entre contas | Validation | Verified |
+| FDC-63 | P1: Execução atômica e determinística | Validation | Verified |
+| FDC-64 | P1: Execução atômica e determinística | Validation | Verified |
+| FDC-65 | P1: Execução atômica e determinística | Validation | Verified |
+| FDC-66 | P1: Execução atômica e determinística | Validation | Verified |
 
-**Coverage:** 58 requisitos, 58 mapeados para tarefas, 0 não mapeados.
+**Coverage:** 66 requisitos, 66 mapeados para tarefas, 0 não mapeados. A baseline v1.0.0 verificou FDC-01 a FDC-58. Na v1.1.0, o FDC-42 emendado e FDC-59 a FDC-66 foram verificados nesta validação.
+
+---
+
+## Known Deferred Decisions
+
+| Decision | Boundary for the next spec |
+| --- | --- |
+| Persistência SQLite | Reutilizar uma suíte de repository contracts entre memória e SQLite; cobrir cópias independentes, duplicidade, concorrência otimista, rollback, isolamento por `bookId`, reidratação, vínculos de reversão, ordenação, constraints e migrations reais em `:memory:` com foreign keys habilitadas. |
+| Entrega durável de eventos | Persistir agregados e eventos na mesma transação por transactional outbox; o dispatcher lê, publica e marca itens processados com retry idempotente. |
+| Origem e importações | Evoluir `origin` para distinguir `MANUAL`, `SYSTEM` com operação, `IMPORT` com identidade externa, `SCHEDULE` com ocorrência e `INVESTMENT` com operação. Manter o registro externo mutável e conciliar antes de produzir `JournalEntry` imutável. A chave de deduplicação de importação será `bookId + provider + connectionId + externalId`. |
+| Conciliação | Especificar `ReconcileAccountBalance` usando a conta `RECONCILIATION_ADJUSTMENT`, sem alterar lançamentos históricos. |
+| Splits | Expor casos de uso especializados, validar a soma dos splits e definir `Money.allocate` com distribuição determinística das unidades mínimas restantes antes de um lançamento genérico. |
+| Multimoeda | Registrar ADR antes do schema SQLite definitivo escolhendo livro estritamente monomoeda ou moeda por conta com operação cambial explícita. |
+| Consultas para UI | Especificar `GetFinancialBook`, `ListFinancialAccounts`, `ListIncomeCategories`, `ListExpenseCategories`, `GetJournalEntry`, `ListJournalEntries` e extrato com `from`, `to`, cursor e limite. |
+
+## Next Dependent Specifications
+
+1. `sqlite-financial-adapter` para schema, migrations, foreign keys, transações e repository contracts compartilhados.
+2. `financial-event-outbox` para entrega durável e evolução de eventos.
+3. `account-reconciliation` para ajuste contra saldo externo.
+4. `split-journal-entries` para splits e alocação monetária determinística.
+5. `financial-read-models` para listagens e paginação exigidas pela UI.
+6. `external-transaction-staging` para CSV, OFX e provedores externos.
 
 ---
 
 ## Success Criteria
 
-- [ ] Os nove testes independentes das histórias passam sem React, Tauri, SQLite, rede ou relógio real.
-- [ ] Todo lançamento aceito soma exatamente zero em sua moeda.
-- [ ] O fluxo completo cria um livro, duas contas financeiras, uma categoria, saldo inicial, despesa, receita, transferência e reversão, e reconstrói os saldos esperados pelo extrato.
-- [ ] Falhas intermediárias deixam zero alterações parciais e zero eventos publicados.
-- [ ] Consultas nunca combinam dados de livros diferentes e retornam ordem determinística.
+- [x] Os nove testes independentes das histórias v1.0.0 passam sem React, Tauri, SQLite, rede ou relógio real.
+- [x] Todo lançamento aceito soma exatamente zero em sua moeda.
+- [x] O fluxo completo cria um livro, duas contas financeiras, uma categoria, saldo inicial, despesa, receita, transferência e reversão, e reconstrói os saldos esperados pelo extrato.
+- [x] Falhas intermediárias deixam zero alterações parciais e zero eventos publicados.
+- [x] Consultas nunca combinam dados de livros diferentes.
+- [ ] Lançamentos do mesmo dia retornam em ordem de registro e mantêm saldos correntes intermediários corretos.
+- [ ] Saldo inicial duplicado, reversão retroativa e reversão de reversão falham com os códigos exatos e sem efeitos.
+- [ ] A matriz `ASSET`/`LIABILITY` e os campos de versão dos eventos possuem evidência automatizada.

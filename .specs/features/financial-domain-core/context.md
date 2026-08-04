@@ -1,8 +1,10 @@
 # Contexto do Núcleo Financeiro
 
 **Gathered:** 2026-08-04
+**Updated:** 2026-08-04
 **Spec:** `.specs/features/financial-domain-core/spec.md`
-**Status:** Ready for design
+**Status:** Completed
+**Feature version:** 1.1.0
 
 ---
 
@@ -35,6 +37,10 @@ Este recorte entrega o núcleo financeiro local e independente de frameworks: `F
 - IDs e tempo entram pelas portas `IdGenerator` e `Clock`.
 - Repositórios persistem raízes de agregação; saldo e extrato usam query ports separados.
 - Eventos são publicados somente depois de uma transação confirmada.
+- Cada lançamento recebe `recordedAt` e uma `sequence` estritamente crescente por livro; a ordem intradiária não depende do ID.
+- Um saldo inicial permanece único enquanto seu lançamento não tiver sido revertido.
+- Reversões não antecedem o lançamento original e não podem apontar para outro reversor.
+- Envelopes de evento incluem `eventVersion` e `aggregateVersion` antes da persistência durável.
 
 ### Validação inicial
 
@@ -49,18 +55,20 @@ Este recorte entrega o núcleo financeiro local e independente de frameworks: `F
 - Forma concreta dos builders e fixtures de teste.
 - Estrutura interna do store em memória e estratégia de cópia de agregados.
 - Texto das mensagens de erro; os códigos estáveis definidos pela especificação não podem mudar.
-- Payload adicional dos eventos, desde que o evento identifique tipo, agregado, livro e data técnica.
+- Payload adicional dos eventos, desde que o envelope preserve tipo, versão do evento, agregado, versão do agregado, livro e data técnica.
 
 ### Declined / Undiscussed Gray Areas → Assumptions
 
-- Comandos manuais não têm chave de idempotência neste recorte.
+- Comandos manuais não têm chave de idempotência neste recorte; `SetOpeningBalance` é a exceção semântica e rejeita repetição enquanto houver lançamento ativo.
 - O saldo inicial entra como valor positivo de exibição; o tipo da conta define o sinal contábil.
 - O publisher local é síncrono e não falha depois do commit.
-- Empates de data no extrato são resolvidos pelo ID do lançamento em ordem decrescente.
+- Empates de data no extrato são resolvidos por `sequence` decrescente; o ID permanece opaco.
 - Timezones precisam ser não vazios, mas não são validados contra uma base IANA nesta etapa.
 - Moedas usam códigos de três letras ASCII maiúsculas e todo lançamento usa a moeda-base do livro.
 - Duplicidade de nome usa `trim`, Unicode NFC e conversão para minúsculas independente de locale.
 - Descrições são obrigatórias e normalizadas com `trim`, sem limite de tamanho neste pacote.
+- Corrigir saldo inicial significa reverter o lançamento anterior e executar `SetOpeningBalance` novamente.
+- Uma reversão usa data igual ou posterior à original; reversores não são reversíveis na V1.
 
 Esses defaults também constam em `Assumptions & Open Questions` na especificação e foram confirmados em 2026-08-04.
 
@@ -76,8 +84,13 @@ Esses defaults também constam em `Assumptions & Open Questions` na especificaç
 
 ## Deferred Ideas
 
-- Persistência SQLite e testes de contrato compartilhados entre adapters.
+- Persistência SQLite com migrations reais, foreign keys habilitadas e testes de contrato compartilhados entre adapters.
+- Transactional outbox para persistir estado e eventos na mesma transação.
+- Origem externa mutável e idempotente antes da criação de `JournalEntry` imutável.
+- Conciliação de saldo com `RECONCILIATION_ADJUSTMENT`.
 - Hierarquia completa de categorias, renomeação, movimentação e arquivamento.
 - Alteração de lançamento por reversão mais substituição.
-- Splits, parcelamentos, cartões e faturas como fluxos especializados.
+- Splits com alocação determinística, parcelamentos, cartões e faturas como fluxos especializados.
+- ADR de multimoeda antes do schema SQLite definitivo.
+- Queries paginadas de livro, contas, categorias, lançamentos e extrato antes da UI.
 - Planning, investimentos, importações, sincronização, backup e insights.

@@ -1,7 +1,10 @@
 # Design do Núcleo Financeiro
 
 **Spec**: `.specs/features/financial-domain-core/spec.md`
-**Status**: Approved
+**Status**: Implemented (v1.0.0); amendment designed (v1.1.0)
+**Feature version**: 1.1.0
+**Implementation commit range (v1.0.0)**: `d1c1c79^..570afc1`
+**Validation date (v1.0.0)**: 2026-08-04
 
 ---
 
@@ -184,7 +187,7 @@ O nome armazenado recebe `trim`. A chave de duplicidade é produzida por `normal
 - **Dependencies**: Shared kernel e IDs de ledger.
 - **Reuses**: `Money`, `Currency`, `LocalDate`, `AggregateRoot` e erros tipados.
 
-`JournalEntry` persiste sua moeda, que deve ser a moeda-base carregada do livro. O agregado valida quantidade de postings, contas distintas, valores não zero, moeda única e soma zero. A aplicação valida que as contas existem, estão ativas e pertencem ao livro.
+`JournalEntry` persiste sua moeda, `recordedAt` e `sequence`. A moeda deve ser a moeda-base carregada do livro. A sequência é única e estritamente crescente dentro do livro. O agregado valida quantidade de postings, contas distintas, valores não zero, moeda única e soma zero. Ele também rejeita uma reversão com data anterior à original e a reversão de um lançamento que já seja reversor. A aplicação valida que as contas existem, estão ativas e pertencem ao livro.
 
 ### Journal Entry Factory
 
@@ -241,7 +244,7 @@ Repositórios carregam e persistem raízes de agregação. `LedgerQueries` retor
 - **Dependencies**: Repositórios, transaction manager, IDs, clock, event dispatcher e journal factory.
 - **Reuses**: Validadores comuns de livro/conta e conversores de command.
 
-Cada command contém somente strings e primitivos. Valores monetários chegam como string inteira; outputs devolvem IDs e datas como strings.
+Cada command contém somente strings e primitivos. Valores monetários chegam como string inteira; outputs devolvem IDs e datas como strings. Todo caso de uso que cria lançamento obtém `recordedAt` de `Clock` e reserva a próxima sequência por livro em `JournalEntryRepository` dentro da transação. `SetOpeningBalance` consulta o saldo inicial ativo antes de criar outro.
 
 ### Ledger Query Use Cases
 
@@ -253,7 +256,7 @@ Cada command contém somente strings e primitivos. Valores monetários chegam co
 - **Dependencies**: Repositório de contas e `LedgerQueries`.
 - **Reuses**: DTOs compartilhados da aplicação e normal balance do domínio.
 
-O query adapter calcula postings em ordem cronológica ascendente para obter saldos correntes. O DTO final é ordenado por data e ID decrescentes.
+O query adapter calcula postings em ordem `occurredOn ASC, sequence ASC` para obter saldos correntes. O DTO final inverte essa coleção e retorna `occurredOn DESC, sequence DESC`.
 
 ### In-Memory Store and Repositories
 
@@ -350,6 +353,8 @@ interface JournalEntrySnapshot {
   id: JournalEntryId
   bookId: BookId
   occurredOn: string
+  recordedAt: string
+  sequence: string
   description: string
   currency: string
   origin: "MANUAL" | "SYSTEM"
@@ -366,14 +371,27 @@ interface JournalEntrySnapshot {
 interface DomainEventEnvelope<TType extends string, TPayload> {
   eventId: string
   type: TType
+  eventVersion: 1
   occurredAt: string
   aggregateId: string
+  aggregateVersion: number
   bookId: string
   payload: TPayload
 }
 ```
 
-Agregados levantam fatos sem metadata técnica. Depois do commit, um dispatcher usa `IdGenerator` e `Clock` para criar envelopes e chama `DomainEventPublisher`.
+Agregados levantam fatos com a versão do agregado no instante da transição, mas sem ID, versão ou data do evento. Depois do commit, um dispatcher usa `IdGenerator` e `Clock` para criar envelopes e chama `DomainEventPublisher`.
+
+### Domain Fact
+
+```typescript
+interface DomainFact<TType extends string, TPayload> {
+  type: TType
+  aggregateId: string
+  aggregateVersion: number
+  payload: TPayload
+}
+```
 
 ### Query DTOs
 
@@ -388,6 +406,8 @@ interface AccountBalanceDto {
 interface AccountStatementItemDto {
   journalEntryId: string
   occurredOn: string
+  recordedAt: string
+  sequence: string
   description: string
   amountMinor: string
   runningBalanceMinor: string
@@ -418,6 +438,8 @@ interface LedgerAccountRepository {
 
 interface JournalEntryRepository {
   findById(id: JournalEntryId): Promise<JournalEntry | null>
+  findActiveOpeningBalanceByAccount(bookId: BookId, accountId: LedgerAccountId): Promise<JournalEntry | null>
+  reserveNextSequence(bookId: BookId): Promise<string>
   add(entry: JournalEntry): Promise<void>
   save(entry: JournalEntry, expectedVersion: number): Promise<void>
 }
@@ -427,6 +449,8 @@ interface LedgerQueries {
   getAccountStatement(input: { bookId: BookId; accountId: LedgerAccountId }): Promise<readonly AccountStatementItemView[]>
 }
 ```
+
+`reserveNextSequence` participa da mesma transação do `add`. O adapter em memória mantém contadores no snapshot transacional. O adapter SQLite deverá reservar a sequência na transação de escrita e impor `UNIQUE(book_id, sequence)`.
 
 `save` compara `expectedVersion` com o snapshot persistido. O agregado entregue para salvar já contém a versão incrementada; conflito mantém o snapshot anterior.
 
@@ -441,6 +465,9 @@ interface LedgerQueries {
 | Duplicidade de nome ou ID | Repository/application error aborta transação | `DUPLICATE_ENTITY` |
 | Lançamento inválido | `DomainError` aborta transação | Código exato da invariante, como `UNBALANCED_JOURNAL_ENTRY` |
 | Reversão repetida | Agregado original rejeita transição | `JOURNAL_ENTRY_ALREADY_REVERSED` |
+| Saldo inicial ativo já existente | Caso de uso interrompe antes da factory | `OPENING_BALANCE_ALREADY_SET` |
+| Data de reversão anterior à original | Agregado rejeita criação do reversor | `REVERSAL_DATE_BEFORE_ORIGINAL` |
+| Alvo já é um reversor | Agregado rejeita criação do reversor | `JOURNAL_ENTRY_REVERSAL_NOT_REVERSIBLE` |
 | Versão concorrente | `save` preserva snapshot e lança conflito | `OPTIMISTIC_CONCURRENCY_FAILURE` |
 | Falha inesperada dentro da transação | Transaction manager restaura snapshot | `UNEXPECTED_ERROR`, sem exceção de infraestrutura exposta |
 
@@ -473,10 +500,11 @@ Vitest será instalado nos três pacotes. Testes de comportamento que cruzam apl
 | Application ports, converters and error boundary | FDC-04, FDC-45, FDC-46, FDC-57, FDC-58 |
 | Financial book | FDC-06 a FDC-11 |
 | Ledger accounts | FDC-12 a FDC-17 |
-| Journal and factory | FDC-18 a FDC-38 |
-| Query use cases and adapter | FDC-39 a FDC-44 |
+| Journal and factory | FDC-18 a FDC-38, FDC-60, FDC-61, FDC-63, FDC-64 |
+| Query use cases and adapter | FDC-39 a FDC-44, FDC-63, FDC-64 |
 | In-memory repositories and transaction | FDC-47 a FDC-50, FDC-56 |
-| Event dispatcher and publisher | FDC-51 a FDC-55, FDC-58 |
+| Event dispatcher and publisher | FDC-51 a FDC-55, FDC-58, FDC-65, FDC-66 |
+| Opening balance and financial-kind scenarios | FDC-59, FDC-62 |
 
 Alguns requisitos aparecem em mais de um componente porque descrevem um resultado que atravessa as fronteiras. A matriz de tarefas fará o mapeamento final 1:1.
 
@@ -486,11 +514,13 @@ Alguns requisitos aparecem em mais de um componente porque descrevem um resultad
 
 | Concern | Location (file:line) | Impact | Mitigation |
 | --- | --- | --- | --- |
-| O starter não possui runner, scripts ou testes | `package.json:5` | Não há gate executável para os 58 requisitos | Adicionar Vitest, scripts por pacote e task `test` no Turbo antes do primeiro código de domínio. |
-| O engine atual aceita Node 18, incompatível com Vitest 4 | `package.json:17` | Instalação ou execução pode falhar em ambientes Node 18 | Elevar o engine para Node 20 e documentar o requisito no tooling. |
-| `structuredClone` não reidrata protótipos de classes | Novo adapter em memória | Agregados carregados poderiam perder comportamento ou compartilhar estado de forma enganosa | Persistir snapshots planos e chamar factories `restore`. |
-| Evento pós-commit não tem outbox | Decisão confirmada no contexto | Uma futura integração assíncrona poderia perder evento | Manter publisher local não falhável neste recorte; especificar outbox junto do adapter persistente. |
-| Ordenação por ID opaco é apenas determinística, não temporal | FDC-42 | Dois lançamentos no mesmo dia não refletem necessariamente ordem de criação | Preservar o contrato aprovado; uma futura necessidade de ordem intradiária exigirá novo campo e migração. |
+| O starter não possuía runner, scripts ou testes | `package.json:5` no baseline anterior a `d1c1c79` | Não havia gate executável para os 58 requisitos | Resolvido na v1.0.0 com Vitest, scripts por pacote e task `test` no Turbo. |
+| O engine aceitava Node 18, incompatível com Vitest 4 | `package.json:17` no baseline anterior a `d1c1c79` | Instalação ou execução podia falhar em ambientes Node 18 | Resolvido na v1.0.0 ao elevar o engine para Node 20. |
+| `structuredClone` não reidrata protótipos de classes | Adapter em memória | Agregados carregados poderiam perder comportamento ou compartilhar estado de forma enganosa | Resolvido na v1.0.0 com snapshots planos e factories `restore`; repository contracts preservam a regra. |
+| Evento pós-commit não tem outbox | Decisão confirmada no contexto | Uma futura integração assíncrona poderia perder evento | Manter publisher local não falhável neste recorte; exigir transactional outbox na spec do adapter persistente. |
+| A implementação v1.0.0 ordena empates pelo ID opaco | `packages/infrastructure-memory/src/queries/in-memory-ledger-queries.ts:79` | Saldos intermediários do mesmo dia podem aparecer fora da ordem de registro | A emenda v1.1.0 adiciona `recordedAt` e `sequence` e altera FDC-42 antes do SQLite. |
+| A implementação v1.0.0 aceita saldo inicial repetido | `packages/application/src/ledger/journal/set-opening-balance.ts:46` | Duas execuções somam saldos em vez de substituir o ponto de partida | A emenda v1.1.0 consulta o lançamento ativo e exige reversão antes de redefinir. |
+| A implementação v1.0.0 não fecha data nem encadeamento de reversão | `packages/domain/src/ledger/journal/journal-entry.ts:170` | O histórico pode conter reversão retroativa ou cadeia de reversores | A emenda v1.1.0 adiciona guards e códigos estáveis. |
 | Todos os saldos são recalculados em memória | Novo query adapter | Custo cresce linearmente com o ledger | Aceitável para o adapter de prova; SQLite futuro terá índices/read models sem mudar `LedgerQueries`. |
 | Os casos de uso e o adapter precisam ser testados juntos sem ciclo de pacote | Novos pacotes | Testes colocados no pacote application não podem depender do adapter externo | Hospedar testes cross-layer em `infrastructure-memory`; domínio continua com testes unitários locais. |
 
@@ -509,3 +539,7 @@ Alguns requisitos aparecem em mais de um componente porque descrevem um resultad
 | Application failure model | Throw interno para abortar; `Result` na fronteira | Garante rollback para qualquer falha e mantém API explícita. |
 | Query model | Derivado dos postings | Ledger permanece fonte de verdade; nenhum saldo autoritativo duplicado. |
 | Event metadata | Envelope criado depois do commit | Domínio não acessa relógio ou gerador e publisher só recebe eventos confirmados. |
+| Intraday order | `recordedAt` + sequência decimal monotônica por livro | Separa data financeira da ordem técnica e mantém IDs opacos. |
+| Opening balance correction | Reverter o lançamento ativo e criar outro | Preserva o ledger append-oriented e a semântica de `SetOpeningBalance`. |
+| Reversal chain | Data não retroativa e reversor não reversível | Mantém o histórico causal simples na V1. |
+| Event schema evolution | `eventVersion = 1` + `aggregateVersion` | Permite evolução de payload e consumo persistente sem inferir versão. |
