@@ -29,8 +29,40 @@ export type {
 } from "./repositories.js";
 export type {
   AccountBalanceView,
+  AccountBalanceItemView,
   AccountStatementItemView,
   LedgerQueries,
 } from "./queries.js";
+export type {
+  GetCategorySpendingQuery,
+  GetMonthlyCashFlowQuery,
+  GetNetWorthQuery,
+  ListAccountBalancesQuery,
+  ListAccountStatementQuery,
+  ListJournalEntriesQuery,
+  QueryPage,
+} from "./query-inputs.js";
+export type {
+  AccountStatementItem,
+  AccountSummaryView,
+  JournalEntryCursorKey,
+  JournalEntryListItem,
+  LedgerReadQueries,
+  ListAccountBalancesInput,
+  ListAccountStatementInput,
+  ListJournalEntriesInput,
+  QuerySlice,
+  StatementCursorKey,
+} from "./ledger-read-queries.js";
+export type {
+  CategorySpendingItem,
+  GetCategorySpendingInput,
+  GetMonthlyCashFlowInput,
+  GetNetWorthInput,
+  InsightQueries,
+  MonthlyCashFlowItem,
+  NetWorthView,
+} from "./insight-queries.js";
+export type { YearMonth } from "./querying-types.js";
 export type { CommittedTransaction, TransactionManager } from "./transaction.js";
 export type { Clock, IdGenerator } from "./time.js";

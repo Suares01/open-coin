@@ -93,12 +93,12 @@ T12 -> T13 -> T14
 
 **Done when**:
 
-- [ ] Os seis inputs públicos contêm somente strings, números, booleanos, arrays readonly e opcionais definidos no design.
-- [ ] `LedgerReadQueries` e `InsightQueries` aceitam IDs, datas e cursor keys já validados.
-- [ ] Pages usam `readonly items` e `nextCursor`; slices internos usam `nextKey`.
-- [ ] `LedgerQueries` mantém as duas assinaturas existentes.
-- [ ] Exports públicos compilam; helpers internos e adapters não vazam pelo pacote.
-- [ ] Zero testes novos são necessários pela matriz e a contagem existente permanece inalterada.
+- [x] Os seis inputs públicos contêm somente strings, números, booleanos, arrays readonly e opcionais definidos no design.
+- [x] `LedgerReadQueries` e `InsightQueries` aceitam IDs, datas e cursor keys já validados.
+- [x] Pages usam `readonly items` e `nextCursor`; slices internos usam `nextKey`.
+- [x] `LedgerQueries` mantém as duas assinaturas existentes.
+- [x] Exports públicos compilam; helpers internos e adapters não vazam pelo pacote.
+- [x] Zero testes novos são necessários pela matriz e a contagem existente permanece inalterada.
 
 **Tests**: build-only (matrix: none)
 **Gate**: Application build
