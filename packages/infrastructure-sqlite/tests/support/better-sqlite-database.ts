@@ -139,6 +139,10 @@ export class BetterSqliteDatabase implements SqliteDatabase {
     return this.closePromise;
   }
 
+  public get isTransactionActive(): boolean {
+    return this.connection.inTransaction;
+  }
+
   public executeOnConnection(
     sql: string,
     parameters?: SqliteParameters,

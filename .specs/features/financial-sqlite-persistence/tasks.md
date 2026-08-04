@@ -206,12 +206,12 @@ T19 → T20 → T21 → T22 → T23 → T24 → T25
 
 **Done when**:
 
-- [ ] Toda conexão fica com foreign_keys ON e busy_timeout 5000.
-- [ ] Arquivo local fica em WAL e synchronous FULL.
-- [ ] `:memory:` não solicita WAL e mantém modo de memória.
-- [ ] Configuração executada dentro de transação é rejeitada no teste de precondição.
-- [ ] Seis testes de integração consultam PRAGMAs efetivos.
-- [ ] Test count: 6 novos casos; nenhum teste removido.
+- [x] Toda conexão fica com foreign_keys ON e busy_timeout 5000.
+- [x] Arquivo local fica em WAL e synchronous FULL.
+- [x] `:memory:` não solicita WAL e mantém modo de memória.
+- [x] Configuração executada dentro de transação é rejeitada no teste de precondição.
+- [x] Seis testes de integração consultam PRAGMAs efetivos.
+- [x] Test count: 6 novos casos; nenhum teste removido.
 
 **Tests**: integration
 **Gate**: full
