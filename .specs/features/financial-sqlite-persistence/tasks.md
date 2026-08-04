@@ -719,11 +719,11 @@ T19 → T20 → T21 → T22 → T23 → T24 → T25
 
 **Done when**:
 
-- [ ] Combinações ASSET/LIABILITY, links, posting order e fatos são idênticos.
-- [ ] Conflito, data inválida, reversão dupla e rollback não deixam partial state.
-- [ ] 23 cenários são definidos e executados duas vezes: 46 casos passam.
-- [ ] Tests memory originais permanecem intactos e verdes.
-- [ ] Test count: 46 execuções compartilhadas; nenhum teste removido.
+- [x] Combinações ASSET/LIABILITY, links, posting order e fatos são idênticos.
+- [x] Conflito, data inválida, reversão dupla e rollback não deixam partial state.
+- [x] 23 cenários são definidos e executados duas vezes: 46 casos passam.
+- [x] Tests memory originais permanecem intactos e verdes.
+- [x] Test count: 46 execuções compartilhadas; nenhum teste removido.
 
 **Tests**: integration
 **Gate**: full
