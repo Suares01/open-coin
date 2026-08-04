@@ -434,13 +434,13 @@ T19 → T20 → T21 → T22 → T23 → T24 → T25
 
 **Done when**:
 
-- [ ] Find/purpose/name respeitam bookId e campos exatos.
-- [ ] ID, nome e propósito duplicados retornam DUPLICATE_ENTITY.
-- [ ] Save distingue ausência/conflito e preserva estado em falha.
-- [ ] Conta de outro livro não satisfaz buscas escopadas.
-- [ ] Fatos só são coletados após sucesso.
-- [ ] Onze testes de integração passam.
-- [ ] Test count: 11 novos casos; nenhum teste removido.
+- [x] Find/purpose/name respeitam bookId e campos exatos.
+- [x] ID, nome e propósito duplicados retornam DUPLICATE_ENTITY.
+- [x] Save distingue ausência/conflito e preserva estado em falha.
+- [x] Conta de outro livro não satisfaz buscas escopadas.
+- [x] Fatos só são coletados após sucesso.
+- [x] Onze testes de integração passam.
+- [x] Test count: 11 novos casos; nenhum teste removido.
 
 **Tests**: integration
 **Gate**: full
