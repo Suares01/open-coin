@@ -350,11 +350,11 @@ T19 → T20 → T21 → T22 → T23 → T24 → T25
 
 **Done when**:
 
-- [ ] Todos os cinco campos fazem round-trip exato.
-- [ ] Restore não levanta fatos.
-- [ ] Row inválida falha antes de construir o aggregate.
-- [ ] Quatro testes unitários passam.
-- [ ] Test count: 4 novos casos; nenhum teste removido.
+- [x] Todos os cinco campos fazem round-trip exato.
+- [x] Restore não levanta fatos.
+- [x] Row inválida falha antes de construir o aggregate.
+- [x] Quatro testes unitários passam.
+- [x] Test count: 4 novos casos; nenhum teste removido.
 
 **Tests**: unit
 **Gate**: quick
