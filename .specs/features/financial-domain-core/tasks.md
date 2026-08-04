@@ -500,10 +500,10 @@ T29 -> T30 -> T31 -> T32 -> T33
 
 **Done when**:
 
-- [ ] Callback bem-sucedido preserva todas as alterações.
-- [ ] Erro após uma ou várias escritas restaura todos os repositories.
-- [ ] Erro original é propagado para a fronteira da aplicação.
-- [ ] Pelo menos 5 testes de rollback passam.
+- [x] Callback bem-sucedido preserva todas as alterações.
+- [x] Erro após uma ou várias escritas restaura todos os repositories.
+- [x] Erro original é propagado para a fronteira da aplicação.
+- [x] Pelo menos 5 testes de rollback passam.
 
 **Tests**: integration
 **Gate**: Full
