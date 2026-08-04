@@ -119,12 +119,12 @@ T12 -> T13 -> T14
 
 **Done when**:
 
-- [ ] Datas reais, `YYYY-MM`, intervalos, IDs obrigatórios e limites de 1 a 100 retornam tipos validados.
-- [ ] Arrays vazios, enums inválidos, busca vazia e intervalos invertidos retornam `INVALID_QUERY`.
-- [ ] Cursores de statement e journal fazem round-trip de datas, sequências decimais grandes e posting position.
-- [ ] Prefixo, versão, quantidade de campos ou valor inválido retorna `INVALID_QUERY`.
-- [ ] Pelo menos 20 testes unitários derivados de FQR-03, FQR-04, FQR-16, FQR-27, FQR-39 e FQR-47 passam.
-- [ ] Nenhum teste existente é removido, ignorado ou enfraquecido.
+- [x] Datas reais, `YYYY-MM`, intervalos, IDs obrigatórios e limites de 1 a 100 retornam tipos validados.
+- [x] Arrays vazios, enums inválidos, busca vazia e intervalos invertidos retornam `INVALID_QUERY`.
+- [x] Cursores de statement e journal fazem round-trip de datas, sequências decimais grandes e posting position.
+- [x] Prefixo, versão, quantidade de campos ou valor inválido retorna `INVALID_QUERY`.
+- [x] Pelo menos 20 testes unitários derivados de FQR-03, FQR-04, FQR-16, FQR-27, FQR-39 e FQR-47 passam.
+- [x] Nenhum teste existente é removido, ignorado ou enfraquecido.
 
 **Tests**: unit
 **Gate**: Application quick
