@@ -352,10 +352,10 @@ T29 -> T30 -> T31 -> T32 -> T33
 
 **Done when**:
 
-- [ ] Package compila, tipa e linta com dependência unidirecional para domain.
-- [ ] Scripts do pacote estão integrados ao Turbo.
-- [ ] API pública inicial não exporta adapters.
-- [ ] Build gate passa; nenhum comportamento existe ainda.
+- [x] Package compila, tipa e linta com dependência unidirecional para domain.
+- [x] Scripts do pacote estão integrados ao Turbo.
+- [x] API pública inicial não exporta adapters.
+- [x] Build gate passa; nenhum comportamento existe ainda.
 
 **Tests**: build-only (matrix: none)
 **Gate**: Build
