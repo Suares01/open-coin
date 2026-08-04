@@ -437,10 +437,10 @@ T29 -> T30 -> T31 -> T32 -> T33
 
 **Done when**:
 
-- [ ] Add/find/save satisfazem o repository contract.
-- [ ] Alterar agregado carregado sem `save` não muda o persistido.
-- [ ] ID duplicado e versão divergente preservam o snapshot anterior.
-- [ ] Pelo menos 6 testes de contrato passam.
+- [x] Add/find/save satisfazem o repository contract.
+- [x] Alterar agregado carregado sem `save` não muda o persistido.
+- [x] ID duplicado e versão divergente preservam o snapshot anterior.
+- [x] Pelo menos 6 testes de contrato passam.
 
 **Tests**: integration
 **Gate**: Full
