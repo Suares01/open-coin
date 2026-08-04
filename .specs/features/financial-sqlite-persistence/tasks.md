@@ -665,11 +665,11 @@ T19 → T20 → T21 → T22 → T23 → T24 → T25
 
 **Done when**:
 
-- [ ] Outputs, errors, system accounts, facts e rollback usam assertions idênticas.
-- [ ] Inspeção ocorre via ports e IDs determinísticos, não por internals SQLite.
-- [ ] 29 cenários são definidos e executados duas vezes: 58 casos passam.
-- [ ] Tests memory originais permanecem intactos e verdes.
-- [ ] Test count: 58 execuções compartilhadas; nenhum teste removido.
+- [x] Outputs, errors, system accounts, facts e rollback usam assertions idênticas.
+- [x] Inspeção ocorre via ports e IDs determinísticos, não por internals SQLite.
+- [x] 29 cenários são definidos e executados duas vezes: 58 casos passam.
+- [x] Tests memory originais permanecem intactos e verdes.
+- [x] Test count: 58 execuções compartilhadas; nenhum teste removido.
 
 **Tests**: integration
 **Gate**: full
