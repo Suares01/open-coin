@@ -272,7 +272,7 @@ Toda ambiguidade está resolvida ou registrada aqui.
 | FDC-26 | P1: Definir saldo inicial e registrar fluxo financeiro | Design | Verified |
 | FDC-27 | P1: Definir saldo inicial e registrar fluxo financeiro | Design | Verified |
 | FDC-28 | P1: Definir saldo inicial e registrar fluxo financeiro | Design | Verified |
-| FDC-29 | P1: Definir saldo inicial e registrar fluxo financeiro | Design | Pending |
+| FDC-29 | P1: Definir saldo inicial e registrar fluxo financeiro | Design | Verified |
 | FDC-30 | P1: Definir saldo inicial e registrar fluxo financeiro | Design | Verified |
 | FDC-31 | P1: Definir saldo inicial e registrar fluxo financeiro | Design | Pending |
 | FDC-32 | P1: Transferir entre contas | Design | Pending |

@@ -6,3 +6,4 @@ export { CreateIncomeCategory } from "./ledger/accounts/create-income-category.j
 export { CreateExpenseCategory } from "./ledger/accounts/create-expense-category.js";
 export { SetOpeningBalance } from "./ledger/journal/set-opening-balance.js";
 export { RecordExpense } from "./ledger/journal/record-expense.js";
+export { RecordIncome } from "./ledger/journal/record-income.js";
