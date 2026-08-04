@@ -9,7 +9,10 @@ Se a skill não puder ser ativada, pare e informe o usuário. Não prossiga sem 
 ---
 
 **Design**: `.specs/features/financial-domain-core/design.md`
-**Status**: Draft
+**Status**: Completed (v1.0.0); Amendment Pending (v1.1.0)
+**Feature version**: 1.1.0
+**Implementation commit range (v1.0.0)**: `d1c1c79^..570afc1`
+**Validation date (v1.0.0)**: 2026-08-04
 
 ---
 
@@ -26,7 +29,7 @@ Se a skill não puder ser ativada, pare e informe o usuário. Não prossiga sem 
 | Dispatcher e fronteira de aplicação | unit | Commit-before-publish, envelopes determinísticos e mapeamento de todos os erros | `packages/application/src/**/*.test.ts` | `pnpm --filter @open-coin/application test` |
 | Repositórios e transação em memória | integration | Contratos, cópia, duplicidade, concorrência e rollback | `packages/infrastructure-memory/src/**/*.test.ts` | `pnpm --filter @open-coin/infrastructure-memory test` |
 | Casos de uso com adapters em memória | integration | Todos os caminhos felizes, erros e efeitos; 1:1 dos ACs | `packages/infrastructure-memory/src/use-cases/**/*.test.ts` | `pnpm --filter @open-coin/infrastructure-memory test` |
-| Queries e read models em memória | integration | Datas-limite, sinais, ordenação, isolamento, reversões e saldos correntes | `packages/infrastructure-memory/src/queries/**/*.test.ts` | `pnpm --filter @open-coin/infrastructure-memory test` |
+| Queries e read models em memória | integration | Datas-limite, sinais, ordem intradiária por sequência, isolamento, reversões e saldos correntes | `packages/infrastructure-memory/src/queries/**/*.test.ts` | `pnpm --filter @open-coin/infrastructure-memory test` |
 
 ## Gate Check Commands
 
@@ -73,6 +76,12 @@ T22 -> T23 -> T24 -> T25 -> T26 -> T27 -> T28
 
 ```text
 T29 -> T30 -> T31 -> T32 -> T33
+```
+
+### Phase 6: Emenda de integridade antes do SQLite
+
+```text
+T34 -> T35 -> T36 -> T37 -> T38 -> T39 -> T40 -> T41
 ```
 
 ---
@@ -739,7 +748,7 @@ T29 -> T30 -> T31 -> T32 -> T33
 
 - [x] Data-limite inclui somente postings até o dia solicitado.
 - [x] Sinais exibidos seguem o normal balance de todos os cinco kinds.
-- [x] Running balance é calculado cronologicamente e DTO final usa data/ID decrescentes.
+- [x] Na baseline v1.0.0, running balance é calculado cronologicamente e o DTO final usa data/ID decrescentes.
 - [x] Original e reversor aparecem e produzem efeito líquido zero.
 - [x] Pelo menos 11 testes de integração passam.
 
@@ -781,7 +790,7 @@ T29 -> T30 -> T31 -> T32 -> T33
 **Done when**:
 
 - [x] DTO contém ID, data, descrição, valor e running balance como strings exatas.
-- [x] Ordenação, isolamento e reversão atendem FDC-41 a FDC-44.
+- [x] Na baseline v1.0.0, ordenação por ID, isolamento e reversão atendem FDC-41 a FDC-44 então vigentes.
 - [x] Teste vertical cria livro, duas contas, categoria, saldo inicial, despesa, receita, transferência e reversão e confere saldos/extrato finais.
 - [x] Execução repetida com adapters fixos produz resultados e eventos equivalentes.
 - [x] Pelo menos 10 testes cross-layer novos passam e o Build gate completo fica verde.
@@ -789,6 +798,176 @@ T29 -> T30 -> T31 -> T32 -> T33
 **Tests**: integration
 **Gate**: Build
 **Commit**: `feat(application): query account statement`
+
+### Phase 6: Emenda de integridade antes do SQLite
+
+### T34: Persistir metadata de ordem no JournalEntry
+
+**What**: Adicionar `recordedAt` e `sequence` imutáveis ao agregado, snapshots, factories e reidratação de `JournalEntry`.
+**Where**: `packages/domain/src/ledger/journal/`
+**Depends on**: T33
+**Reuses**: `JournalEntry.post`, `JournalEntry.restore`, snapshots planos e value objects existentes.
+**Requirement**: FDC-63, FDC-64
+
+**Tools**: MCP `NONE`; Skill `tlc-spec-driven`.
+
+**Done when**:
+
+- [x] Todo lançamento novo e reidratado preserva `recordedAt` ISO 8601 e `sequence` decimal.
+- [x] Os campos não possuem setter e permanecem idênticos em cópias e reversões.
+- [x] Testes unitários cobrem criação, reversão, snapshot, restore e entradas inválidas.
+- [x] O Quick domain gate passa com ao menos 111 testes e sem excluir os 107 existentes.
+
+**Tests**: unit
+**Gate**: Quick domain
+**Commit**: `feat(domain): add journal ordering metadata`
+
+### T35: Reservar sequência monotônica por livro
+
+**What**: Reservar a próxima sequência no `JournalEntryRepository` dentro da transação e integrar a metadata em todos os comandos que criam lançamentos.
+**Where**: `packages/application/src/ledger/journal/`
+**Depends on**: T34
+**Reuses**: `Clock`, `JournalEntryRepository`, `TransactionManager` e factories de journal.
+**Requirement**: FDC-42, FDC-63, FDC-64
+
+**Tools**: MCP `NONE`; Skill `tlc-spec-driven`.
+
+**Done when**:
+
+- [ ] Cada caso de uso obtém `recordedAt` do `Clock` e reserva uma sequência no repository dentro da transação.
+- [ ] Sequências são únicas, estritamente crescentes por `bookId` e independentes entre livros.
+- [ ] Falha ou rollback não publica evento nem reutiliza uma sequência já confirmada.
+- [ ] O Full gate passa com testes determinísticos de todos os comandos de journal.
+
+**Tests**: integration
+**Gate**: Full
+**Commit**: `feat(application): reserve journal entry sequence`
+
+### T36: Ordenar extrato pela sequência de registro
+
+**What**: Substituir o desempate por ID pela ordem `occurredOn, sequence` no cálculo e no DTO do extrato.
+**Where**: `packages/infrastructure-memory/src/queries/in-memory-ledger-queries.ts`
+**Depends on**: T35
+**Reuses**: `InMemoryStore`, cálculo atual de running balance e `AccountStatementItemView`.
+**Requirement**: FDC-41, FDC-42, FDC-63, FDC-64
+
+**Tools**: MCP `NONE`; Skill `tlc-spec-driven`.
+
+**Done when**:
+
+- [ ] O cálculo usa `occurredOn ASC, sequence ASC` e o retorno usa a ordem inversa.
+- [ ] IDs fora de ordem lexical não alteram a ordem real de registro.
+- [ ] Saldos intermediários de quatro movimentações no mesmo dia correspondem à sequência confirmada.
+- [ ] O Full gate passa com ao menos três novos cenários de ordenação e sem regressão nos 264 testes existentes.
+
+**Tests**: integration
+**Gate**: Full
+**Commit**: `fix(memory): order statements by journal sequence`
+
+### T37: Impedir saldo inicial ativo duplicado
+
+**What**: Consultar o saldo inicial ativo da conta e rejeitar uma segunda definição até que o lançamento anterior seja revertido.
+**Where**: `packages/application/src/ledger/journal/set-opening-balance.ts`
+**Depends on**: T36
+**Reuses**: `JournalEntryRepository`, vínculos `reversedBy` e rollback transacional.
+**Requirement**: FDC-25, FDC-26, FDC-27, FDC-59
+
+**Tools**: MCP `NONE`; Skill `tlc-spec-driven`.
+
+**Done when**:
+
+- [ ] Segundo saldo inicial ativo retorna `OPENING_BALANCE_ALREADY_SET` sem escrita ou evento.
+- [ ] Reverter o saldo inicial anterior permite criar um novo para a mesma conta.
+- [ ] Contas diferentes e livros diferentes mantêm isolamento.
+- [ ] O Full gate passa com caminhos feliz, duplicado, pós-reversão e rollback.
+
+**Tests**: integration
+**Gate**: Full
+**Commit**: `fix(application): prevent duplicate opening balance`
+
+### T38: Fechar regras temporais de reversão
+
+**What**: Rejeitar reversão anterior ao lançamento original e impedir que um reversor seja revertido.
+**Where**: `packages/domain/src/ledger/journal/journal-entry.ts`
+**Depends on**: T37
+**Reuses**: `LocalDate`, `reversalOf`, `reversedBy` e `DomainError`.
+**Requirement**: FDC-35, FDC-36, FDC-37, FDC-38, FDC-60, FDC-61
+
+**Tools**: MCP `NONE`; Skill `tlc-spec-driven`.
+
+**Done when**:
+
+- [ ] Data anterior falha com `REVERSAL_DATE_BEFORE_ORIGINAL` sem mutação.
+- [ ] Alvo com `reversalOf` falha com `JOURNAL_ENTRY_REVERSAL_NOT_REVERSIBLE` sem mutação.
+- [ ] Mesma data e data posterior continuam aceitas com postings opostos exatos.
+- [ ] O Full gate passa com testes unitários e cross-layer para cada transição.
+
+**Tests**: integration
+**Gate**: Full
+**Commit**: `fix(domain): guard journal reversal timeline`
+
+### T39: Registrar a versão do agregado nos fatos
+
+**What**: Adicionar `aggregateVersion` a `DomainFact` e capturar a versão exata em cada fato levantado pelos agregados.
+**Where**: `packages/domain/src/`
+**Depends on**: T38
+**Reuses**: `AggregateRoot.recordFact`, versionamento dos agregados e testes de eventos existentes.
+**Requirement**: FDC-52, FDC-53, FDC-54, FDC-55, FDC-66
+
+**Tools**: MCP `NONE`; Skill `tlc-spec-driven`.
+
+**Done when**:
+
+- [ ] Todo `DomainFact` contém `aggregateVersion` no instante em que a transição produz o fato.
+- [ ] Fatos de criação usam versão `0`; `JournalEntryReversed` usa a versão incrementada do original.
+- [ ] Pull, cópia e persistência não alteram a versão capturada.
+- [ ] O Quick domain gate passa com assertions exatas para todos os tipos de fato.
+
+**Tests**: unit
+**Gate**: Quick domain
+**Commit**: `feat(domain): version aggregate facts`
+
+### T40: Versionar envelopes de eventos
+
+**What**: Adicionar `eventVersion` e mapear `aggregateVersion` na criação determinística dos envelopes.
+**Where**: `packages/application/src/core/event-dispatcher.ts`
+**Depends on**: T39
+**Reuses**: `DomainEventDispatcher`, `DomainFact`, `Clock` e `IdGenerator`.
+**Requirement**: FDC-51, FDC-52, FDC-53, FDC-54, FDC-55, FDC-65, FDC-66
+
+**Tools**: MCP `NONE`; Skill `tlc-spec-driven`.
+
+**Done when**:
+
+- [ ] Todo evento existente sai com `eventVersion: 1`.
+- [ ] `aggregateVersion` do envelope é igual ao valor imutável carregado pelo fato.
+- [ ] Ordem de publicação e comportamento de rollback permanecem inalterados.
+- [ ] O Full gate passa com assertions exatas para todos os tipos de evento.
+
+**Tests**: unit
+**Gate**: Full
+**Commit**: `feat(application): version domain event envelopes`
+
+### T41: Provar a matriz ASSET e LIABILITY
+
+**What**: Adicionar cenários contábeis explícitos para despesas e todas as direções de transferência entre ativos e passivos.
+**Where**: `packages/infrastructure-memory/src/use-cases/financial-account-kind-matrix.test.ts`
+**Depends on**: T40
+**Reuses**: Fixtures dos casos de uso, postings assinados e queries de saldo.
+**Requirement**: FDC-28, FDC-32, FDC-34, FDC-62
+
+**Tools**: MCP `NONE`; Skill `tlc-spec-driven`.
+
+**Done when**:
+
+- [ ] Despesa em `ASSET` e `LIABILITY` mantém débito na categoria e crédito na conta.
+- [ ] Transferências `ASSET -> ASSET`, `ASSET -> LIABILITY`, `LIABILITY -> ASSET` e `LIABILITY -> LIABILITY` mantêm crédito na origem e débito no destino.
+- [ ] Cada cenário confere postings, saldos exibidos e ausência de `INCOME`/`EXPENSE` em transferências.
+- [ ] O Build gate passa com ao menos seis novos cenários e sem regressão nos 264 testes v1.0.0.
+
+**Tests**: integration
+**Gate**: Build
+**Commit**: `test(ledger): cover asset liability operation matrix`
 
 ---
 
@@ -800,9 +979,10 @@ Phase 2: T7 -> T8 -> T9 -> T10 -> T11 -> T12
 Phase 3: T13 -> T14 -> T15 -> T16 -> T17 -> T18 -> T19 -> T20 -> T21
 Phase 4: T22 -> T23 -> T24 -> T25 -> T26 -> T27 -> T28
 Phase 5: T29 -> T30 -> T31 -> T32 -> T33
+Phase 6: T34 -> T35 -> T36 -> T37 -> T38 -> T39 -> T40 -> T41
 ```
 
-Há 33 tarefas. Durante Execute, as cinco fases formam aproximadamente cinco batches sequenciais. Nenhuma fase será dividida entre workers.
+T1-T33 foram concluídas na v1.0.0. A emenda v1.1.0 possui oito tarefas sequenciais e cabe em um único batch. Nenhuma fase será dividida entre workers.
 
 ---
 
@@ -832,6 +1012,14 @@ Há 33 tarefas. Durante Execute, as cinco fases formam aproximadamente cinco bat
 | T22-T30 | Um caso de uso por task | ✅ Granular |
 | T31 | Um query adapter | ✅ Granular |
 | T32-T33 | Um caso de uso por task | ✅ Granular |
+| T34 | Um agregado e seus testes co-localizados | ✅ Coeso |
+| T35 | Uma integração transversal dos comandos de journal | ✅ Coeso |
+| T36 | Um query adapter | ✅ Granular |
+| T37 | Um caso de uso e seu contrato de leitura | ✅ Coeso |
+| T38 | Uma transição de aggregate | ✅ Granular |
+| T39 | Um contrato de fato e os agregados produtores | ✅ Coeso |
+| T40 | Um dispatcher e seu contrato | ✅ Granular |
+| T41 | Uma matriz de cenários para comportamento existente | ✅ Granular |
 
 ---
 
@@ -872,6 +1060,14 @@ Há 33 tarefas. Durante Execute, as cinco fases formam aproximadamente cinco bat
 | T31 | T30 | T30 -> T31 | ✅ Match |
 | T32 | T31 | T31 -> T32 | ✅ Match |
 | T33 | T32 | T32 -> T33 | ✅ Match |
+| T34 | T33 | início da Phase 6 após Phase 5 | ✅ Match |
+| T35 | T34 | T34 -> T35 | ✅ Match |
+| T36 | T35 | T35 -> T36 | ✅ Match |
+| T37 | T36 | T36 -> T37 | ✅ Match |
+| T38 | T37 | T37 -> T38 | ✅ Match |
+| T39 | T38 | T38 -> T39 | ✅ Match |
+| T40 | T39 | T39 -> T40 | ✅ Match |
+| T41 | T40 | T40 -> T41 | ✅ Match |
 
 ---
 
@@ -886,6 +1082,14 @@ Há 33 tarefas. Durante Execute, as cinco fases formam aproximadamente cinco bat
 | T22-T30 | Application + memory | integration | integration | ✅ OK |
 | T31 | Query adapter | integration | integration | ✅ OK |
 | T32-T33 | Query use cases + memory | integration | integration | ✅ OK |
+| T34 | Domain aggregate | unit | unit | ✅ OK |
+| T35 | Application + memory adapters | integration | integration | ✅ OK |
+| T36 | Query adapter | integration | integration | ✅ OK |
+| T37 | Application + repositories | integration | integration | ✅ OK |
+| T38 | Domain + application behavior | integration | integration | ✅ OK |
+| T39 | Domain facts | unit | unit | ✅ OK |
+| T40 | Application dispatcher | unit | unit | ✅ OK |
+| T41 | Cross-layer scenarios | integration | integration | ✅ OK |
 
 Cada tarefa com comportamento inclui seus testes no mesmo commit. Não existe tarefa posterior dedicada a testar código criado antes.
 
@@ -904,5 +1108,11 @@ Cada tarefa com comportamento inclui seus testes no mesmo commit. Não existe ta
 | FDC-39 a FDC-46 | T14, T31-T33 |
 | FDC-47 a FDC-50 | T16-T20, T30 |
 | FDC-51 a FDC-58 | T15, T20-T33 |
+| FDC-42 (emenda v1.1.0) | T35-T36 |
+| FDC-59 | T37 |
+| FDC-60 a FDC-61 | T38 |
+| FDC-62 | T41 |
+| FDC-63 a FDC-64 | T34-T36 |
+| FDC-65 a FDC-66 | T39-T40 |
 
-**Coverage:** 58 requisitos mapeados, 0 não mapeados.
+**Coverage:** 66 requisitos mapeados, 0 não mapeados. A baseline v1.0.0 concluiu FDC-01 a FDC-58. Na v1.1.0, o FDC-42 emendado e FDC-59 a FDC-66 aguardam T34-T41.

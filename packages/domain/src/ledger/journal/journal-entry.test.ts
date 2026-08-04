@@ -15,6 +15,8 @@ const usd = Currency.parse("USD");
 const bookId = bookIdFromString("book-1");
 const accountA = ledgerAccountIdFromString("account-a");
 const accountB = ledgerAccountIdFromString("account-b");
+const recordedAt = "2026-08-04T12:00:00.000Z";
+const sequence = "7";
 
 function posting(id: string, accountId: typeof accountA, amountMinor: bigint, currency = usd) {
   return Posting.create({
@@ -29,6 +31,8 @@ function validEntry() {
     id: journalEntryIdFromString("entry-1"),
     bookId,
     occurredOn: LocalDate.parse("2026-08-04"),
+    recordedAt,
+    sequence,
     description: "  Opening balance  ",
     currency: usd,
     origin: "MANUAL",
@@ -41,6 +45,8 @@ describe("JournalEntry", () => {
     const entry = validEntry();
 
     expect(entry.description).toBe("Opening balance");
+    expect(entry.recordedAt).toBe(recordedAt);
+    expect(entry.sequence).toBe(sequence);
     expect(entry.version).toBe(0);
     expect(entry.postings).toHaveLength(2);
     expect(Object.getOwnPropertyDescriptor(JournalEntry.prototype, "description"))
@@ -53,6 +59,8 @@ describe("JournalEntry", () => {
         id: journalEntryIdFromString("entry-1"),
         bookId,
         occurredOn: LocalDate.parse("2026-08-04"),
+        recordedAt,
+        sequence,
         description: "Entry",
         currency: usd,
         origin: "MANUAL",
@@ -67,6 +75,8 @@ describe("JournalEntry", () => {
         id: journalEntryIdFromString("entry-1"),
         bookId,
         occurredOn: LocalDate.parse("2026-08-04"),
+        recordedAt,
+        sequence,
         description: "Entry",
         currency: usd,
         origin: "MANUAL",
@@ -81,6 +91,8 @@ describe("JournalEntry", () => {
         id: journalEntryIdFromString("entry-1"),
         bookId,
         occurredOn: LocalDate.parse("2026-08-04"),
+        recordedAt,
+        sequence,
         description: "Entry",
         currency: usd,
         origin: "MANUAL",
@@ -98,6 +110,8 @@ describe("JournalEntry", () => {
         id: journalEntryIdFromString("entry-1"),
         bookId,
         occurredOn: LocalDate.parse("2026-08-04"),
+        recordedAt,
+        sequence,
         description: "Entry",
         currency: usd,
         origin: "MANUAL",
@@ -112,6 +126,8 @@ describe("JournalEntry", () => {
         id: journalEntryIdFromString("entry-1"),
         bookId,
         occurredOn: LocalDate.parse("2026-08-04"),
+        recordedAt,
+        sequence,
         description: "  ",
         currency: usd,
         origin: "MANUAL",
@@ -181,6 +197,8 @@ describe("JournalEntry", () => {
     const reversal = entry.createReversal({
       id: journalEntryIdFromString("reversal-1"),
       occurredOn: LocalDate.parse("2026-08-05"),
+      recordedAt: "2026-08-05T12:00:00.000Z",
+      sequence: "8",
       description: "  Reverse opening balance  ",
       postingIds: [
         postingIdFromString("reversal-posting-a"),
@@ -216,6 +234,8 @@ describe("JournalEntry", () => {
     entry.createReversal({
       id: journalEntryIdFromString("reversal-1"),
       occurredOn: LocalDate.parse("2026-08-05"),
+      recordedAt: "2026-08-05T12:00:00.000Z",
+      sequence: "8",
       description: "Reverse",
       postingIds: [
         postingIdFromString("reversal-posting-a"),
@@ -258,6 +278,8 @@ describe("JournalEntry", () => {
       entry.createReversal({
         id: journalEntryIdFromString("reversal-2"),
         occurredOn: LocalDate.parse("2026-08-05"),
+        recordedAt: "2026-08-05T12:00:00.000Z",
+        sequence: "9",
         description: "Reverse again",
         postingIds: [
           postingIdFromString("reversal-posting-a"),
@@ -291,9 +313,31 @@ describe("JournalEntry", () => {
       validEntry().createReversal({
         id: journalEntryIdFromString("reversal-1"),
         occurredOn: LocalDate.parse("2026-08-05"),
+        recordedAt: "2026-08-05T12:00:00.000Z",
+        sequence: "8",
         description: "Reverse",
         postingIds: [postingIdFromString("reversal-posting-a")],
       }),
     ).toThrowError(expect.objectContaining({ code: "INVALID_REVERSAL_POSTINGS" }));
+  });
+
+  it.each([
+    ["not-an-instant", sequence, "INVALID_RECORDED_AT"],
+    [recordedAt, "-1", "INVALID_JOURNAL_SEQUENCE"],
+    [recordedAt, "", "INVALID_JOURNAL_SEQUENCE"],
+  ] as const)("rejects invalid order metadata", (invalidRecordedAt, invalidSequence, code) => {
+    expect(() =>
+      JournalEntry.post({
+        id: journalEntryIdFromString("entry-invalid"),
+        bookId,
+        occurredOn: LocalDate.parse("2026-08-04"),
+        recordedAt: invalidRecordedAt,
+        sequence: invalidSequence,
+        description: "Entry",
+        currency: usd,
+        origin: "MANUAL",
+        postings: [posting("posting-a", accountA, 100n), posting("posting-b", accountB, -100n)],
+      }),
+    ).toThrowError(expect.objectContaining({ code }));
   });
 });

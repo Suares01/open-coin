@@ -16,6 +16,8 @@ export interface JournalEntrySnapshot {
   readonly id: JournalEntryId;
   readonly bookId: BookId;
   readonly occurredOn: string;
+  readonly recordedAt: string;
+  readonly sequence: string;
   readonly description: string;
   readonly currency: string;
   readonly origin: JournalEntryOrigin;
@@ -29,6 +31,8 @@ export interface PostJournalEntryInput {
   readonly id: JournalEntryId;
   readonly bookId: BookId;
   readonly occurredOn: LocalDate;
+  readonly recordedAt: string;
+  readonly sequence: string;
   readonly description: string;
   readonly currency: Currency;
   readonly origin: JournalEntryOrigin;
@@ -38,6 +42,8 @@ export interface PostJournalEntryInput {
 export interface CreateJournalEntryReversalInput {
   readonly id: JournalEntryId;
   readonly occurredOn: LocalDate;
+  readonly recordedAt: string;
+  readonly sequence: string;
   readonly description: string;
   readonly postingIds: readonly PostingId[];
 }
@@ -52,6 +58,8 @@ export class JournalEntry extends AggregateRoot<
     id: JournalEntryId,
     private readonly entryBookId: BookId,
     private readonly entryOccurredOn: LocalDate,
+    private readonly entryRecordedAt: string,
+    private readonly entrySequence: string,
     private readonly entryDescription: string,
     private readonly entryCurrency: Currency,
     private readonly entryOrigin: JournalEntryOrigin,
@@ -72,11 +80,14 @@ export class JournalEntry extends AggregateRoot<
       );
     }
 
+    validateOrderMetadata(input.recordedAt, input.sequence);
     validatePostings(input.postings, input.currency);
     const entry = new JournalEntry(
       input.id,
       input.bookId,
       input.occurredOn,
+      input.recordedAt,
+      input.sequence,
       description,
       input.currency,
       input.origin,
@@ -102,6 +113,8 @@ export class JournalEntry extends AggregateRoot<
       snapshot.id,
       snapshot.bookId,
       LocalDate.parse(snapshot.occurredOn),
+      validateRecordedAt(snapshot.recordedAt),
+      validateSequence(snapshot.sequence),
       snapshot.description,
       currency,
       snapshot.origin,
@@ -118,6 +131,14 @@ export class JournalEntry extends AggregateRoot<
 
   get occurredOn(): LocalDate {
     return this.entryOccurredOn;
+  }
+
+  get recordedAt(): string {
+    return this.entryRecordedAt;
+  }
+
+  get sequence(): string {
+    return this.entrySequence;
   }
 
   get description(): string {
@@ -186,6 +207,8 @@ export class JournalEntry extends AggregateRoot<
       input.id,
       this.bookId,
       input.occurredOn,
+      input.recordedAt,
+      input.sequence,
       description,
       this.currency,
       "SYSTEM",
@@ -228,6 +251,8 @@ export class JournalEntry extends AggregateRoot<
       id: this.id,
       bookId: this.bookId,
       occurredOn: this.occurredOn.value,
+      recordedAt: this.recordedAt,
+      sequence: this.sequence,
       description: this.description,
       currency: this.currency.code,
       origin: this.origin,
@@ -237,6 +262,37 @@ export class JournalEntry extends AggregateRoot<
       version: this.version,
     };
   }
+}
+
+function validateOrderMetadata(recordedAt: string, sequence: string): void {
+  validateRecordedAt(recordedAt);
+  validateSequence(sequence);
+}
+
+function validateRecordedAt(recordedAt: string): string {
+  if (
+    typeof recordedAt !== "string" ||
+    !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{3})?(?:Z|[+-]\d{2}:\d{2})$/.test(recordedAt) ||
+    Number.isNaN(Date.parse(recordedAt))
+  ) {
+    throw new DomainError(
+      "INVALID_RECORDED_AT",
+      "Journal entry recordedAt must be a valid ISO 8601 instant",
+    );
+  }
+
+  return recordedAt;
+}
+
+function validateSequence(sequence: string): string {
+  if (typeof sequence !== "string" || !/^(0|[1-9]\d*)$/.test(sequence)) {
+    throw new DomainError(
+      "INVALID_JOURNAL_SEQUENCE",
+      "Journal entry sequence must be a non-negative decimal string",
+    );
+  }
+
+  return sequence;
 }
 
 function validatePostings(

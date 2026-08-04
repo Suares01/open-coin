@@ -14,6 +14,8 @@ interface JournalFactoryInput {
   readonly id: JournalEntryId;
   readonly book: FinancialBook;
   readonly occurredOn: LocalDate;
+  readonly recordedAt: string;
+  readonly sequence: string;
   readonly description: string;
   readonly amount: Money;
 }
@@ -64,6 +66,8 @@ export const setOpeningBalance = (input: SetOpeningBalanceInput): JournalEntry =
     id: input.id,
     bookId: input.book.id,
     occurredOn: input.occurredOn,
+    recordedAt: input.recordedAt,
+    sequence: input.sequence,
     description: input.description,
     currency: input.book.baseCurrency,
     origin: "MANUAL",
@@ -95,6 +99,8 @@ export const recordExpense = (input: RecordExpenseInput): JournalEntry => {
     id: input.id,
     bookId: input.book.id,
     occurredOn: input.occurredOn,
+    recordedAt: input.recordedAt,
+    sequence: input.sequence,
     description: input.description,
     currency: input.book.baseCurrency,
     origin: "MANUAL",
@@ -126,6 +132,8 @@ export const recordIncome = (input: RecordIncomeInput): JournalEntry => {
     id: input.id,
     bookId: input.book.id,
     occurredOn: input.occurredOn,
+    recordedAt: input.recordedAt,
+    sequence: input.sequence,
     description: input.description,
     currency: input.book.baseCurrency,
     origin: "MANUAL",
@@ -161,6 +169,8 @@ export const transfer = (input: TransferInput): JournalEntry => {
     id: input.id,
     bookId: input.book.id,
     occurredOn: input.occurredOn,
+    recordedAt: input.recordedAt,
+    sequence: input.sequence,
     description: input.description,
     currency: input.book.baseCurrency,
     origin: "MANUAL",

@@ -42,6 +42,8 @@ function baseInput(amount = Money.of(1250n, usd)) {
     id: journalEntryIdFromString("entry-1"),
     book,
     occurredOn: date,
+    recordedAt: "2026-08-04T12:00:00.000Z",
+    sequence: "1",
     description: " Groceries ",
     amount,
   };
