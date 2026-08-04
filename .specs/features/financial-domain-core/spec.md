@@ -275,9 +275,9 @@ Toda ambiguidade está resolvida ou registrada aqui.
 | FDC-29 | P1: Definir saldo inicial e registrar fluxo financeiro | Design | Verified |
 | FDC-30 | P1: Definir saldo inicial e registrar fluxo financeiro | Design | Verified |
 | FDC-31 | P1: Definir saldo inicial e registrar fluxo financeiro | Design | Pending |
-| FDC-32 | P1: Transferir entre contas | Design | Pending |
-| FDC-33 | P1: Transferir entre contas | Design | Pending |
-| FDC-34 | P1: Transferir entre contas | Design | Pending |
+| FDC-32 | P1: Transferir entre contas | Design | Verified |
+| FDC-33 | P1: Transferir entre contas | Design | Verified |
+| FDC-34 | P1: Transferir entre contas | Design | Verified |
 | FDC-35 | P1: Reverter uma movimentação | Design | Pending |
 | FDC-36 | P1: Reverter uma movimentação | Design | Pending |
 | FDC-37 | P1: Reverter uma movimentação | Design | Pending |

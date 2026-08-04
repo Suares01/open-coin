@@ -694,10 +694,10 @@ T29 -> T30 -> T31 -> T32 -> T33
 
 **Done when**:
 
-- [ ] Sucesso cria somente crédito na origem e débito no destino.
-- [ ] Mesma conta, papel, estado, livro, moeda, descrição ou valor inválido falha sem escrita/evento.
-- [ ] Categorias não aparecem no lançamento.
-- [ ] Pelo menos 9 testes cross-layer passam.
+- [x] Sucesso cria somente crédito na origem e débito no destino.
+- [x] Mesma conta, papel, estado, livro, moeda, descrição ou valor inválido falha sem escrita/evento.
+- [x] Categorias não aparecem no lançamento.
+- [x] Pelo menos 9 testes cross-layer passam.
 
 **Tests**: integration
 **Gate**: Full
