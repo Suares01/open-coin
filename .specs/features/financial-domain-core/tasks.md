@@ -198,10 +198,10 @@ T29 -> T30 -> T31 -> T32 -> T33
 
 **Done when**:
 
-- [ ] Datas válidas preservam o valor textual e ordenam lexicograficamente.
-- [ ] Formatos inválidos, dias impossíveis e anos não bissextos são rejeitados.
-- [ ] Ano bissexto válido é aceito.
-- [ ] Pelo menos 8 testes direcionados cobrem limites de calendário.
+- [x] Datas válidas preservam o valor textual e ordenam lexicograficamente.
+- [x] Formatos inválidos, dias impossíveis e anos não bissextos são rejeitados.
+- [x] Ano bissexto válido é aceito.
+- [x] Pelo menos 8 testes direcionados cobrem limites de calendário.
 
 **Tests**: unit
 **Gate**: Quick domain
