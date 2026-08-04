@@ -759,10 +759,10 @@ T29 -> T30 -> T31 -> T32 -> T33
 
 **Done when**:
 
-- [ ] Conta válida retorna string inteira, moeda e data-limite exatas.
-- [ ] Conta ausente ou de outro livro retorna `ENTITY_NOT_FOUND` sem consulta cruzada.
-- [ ] Ativo e passivo exibem sinais corretos.
-- [ ] Pelo menos 6 testes cross-layer passam.
+- [x] Conta válida retorna string inteira, moeda e data-limite exatas.
+- [x] Conta ausente ou de outro livro retorna `ENTITY_NOT_FOUND` sem consulta cruzada.
+- [x] Ativo e passivo exibem sinais corretos.
+- [x] Pelo menos 6 testes cross-layer passam.
 
 **Tests**: integration
 **Gate**: Full
