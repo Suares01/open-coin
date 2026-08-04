@@ -1,0 +1,75 @@
+import {
+  bookIdFromString,
+  journalEntryIdFromString,
+  LocalDate,
+} from "@open-coin/domain";
+import type {
+  IdGenerator,
+  ReverseJournalEntryCommand,
+  TransactionManager,
+} from "../../ports/index.js";
+import { ApplicationError } from "../../ports/errors.js";
+import { DomainEventDispatcher } from "../../core/event-dispatcher.js";
+import { executeUseCase } from "../../core/use-case-executor.js";
+
+export class ReverseJournalEntry {
+  constructor(
+    private readonly transactionManager: TransactionManager,
+    private readonly eventDispatcher: DomainEventDispatcher,
+    private readonly ids: IdGenerator,
+  ) {}
+
+  async execute(command: ReverseJournalEntryCommand) {
+    return executeUseCase({
+      transactionManager: this.transactionManager,
+      eventDispatcher: this.eventDispatcher,
+      work: async (repositories) => {
+        const book = await repositories.books.findById(bookIdFromString(command.bookId));
+        if (book === null) {
+          throw new ApplicationError(
+            "ENTITY_NOT_FOUND",
+            `Financial book ${command.bookId} was not found`,
+          );
+        }
+
+        const original = await repositories.journalEntries.findById(
+          journalEntryIdFromString(command.journalEntryId),
+        );
+        if (original === null) {
+          throw new ApplicationError(
+            "ENTITY_NOT_FOUND",
+            `Journal entry ${command.journalEntryId} was not found`,
+          );
+        }
+
+        if (original.bookId !== book.id) {
+          throw new ApplicationError(
+            "BOOK_MISMATCH",
+            "Journal entry does not belong to the requested book",
+          );
+        }
+
+        const expectedVersion = original.version;
+        const reversal = original.createReversal({
+          id: journalEntryIdFromString(this.ids.nextJournalEntryId()),
+          occurredOn: LocalDate.parse(command.occurredOn),
+          description: command.description,
+          postingIds: original.postings.map(() => this.ids.nextPostingId()),
+        });
+        original.markReversedBy(reversal.id);
+
+        await repositories.journalEntries.add(reversal);
+        await repositories.journalEntries.save(original, expectedVersion);
+
+        return {
+          id: reversal.id,
+          bookId: reversal.bookId,
+          occurredOn: reversal.occurredOn.value,
+          description: reversal.description,
+          currency: reversal.currency.code,
+          version: reversal.version,
+        };
+      },
+    });
+  }
+}

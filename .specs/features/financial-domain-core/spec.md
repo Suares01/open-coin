@@ -278,10 +278,10 @@ Toda ambiguidade está resolvida ou registrada aqui.
 | FDC-32 | P1: Transferir entre contas | Design | Verified |
 | FDC-33 | P1: Transferir entre contas | Design | Verified |
 | FDC-34 | P1: Transferir entre contas | Design | Verified |
-| FDC-35 | P1: Reverter uma movimentação | Design | Pending |
-| FDC-36 | P1: Reverter uma movimentação | Design | Pending |
-| FDC-37 | P1: Reverter uma movimentação | Design | Pending |
-| FDC-38 | P1: Reverter uma movimentação | Design | Pending |
+| FDC-35 | P1: Reverter uma movimentação | Design | Verified |
+| FDC-36 | P1: Reverter uma movimentação | Design | Verified |
+| FDC-37 | P1: Reverter uma movimentação | Design | Verified |
+| FDC-38 | P1: Reverter uma movimentação | Design | Verified |
 | FDC-39 | P1: Consultar saldo e extrato | Design | Pending |
 | FDC-40 | P1: Consultar saldo e extrato | Design | Pending |
 | FDC-41 | P1: Consultar saldo e extrato | Design | Pending |

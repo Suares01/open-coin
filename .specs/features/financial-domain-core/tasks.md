@@ -715,11 +715,11 @@ T29 -> T30 -> T31 -> T32 -> T33
 
 **Done when**:
 
-- [ ] Reversor e original são persistidos atomicamente com vínculos exatos.
-- [ ] Postings originais permanecem byte-for-byte equivalentes nos snapshots.
-- [ ] Reversão repetida e conflito de versão falham sem estado parcial/evento.
-- [ ] Sucesso publica `JournalEntryPosted` e `JournalEntryReversed` após commit.
-- [ ] Pelo menos 9 testes cross-layer passam.
+- [x] Reversor e original são persistidos atomicamente com vínculos exatos.
+- [x] Postings originais permanecem byte-for-byte equivalentes nos snapshots.
+- [x] Reversão repetida e conflito de versão falham sem estado parcial/evento.
+- [x] Sucesso publica `JournalEntryPosted` e `JournalEntryReversed` após commit.
+- [x] Pelo menos 9 testes cross-layer passam.
 
 **Tests**: integration
 **Gate**: Full

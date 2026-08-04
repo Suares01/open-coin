@@ -239,7 +239,11 @@ describe("JournalEntry", () => {
       expect.objectContaining({
         type: "JournalEntryReversed",
         aggregateId: "entry-1",
-        payload: { originalId: "entry-1", reversalId: "reversal-1" },
+        payload: {
+          bookId: "book-1",
+          originalId: "entry-1",
+          reversalId: "reversal-1",
+        },
       }),
     ]);
   });

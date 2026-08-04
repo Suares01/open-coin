@@ -216,6 +216,7 @@ export class JournalEntry extends AggregateRoot<
       type: "JournalEntryReversed",
       aggregateId: this.id,
       payload: {
+        bookId: this.bookId,
         originalId: this.id,
         reversalId: id,
       },

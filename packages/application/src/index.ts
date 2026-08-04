@@ -8,3 +8,4 @@ export { SetOpeningBalance } from "./ledger/journal/set-opening-balance.js";
 export { RecordExpense } from "./ledger/journal/record-expense.js";
 export { RecordIncome } from "./ledger/journal/record-income.js";
 export { TransferMoney } from "./ledger/journal/transfer-money.js";
+export { ReverseJournalEntry } from "./ledger/journal/reverse-journal-entry.js";
