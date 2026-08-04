@@ -114,10 +114,10 @@ T29 -> T30 -> T31 -> T32 -> T33
 
 **Done when**:
 
-- [ ] Package scripts `build`, `lint`, `check-types` e `test` executam.
-- [ ] Build produz ESM e declarações em `dist`.
-- [ ] API pública não exporta dependência de framework ou infraestrutura.
-- [ ] Build gate passa; nenhum teste comportamental é exigido.
+- [x] Package scripts `build`, `lint`, `check-types` e `test` executam.
+- [x] Build produz ESM e declarações em `dist`.
+- [x] API pública não exporta dependência de framework ou infraestrutura.
+- [x] Build gate passa; nenhum teste comportamental é exigido.
 
 **Tests**: build-only (matrix: none)
 **Gate**: Build
