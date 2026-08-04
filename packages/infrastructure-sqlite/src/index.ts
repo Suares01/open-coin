@@ -1,2 +1,16 @@
 export * from "./database/index.js";
 export * from "./migrations/index.js";
+export {
+  createSqliteRepositoryContext,
+} from "./repositories/create-sqlite-repository-context.js";
+export {
+  SqliteFinancialBookRepository,
+} from "./repositories/sqlite-financial-book-repository.js";
+export {
+  SqliteJournalEntryRepository,
+} from "./repositories/sqlite-journal-entry-repository.js";
+export {
+  SqliteLedgerAccountRepository,
+} from "./repositories/sqlite-ledger-account-repository.js";
+export { SqliteLedgerQueries } from "./queries/sqlite-ledger-queries.js";
+export { SqliteTransactionManager } from "./transaction/sqlite-transaction-manager.js";

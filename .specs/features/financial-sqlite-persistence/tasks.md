@@ -773,14 +773,14 @@ T19 → T20 → T21 → T22 → T23 → T24 → T25
 
 **Done when**:
 
-- [ ] Contratos, initialization, migrations, repositories, queries e manager necessários estão exportados.
-- [ ] Mappers internos, fixtures e BetterSqliteDatabase não estão exportados nem em dist.
-- [ ] Testes estruturais rejeitam imports proibidos e dependência Node no grafo de produção.
-- [ ] Quatro novos testes estruturais passam.
-- [ ] Build, lint, typecheck e tests do workspace completo passam.
-- [ ] Baseline de 164 memory tests permanece e nenhum teste está skipped.
-- [ ] Spec traceability passa para Implementing apenas durante execução; não há status antecipado.
-- [ ] Test count: 4 novos casos; nenhum teste removido.
+- [x] Contratos, initialization, migrations, repositories, queries e manager necessários estão exportados.
+- [x] Mappers internos, fixtures e BetterSqliteDatabase não estão exportados nem em dist.
+- [x] Testes estruturais rejeitam imports proibidos e dependência Node no grafo de produção.
+- [x] Quatro novos testes estruturais passam.
+- [x] Build, lint, typecheck e tests do workspace completo passam.
+- [x] Baseline de 164 memory tests permanece e nenhum teste está skipped.
+- [x] Spec traceability passa para Implementing apenas durante execução; não há status antecipado.
+- [x] Test count: 4 novos casos; nenhum teste removido.
 
 **Tests**: unit/structural
 **Gate**: build
