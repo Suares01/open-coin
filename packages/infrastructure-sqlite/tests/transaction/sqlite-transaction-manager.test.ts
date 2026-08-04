@@ -193,6 +193,7 @@ describe("SqliteTransactionManager", () => {
         query: async () => [],
         executeBatch: async () => undefined,
       }),
+      readTransaction: async () => { throw failure; },
       close: async () => undefined,
     };
 

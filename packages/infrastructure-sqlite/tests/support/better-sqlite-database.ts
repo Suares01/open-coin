@@ -4,6 +4,7 @@ import type {
   SqliteExecutionResult,
   SqliteExecutor,
   SqliteParameters,
+  SqliteReader,
   SqliteValue,
 } from "../../src/database/index.js";
 
@@ -28,21 +29,13 @@ function bindStatement(
   return statement.bind(parameters);
 }
 
-class ScopedExecutor implements SqliteExecutor {
+class ScopedReader implements SqliteReader {
   private active = true;
 
   public constructor(private readonly database: BetterSqliteDatabase) {}
 
   public invalidate(): void {
     this.active = false;
-  }
-
-  public async execute(
-    sql: string,
-    parameters?: SqliteParameters,
-  ): Promise<SqliteExecutionResult> {
-    this.assertActive();
-    return this.database.executeOnConnection(sql, parameters);
   }
 
   public async query<Row extends Record<string, unknown>>(
@@ -53,15 +46,25 @@ class ScopedExecutor implements SqliteExecutor {
     return this.database.queryOnConnection<Row>(sql, parameters);
   }
 
-  public async executeBatch(sql: string): Promise<void> {
-    this.assertActive();
-    this.database.executeBatchOnConnection(sql);
-  }
-
-  private assertActive(): void {
+  protected assertActive(): void {
     if (!this.active) {
       throw new Error("SQLite transaction executor is no longer active");
     }
+  }
+}
+
+class ScopedExecutor extends ScopedReader implements SqliteExecutor {
+  public async execute(
+    sql: string,
+    parameters?: SqliteParameters,
+  ): Promise<SqliteExecutionResult> {
+    this.assertActive();
+    return this.database.executeOnConnection(sql, parameters);
+  }
+
+  public async executeBatch(sql: string): Promise<void> {
+    this.assertActive();
+    this.database.executeBatchOnConnection(sql);
   }
 }
 
@@ -117,6 +120,26 @@ export class BetterSqliteDatabase implements SqliteDatabase {
         throw error;
       } finally {
         scopedExecutor.invalidate();
+      }
+    });
+  }
+
+  public readTransaction<T>(
+    work: (reader: SqliteReader) => Promise<T>,
+  ): Promise<T> {
+    return this.enqueue(async () => {
+      this.connection.exec("BEGIN");
+      const reader = new ScopedReader(this);
+
+      try {
+        const result = await work(reader);
+        this.connection.exec("COMMIT");
+        return result;
+      } catch (error) {
+        this.rollbackIfActive();
+        throw error;
+      } finally {
+        reader.invalidate();
       }
     });
   }

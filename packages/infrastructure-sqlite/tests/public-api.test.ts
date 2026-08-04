@@ -91,6 +91,7 @@ describe("infrastructure-sqlite public boundary", () => {
     expect(databaseDeclarationSource).toContain("SqliteValue");
     expect(databaseDeclarationSource).toContain("SqliteExecutor");
     expect(databaseDeclarationSource).toContain("SqliteDatabase");
+    expect(executorDeclarationSource).toContain("SqliteReader");
     expect(valueDeclarationSource).toContain(
       "export type SqliteValue = string | number | Uint8Array | null;",
     );
@@ -113,6 +114,9 @@ describe("infrastructure-sqlite public boundary", () => {
     );
     expect(databaseContractDeclarationSource).toContain(
       "transaction<T>(work: (transaction: SqliteExecutor) => Promise<T>): Promise<T>;",
+    );
+    expect(databaseContractDeclarationSource).toContain(
+      "readTransaction<T>(work: (reader: SqliteReader) => Promise<T>): Promise<T>;",
     );
     expect(databaseContractDeclarationSource).toContain("close(): Promise<void>;");
     expect(publicDistSource).toContain("SqliteLedgerQueries");

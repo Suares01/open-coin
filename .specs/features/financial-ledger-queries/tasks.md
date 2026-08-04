@@ -198,12 +198,12 @@ T12 -> T13 -> T14
 
 **Done when**:
 
-- [ ] O callback recebe somente `query`, sem `execute` ou `executeBatch` no tipo público.
-- [ ] O driver executa `BEGIN`, compartilha um snapshot e confirma com `COMMIT`.
-- [ ] Falha do callback ou commit executa rollback quando a conexão está ativa e preserva a causa para sanitização.
-- [ ] Callbacks concorrentes usam a fila existente sem intercalar statements.
-- [ ] Reader fora do callback e operações depois de `close` são rejeitados.
-- [ ] Pelo menos 8 testes de integração cobrem begin mode, snapshot, fila, commit, rollback e lifetime.
+- [x] O callback recebe somente `query`, sem `execute` ou `executeBatch` no tipo público.
+- [x] O driver executa `BEGIN`, compartilha um snapshot e confirma com `COMMIT`.
+- [x] Falha do callback ou commit executa rollback quando a conexão está ativa e preserva a causa para sanitização.
+- [x] Callbacks concorrentes usam a fila existente sem intercalar statements.
+- [x] Reader fora do callback e operações depois de `close` são rejeitados.
+- [x] Pelo menos 8 testes de integração cobrem begin mode, snapshot, fila, commit, rollback e lifetime.
 
 **Tests**: integration
 **Gate**: SQLite full

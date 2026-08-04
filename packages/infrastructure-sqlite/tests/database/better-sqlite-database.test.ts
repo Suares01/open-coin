@@ -173,6 +173,71 @@ describe("BetterSqliteDatabase", () => {
     ).toHaveLength(2);
   });
 
+  it("runs read callbacks with a deferred BEGIN and commits the snapshot", async () => {
+    const connection = new Database(":memory:");
+    database = new BetterSqliteDatabase(connection);
+    const originalExec = connection.exec.bind(connection);
+    const execSpy = vi.spyOn(connection, "exec").mockImplementation((sql) =>
+      originalExec(sql),
+    );
+
+    const result = await database.readTransaction(async (reader) => {
+      expect("execute" in reader).toBe(false);
+      expect("executeBatch" in reader).toBe(false);
+      return await reader.query<{ value: number }>("SELECT 7 AS value");
+    });
+
+    expect(result).toEqual([{ value: 7 }]);
+    expect(execSpy.mock.calls.map(([sql]) => sql)).toContain("BEGIN");
+    expect(execSpy.mock.calls.map(([sql]) => sql)).not.toContain("BEGIN IMMEDIATE");
+    expect(execSpy.mock.calls.map(([sql]) => sql)).toContain("COMMIT");
+  });
+
+  it("keeps queued external work out of a read callback snapshot", async () => {
+    database = new BetterSqliteDatabase();
+    await database.execute("CREATE TABLE records (name TEXT)");
+    let externalResolved = false;
+    let external: Promise<unknown> | undefined;
+
+    const read = database.readTransaction(async (reader) => {
+      const before = await reader.query<{ name: string }>("SELECT name FROM records");
+      external = database
+        .execute("INSERT INTO records (name) VALUES (?)", ["outside"])
+        .then(() => {
+          externalResolved = true;
+        });
+      await delay(10);
+      expect(externalResolved).toBe(false);
+      const during = await reader.query<{ name: string }>("SELECT name FROM records");
+      return { before, during };
+    });
+
+    await expect(read).resolves.toEqual({ before: [], during: [] });
+    await external;
+    expect(externalResolved).toBe(true);
+    await expect(database.query("SELECT name FROM records")).resolves.toEqual([
+      { name: "outside" },
+    ]);
+  });
+
+  it("serializes concurrent read callbacks in FIFO order", async () => {
+    database = new BetterSqliteDatabase();
+    const order: string[] = [];
+
+    const first = database.readTransaction(async () => {
+      order.push("first:start");
+      await delay(10);
+      order.push("first:end");
+    });
+    const second = database.readTransaction(async () => {
+      order.push("second:start");
+      order.push("second:end");
+    });
+
+    await Promise.all([first, second]);
+    expect(order).toEqual(["first:start", "first:end", "second:start", "second:end"]);
+  });
+
   it("invalidates the scoped executor after commit", async () => {
     database = new BetterSqliteDatabase();
     await database.execute("CREATE TABLE records (name TEXT)");
@@ -203,6 +268,56 @@ describe("BetterSqliteDatabase", () => {
     await expect(scopedExecutor.execute("SELECT 1")).rejects.toThrow(
       "no longer active",
     );
+  });
+
+  it("invalidates the scoped reader after commit", async () => {
+    database = new BetterSqliteDatabase();
+    let reader;
+
+    await database.readTransaction(async (scopedReader) => {
+      reader = scopedReader;
+    });
+
+    await expect(reader.query("SELECT 1")).rejects.toThrow("no longer active");
+  });
+
+  it("rolls back read callback failures and preserves the original error", async () => {
+    const connection = new Database(":memory:");
+    database = new BetterSqliteDatabase(connection);
+    const originalExec = connection.exec.bind(connection);
+    const execSpy = vi.spyOn(connection, "exec").mockImplementation((sql) =>
+      originalExec(sql),
+    );
+    const failure = new Error("read callback failure");
+
+    await expect(
+      database.readTransaction(async () => {
+        throw failure;
+      }),
+    ).rejects.toBe(failure);
+
+    expect(execSpy.mock.calls.map(([sql]) => sql)).toContain("ROLLBACK");
+  });
+
+  it("rolls back read commit failures and preserves the commit error", async () => {
+    const connection = new Database(":memory:");
+    database = new BetterSqliteDatabase(connection);
+    const originalExec = connection.exec.bind(connection);
+    const failure = new Error("read commit failure");
+    const execSpy = vi.spyOn(connection, "exec").mockImplementation((sql) => {
+      if (sql === "COMMIT") {
+        throw failure;
+      }
+      return originalExec(sql);
+    });
+
+    await expect(
+      database.readTransaction(async (reader) => {
+        await reader.query("SELECT 1");
+      }),
+    ).rejects.toBe(failure);
+
+    expect(execSpy.mock.calls.map(([sql]) => sql)).toContain("ROLLBACK");
   });
 
   it("rolls back callback failures and preserves the original error", async () => {
@@ -276,5 +391,6 @@ describe("BetterSqliteDatabase", () => {
 
     expect(closeSpy).toHaveBeenCalledTimes(1);
     await expect(database.query("SELECT 1")).rejects.toThrow("closed");
+    await expect(database.readTransaction(async () => undefined)).rejects.toThrow("closed");
   });
 });
