@@ -258,7 +258,7 @@ Toda ambiguidade está resolvida ou registrada aqui.
 | FDC-12 | P1: Criar contas financeiras e categorias | Design | Pending |
 | FDC-13 | P1: Criar contas financeiras e categorias | Design | Verified |
 | FDC-14 | P1: Criar contas financeiras e categorias | Design | Verified |
-| FDC-15 | P1: Criar contas financeiras e categorias | Design | Pending |
+| FDC-15 | P1: Criar contas financeiras e categorias | Design | Verified |
 | FDC-16 | P1: Criar contas financeiras e categorias | Design | Pending |
 | FDC-17 | P1: Criar contas financeiras e categorias | Design | Verified |
 | FDC-18 | P1: Preservar as invariantes de todo lançamento | Design | Pending |
