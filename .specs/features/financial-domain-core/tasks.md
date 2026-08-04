@@ -242,11 +242,11 @@ T29 -> T30 -> T31 -> T32 -> T33
 
 **Done when**:
 
-- [ ] Tipos, papéis financeiro/categoria e normal balance retornam valores exatos.
-- [ ] Nome, status, versão e normalized name seguem a especificação.
-- [ ] Conta de sistema rejeita arquivamento ou mudança de tipo sem mutação.
-- [ ] Snapshot/restauração preservam todos os campos.
-- [ ] Pelo menos 13 testes direcionados cobrem todas as branches.
+- [x] Tipos, papéis financeiro/categoria e normal balance retornam valores exatos.
+- [x] Nome, status, versão e normalized name seguem a especificação.
+- [x] Conta de sistema rejeita arquivamento ou mudança de tipo sem mutação.
+- [x] Snapshot/restauração preservam todos os campos.
+- [x] Pelo menos 13 testes direcionados cobrem todas as branches.
 
 **Tests**: unit
 **Gate**: Quick domain

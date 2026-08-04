@@ -7,3 +7,4 @@ export type {
   CreateFinancialBookInput,
   FinancialBookSnapshot,
 } from "./book/financial-book.js";
+export * from "./ledger/accounts/index.js";
