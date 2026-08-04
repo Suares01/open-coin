@@ -737,11 +737,11 @@ T29 -> T30 -> T31 -> T32 -> T33
 
 **Done when**:
 
-- [ ] Data-limite inclui somente postings até o dia solicitado.
-- [ ] Sinais exibidos seguem o normal balance de todos os cinco kinds.
-- [ ] Running balance é calculado cronologicamente e DTO final usa data/ID decrescentes.
-- [ ] Original e reversor aparecem e produzem efeito líquido zero.
-- [ ] Pelo menos 11 testes de integração passam.
+- [x] Data-limite inclui somente postings até o dia solicitado.
+- [x] Sinais exibidos seguem o normal balance de todos os cinco kinds.
+- [x] Running balance é calculado cronologicamente e DTO final usa data/ID decrescentes.
+- [x] Original e reversor aparecem e produzem efeito líquido zero.
+- [x] Pelo menos 11 testes de integração passam.
 
 **Tests**: integration
 **Gate**: Full

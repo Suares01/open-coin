@@ -282,12 +282,12 @@ Toda ambiguidade está resolvida ou registrada aqui.
 | FDC-36 | P1: Reverter uma movimentação | Design | Verified |
 | FDC-37 | P1: Reverter uma movimentação | Design | Verified |
 | FDC-38 | P1: Reverter uma movimentação | Design | Verified |
-| FDC-39 | P1: Consultar saldo e extrato | Design | Pending |
-| FDC-40 | P1: Consultar saldo e extrato | Design | Pending |
-| FDC-41 | P1: Consultar saldo e extrato | Design | Pending |
-| FDC-42 | P1: Consultar saldo e extrato | Design | Pending |
-| FDC-43 | P1: Consultar saldo e extrato | Design | Pending |
-| FDC-44 | P1: Consultar saldo e extrato | Design | Pending |
+| FDC-39 | P1: Consultar saldo e extrato | Design | Verified |
+| FDC-40 | P1: Consultar saldo e extrato | Design | Verified |
+| FDC-41 | P1: Consultar saldo e extrato | Design | Verified |
+| FDC-42 | P1: Consultar saldo e extrato | Design | Verified |
+| FDC-43 | P1: Consultar saldo e extrato | Design | Verified |
+| FDC-44 | P1: Consultar saldo e extrato | Design | Verified |
 | FDC-45 | P1: Execução atômica e determinística | Design | Pending |
 | FDC-46 | P1: Execução atômica e determinística | Design | Pending |
 | FDC-47 | P1: Execução atômica e determinística | Design | Pending |
