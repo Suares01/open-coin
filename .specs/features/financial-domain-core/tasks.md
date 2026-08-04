@@ -629,10 +629,10 @@ T29 -> T30 -> T31 -> T32 -> T33
 
 **Done when**:
 
-- [ ] Ativo e passivo geram os sinais exatos definidos no spec.
-- [ ] Conta inválida/inativa, livro/moeda divergente e valor não positivo falham sem escrita/evento.
-- [ ] Sucesso publica um `JournalEntryPosted` depois do commit.
-- [ ] Pelo menos 9 testes cross-layer passam.
+- [x] Ativo e passivo geram os sinais exatos definidos no spec.
+- [x] Conta inválida/inativa, livro/moeda divergente e valor não positivo falham sem escrita/evento.
+- [x] Sucesso publica um `JournalEntryPosted` depois do commit.
+- [x] Pelo menos 9 testes cross-layer passam.
 
 **Tests**: integration
 **Gate**: Full

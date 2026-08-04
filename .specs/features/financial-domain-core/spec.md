@@ -264,13 +264,13 @@ Toda ambiguidade está resolvida ou registrada aqui.
 | FDC-18 | P1: Preservar as invariantes de todo lançamento | Design | Pending |
 | FDC-19 | P1: Preservar as invariantes de todo lançamento | Design | Pending |
 | FDC-20 | P1: Preservar as invariantes de todo lançamento | Design | Pending |
-| FDC-21 | P1: Preservar as invariantes de todo lançamento | Design | Pending |
+| FDC-21 | P1: Preservar as invariantes de todo lançamento | Design | Verified |
 | FDC-22 | P1: Preservar as invariantes de todo lançamento | Design | Pending |
-| FDC-23 | P1: Preservar as invariantes de todo lançamento | Design | Pending |
+| FDC-23 | P1: Preservar as invariantes de todo lançamento | Design | Verified |
 | FDC-24 | P1: Preservar as invariantes de todo lançamento | Design | Pending |
-| FDC-25 | P1: Definir saldo inicial e registrar fluxo financeiro | Design | Pending |
-| FDC-26 | P1: Definir saldo inicial e registrar fluxo financeiro | Design | Pending |
-| FDC-27 | P1: Definir saldo inicial e registrar fluxo financeiro | Design | Pending |
+| FDC-25 | P1: Definir saldo inicial e registrar fluxo financeiro | Design | Verified |
+| FDC-26 | P1: Definir saldo inicial e registrar fluxo financeiro | Design | Verified |
+| FDC-27 | P1: Definir saldo inicial e registrar fluxo financeiro | Design | Verified |
 | FDC-28 | P1: Definir saldo inicial e registrar fluxo financeiro | Design | Pending |
 | FDC-29 | P1: Definir saldo inicial e registrar fluxo financeiro | Design | Pending |
 | FDC-30 | P1: Definir saldo inicial e registrar fluxo financeiro | Design | Pending |
@@ -297,7 +297,7 @@ Toda ambiguidade está resolvida ou registrada aqui.
 | FDC-51 | P1: Execução atômica e determinística | Design | Pending |
 | FDC-52 | P1: Execução atômica e determinística | Design | Verified |
 | FDC-53 | P1: Execução atômica e determinística | Design | Verified |
-| FDC-54 | P1: Execução atômica e determinística | Design | Pending |
+| FDC-54 | P1: Execução atômica e determinística | Design | Verified |
 | FDC-55 | P1: Execução atômica e determinística | Design | Pending |
 | FDC-56 | P1: Execução atômica e determinística | Design | Pending |
 | FDC-57 | P1: Execução atômica e determinística | Design | Pending |

@@ -32,11 +32,29 @@ export class DomainEventDispatcher {
         occurredAt: this.clock.now(),
         aggregateId: fact.aggregateId,
         bookId,
-        payload,
+        payload: toSerializable(payload),
       };
       await this.publisher.publish(event);
     }
   }
+}
+
+function toSerializable(value: unknown): unknown {
+  if (typeof value === "bigint") {
+    return value.toString();
+  }
+
+  if (Array.isArray(value)) {
+    return value.map(toSerializable);
+  }
+
+  if (typeof value === "object" && value !== null) {
+    return Object.fromEntries(
+      Object.entries(value).map(([key, item]) => [key, toSerializable(item)]),
+    );
+  }
+
+  return value;
 }
 
 function toEventType(type: string): ApplicationEventType {
