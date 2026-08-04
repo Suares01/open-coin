@@ -328,11 +328,11 @@ T29 -> T30 -> T31 -> T32 -> T33
 
 **Done when**:
 
-- [ ] Saldo inicial de ativo e passivo usa sinais contábeis opostos corretos.
-- [ ] Despesa e receita criam os dois postings exatos.
-- [ ] Transferência usa somente origem e destino, sem categoria.
-- [ ] Papel inválido, valor não positivo e conta de destino igual são rejeitados.
-- [ ] Pelo menos 12 testes direcionados passam.
+- [x] Saldo inicial de ativo e passivo usa sinais contábeis opostos corretos.
+- [x] Despesa e receita criam os dois postings exatos.
+- [x] Transferência usa somente origem e destino, sem categoria.
+- [x] Papel inválido, valor não positivo e conta de destino igual são rejeitados.
+- [x] Pelo menos 12 testes direcionados passam.
 
 **Tests**: unit
 **Gate**: Quick domain
