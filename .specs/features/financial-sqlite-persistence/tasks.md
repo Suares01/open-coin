@@ -492,15 +492,15 @@ T19 → T20 → T21 → T22 → T23 → T24 → T25
 
 **Done when**:
 
-- [ ] Find usa um statement e preserva posição/links/BigInt.
-- [ ] Active opening balance exclui reversor e revertido e isola book.
-- [ ] Reserva usa UPSERT RETURNING e é monotônica por livro.
-- [ ] Add exige versão zero e insere entry/postings no executor recebido.
-- [ ] Save atualiza reversedBy/version com WHERE version.
-- [ ] IDs, relações cross-book, posição e amount inválidos são rejeitados.
-- [ ] Quinze testes de integração passam.
-- [ ] Gate de fase Build passa com baseline preservado.
-- [ ] Test count: 15 novos casos; nenhum teste removido.
+- [x] Find usa um statement e preserva posição/links/BigInt.
+- [x] Active opening balance exclui reversor e revertido e isola book.
+- [x] Reserva usa UPSERT RETURNING e é monotônica por livro.
+- [x] Add exige versão zero e insere entry/postings no executor recebido.
+- [x] Save atualiza reversedBy/version com WHERE version.
+- [x] IDs, relações cross-book, posição e amount inválidos são rejeitados.
+- [x] Quinze testes de integração passam.
+- [x] Gate de fase Build passa com baseline preservado.
+- [x] Test count: 15 novos casos; nenhum teste removido.
 
 **Tests**: integration
 **Gate**: build
