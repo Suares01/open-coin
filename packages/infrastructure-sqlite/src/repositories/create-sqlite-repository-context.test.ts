@@ -153,4 +153,39 @@ describe("createSqliteRepositoryContext", () => {
       "JournalEntryPosted",
     ]);
   });
+
+  it("routes every repository write through the supplied executor", async () => {
+    const fixture = context();
+
+    await fixture.context.books.add(book());
+    await fixture.context.books.save(
+      FinancialBook.restore({ ...book().toSnapshot(), version: 1 }),
+      0,
+    );
+    await fixture.context.accounts.add(account());
+    await fixture.context.accounts.save(
+      LedgerAccount.restore({ ...account().toSnapshot(), version: 1 }),
+      0,
+    );
+    await fixture.context.journalEntries.add(entry());
+    await fixture.context.journalEntries.save(
+      JournalEntry.restore({
+        ...entry().toSnapshot(),
+        version: 1,
+        reversedBy: "entry-2" as never,
+      }),
+      0,
+    );
+
+    expect(fixture.executor.executions.map((sql) => sql.split(" ")[0])).toEqual([
+      "INSERT",
+      "UPDATE",
+      "INSERT",
+      "UPDATE",
+      "INSERT",
+      "INSERT",
+      "INSERT",
+      "UPDATE",
+    ]);
+  });
 });

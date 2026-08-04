@@ -9,7 +9,7 @@ import {
   type FinancialBookSnapshot,
   bookIdFromString,
 } from "@open-coin/domain";
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { initializeSqliteDatabase } from "../../src/database/initialize-sqlite-database.js";
 import { SqliteFinancialBookRepository } from "../../src/repositories/sqlite-financial-book-repository.js";
 import { BetterSqliteDatabase } from "../support/better-sqlite-database.js";
@@ -108,8 +108,13 @@ describe("SqliteFinancialBookRepository", () => {
     facts.pull();
 
     const updated = restored({ name: "Updated", version: 1 });
+    const executeSpy = vi.spyOn(database, "execute");
     await repository.save(updated, 0);
 
+    expect(executeSpy).toHaveBeenCalledTimes(1);
+    expect(executeSpy.mock.calls[0]?.[0]).toContain(
+      "WHERE id = ? AND version = ?",
+    );
     expect((await repository.findById(updated.id))?.toSnapshot()).toEqual(
       snapshot({ name: "Updated", version: 1 }),
     );

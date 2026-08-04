@@ -18,7 +18,7 @@ import {
   ledgerAccountIdFromString,
   postingIdFromString,
 } from "@open-coin/domain";
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { initializeSqliteDatabase } from "../../src/database/initialize-sqlite-database.js";
 import { SqliteFinancialBookRepository } from "../../src/repositories/sqlite-financial-book-repository.js";
 import { SqliteJournalEntryRepository } from "../../src/repositories/sqlite-journal-entry-repository.js";
@@ -181,6 +181,15 @@ describe("SqliteJournalEntryRepository", () => {
     ]);
   });
 
+  it("hydrates an entry with one ordered query", async () => {
+    await repository.add(restoredEntry());
+    const querySpy = vi.spyOn(database, "query");
+
+    await repository.findById(journalEntryIdFromString("entry-1"));
+
+    expect(querySpy).toHaveBeenCalledTimes(1);
+  });
+
   it("finds only an active opening balance in the requested book", async () => {
     await accounts.add(account("opening-1", bookIdFromString("book-1"), "OPENING_BALANCE"));
     await repository.add(
@@ -312,6 +321,16 @@ describe("SqliteJournalEntryRepository", () => {
     ).resolves.toBe("1");
   });
 
+  it("reserves distinct ordered sequences for concurrent same-book calls", async () => {
+    const sequences = await Promise.all([
+      repository.reserveNextSequence(bookIdFromString("book-1")),
+      repository.reserveNextSequence(bookIdFromString("book-1")),
+      repository.reserveNextSequence(bookIdFromString("book-1")),
+    ]);
+
+    expect(sequences.sort()).toEqual(["1", "2", "3"]);
+  });
+
   it("rejects sequence overflow and preserves the previous sequence", async () => {
     await database.execute(
       "INSERT INTO journal_sequences (book_id, last_sequence) VALUES (?, ?)",
@@ -386,6 +405,8 @@ describe("SqliteJournalEntryRepository", () => {
   });
 
   it("rejects a posting amount outside signed 64-bit before writing", async () => {
+    const executeSpy = vi.spyOn(database, "execute");
+
     await expect(
       repository.add(
         restoredEntry({
@@ -406,6 +427,7 @@ describe("SqliteJournalEntryRepository", () => {
         }),
       ),
     ).rejects.toMatchObject({ code: "UNEXPECTED_ERROR" });
+    expect(executeSpy).not.toHaveBeenCalled();
     await expect(
       repository.findById(journalEntryIdFromString("entry-1")),
     ).resolves.toBeNull();

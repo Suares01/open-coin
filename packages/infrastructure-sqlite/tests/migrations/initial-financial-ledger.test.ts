@@ -148,6 +148,22 @@ describe("initial financial ledger migration", () => {
     ]);
   });
 
+  it("leaves domain and application invariants outside the schema", async () => {
+    const triggers = await database.query<{ name: string }>(
+      "SELECT name FROM sqlite_schema WHERE type = 'trigger'",
+    );
+    const tableDefinitions = await database.query<{ sql: string }>(
+      "SELECT sql FROM sqlite_schema WHERE type = 'table' AND name IN " +
+        "('financial_books', 'ledger_accounts', 'journal_sequences', " +
+        "'journal_entries', 'postings')",
+    );
+
+    expect(triggers).toEqual([]);
+    expect(tableDefinitions.every(({ sql }) =>
+      !/balanced|minimum[_ ]posting|minimum[_ ]account/i.test(sql),
+    )).toBe(true);
+  });
+
   it("makes the control and ledger tables STRICT", async () => {
     const rows = await database.query<{ name: string; sql: string }>(
       "SELECT name, sql FROM sqlite_schema " +

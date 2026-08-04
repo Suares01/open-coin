@@ -5,6 +5,13 @@ import {
   Currency,
   DomainError,
   FinancialBook,
+  JournalEntry,
+  LedgerAccount,
+  LocalDate,
+  Money,
+  Posting,
+  journalEntryIdFromString,
+  ledgerAccountIdFromString,
 } from "@open-coin/domain";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import type { SqliteDatabase } from "../../src/database/sqlite-database.js";
@@ -23,6 +30,40 @@ function book(id = "book-1"): FinancialBook {
     name: id,
     baseCurrency: Currency.parse("BRL"),
     timezone: "America/Sao_Paulo",
+  });
+}
+
+function account(id: string): LedgerAccount {
+  return LedgerAccount.create({
+    id: ledgerAccountIdFromString(id),
+    bookId: "book-1" as never,
+    name: id,
+    kind: "ASSET",
+  });
+}
+
+function entryWithMissingAccount(): JournalEntry {
+  return JournalEntry.post({
+    id: journalEntryIdFromString("entry-1"),
+    bookId: "book-1" as never,
+    occurredOn: LocalDate.parse("2026-08-04"),
+    recordedAt: "2026-08-04T12:00:00.000Z",
+    sequence: "1",
+    description: "Partial entry",
+    currency: Currency.parse("BRL"),
+    origin: "MANUAL",
+    postings: [
+      Posting.create({
+        id: "posting-1" as never,
+        accountId: ledgerAccountIdFromString("account-1"),
+        amount: Money.of(100n, Currency.parse("BRL")),
+      }),
+      Posting.create({
+        id: "posting-2" as never,
+        accountId: ledgerAccountIdFromString("missing-account"),
+        amount: Money.of(-100n, Currency.parse("BRL")),
+      }),
+    ],
   });
 }
 
@@ -183,5 +224,38 @@ describe("SqliteTransactionManager", () => {
         "SELECT COUNT(*) AS count FROM financial_books",
       ),
     ).toEqual([{ count: 0 }]);
+  });
+
+  it("rolls back a partial journal write, sequence and pending facts together", async () => {
+    await expect(
+      manager.execute(async (repositories) => {
+        await repositories.books.add(book());
+        await repositories.accounts.add(account("account-1"));
+        await repositories.journalEntries.reserveNextSequence("book-1" as never);
+        await repositories.journalEntries.add(entryWithMissingAccount());
+      }),
+    ).rejects.toMatchObject({ code: "UNEXPECTED_ERROR" });
+
+    expect(
+      await database.query<{
+        readonly books: number;
+        readonly accounts: number;
+        readonly entries: number;
+        readonly postings: number;
+        readonly sequences: number;
+      }>(
+        "SELECT " +
+          "(SELECT COUNT(*) FROM financial_books) AS books, " +
+          "(SELECT COUNT(*) FROM ledger_accounts) AS accounts, " +
+          "(SELECT COUNT(*) FROM journal_entries) AS entries, " +
+          "(SELECT COUNT(*) FROM postings) AS postings, " +
+          "(SELECT COUNT(*) FROM journal_sequences) AS sequences",
+      ),
+    ).toEqual([{ books: 0, accounts: 0, entries: 0, postings: 0, sequences: 0 }]);
+
+    await expect(manager.execute(async () => "empty")).resolves.toMatchObject({
+      value: "empty",
+      facts: [],
+    });
   });
 });

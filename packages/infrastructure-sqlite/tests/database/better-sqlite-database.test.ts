@@ -108,6 +108,22 @@ describe("BetterSqliteDatabase", () => {
     ).toEqual([{ name: "first" }, { name: "second" }]);
   });
 
+  it("uses one private connection for an in-memory database", async () => {
+    database = new BetterSqliteDatabase(":memory:");
+
+    await database.execute("CREATE TABLE records (name TEXT)");
+    await database.transaction(async (transactionExecutor) => {
+      await transactionExecutor.execute(
+        "INSERT INTO records (name) VALUES (?)",
+        ["inside"],
+      );
+    });
+
+    expect(await database.query("SELECT name FROM records")).toEqual([
+      { name: "inside" },
+    ]);
+  });
+
   it("waits for an active transaction before running an external query", async () => {
     database = new BetterSqliteDatabase();
     await database.execute("CREATE TABLE records (name TEXT)");
@@ -233,6 +249,19 @@ describe("BetterSqliteDatabase", () => {
 
     expect(await database.query("SELECT name FROM records")).toEqual([]);
     expect(execSpy.mock.calls.some(([sql]) => sql === "ROLLBACK")).toBe(true);
+  });
+
+  it("starts each transaction with BEGIN IMMEDIATE", async () => {
+    const connection = new Database(":memory:");
+    database = new BetterSqliteDatabase(connection);
+    const originalExec = connection.exec.bind(connection);
+    const execSpy = vi.spyOn(connection, "exec").mockImplementation((sql) =>
+      originalExec(sql),
+    );
+
+    await database.transaction(async () => undefined);
+
+    expect(execSpy.mock.calls.map(([sql]) => sql)).toContain("BEGIN IMMEDIATE");
   });
 
   it("rejects new operations after close and closes the connection once", async () => {
