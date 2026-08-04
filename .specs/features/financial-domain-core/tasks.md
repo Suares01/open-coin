@@ -135,10 +135,10 @@ T29 -> T30 -> T31 -> T32 -> T33
 
 **Done when**:
 
-- [ ] Entidades comparam identidade sem expor mutação de ID.
-- [ ] Agregados acumulam e retiram fatos sem incluí-los em snapshots.
-- [ ] Erros possuem códigos estáveis e `Result` é discriminado.
-- [ ] Pelo menos 7 testes direcionados passam e o build do pacote permanece puro.
+- [x] Entidades comparam identidade sem expor mutação de ID.
+- [x] Agregados acumulam e retiram fatos sem incluí-los em snapshots.
+- [x] Erros possuem códigos estáveis e `Result` é discriminado.
+- [x] Pelo menos 7 testes direcionados passam e o build do pacote permanece puro.
 
 **Tests**: unit
 **Gate**: Quick domain
