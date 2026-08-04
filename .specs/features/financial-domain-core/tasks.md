@@ -93,10 +93,10 @@ T29 -> T30 -> T31 -> T32 -> T33
 
 **Done when**:
 
-- [ ] Engine raiz exige Node `>=20` e scripts `test`/gates estão declarados.
-- [ ] Turbo conhece `test` e executa builds das dependências antes dos testes.
-- [ ] Lockfile está consistente com o manifesto.
-- [ ] Build gate passa; nenhum teste existe ainda.
+- [x] Engine raiz exige Node `>=20` e scripts `test`/gates estão declarados.
+- [x] Turbo conhece `test` e executa builds das dependências antes dos testes.
+- [x] Lockfile está consistente com o manifesto.
+- [x] Build gate passa; nenhum teste existe ainda.
 
 **Tests**: build-only (matrix: none)
 **Gate**: Build
