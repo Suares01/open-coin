@@ -285,11 +285,11 @@ T29 -> T30 -> T31 -> T32 -> T33
 
 **Done when**:
 
-- [ ] Menos de dois postings ou contas distintas retorna o código exato.
-- [ ] Moeda diferente da moeda do lançamento e soma não zero são rejeitadas.
-- [ ] Descrição vazia é rejeitada e campos financeiros não possuem setters.
-- [ ] Snapshot/restauração preservam postings sem compartilhar arrays.
-- [ ] Pelo menos 11 testes direcionados cobrem todas as invariantes.
+- [x] Menos de dois postings ou contas distintas retorna o código exato.
+- [x] Moeda diferente da moeda do lançamento e soma não zero são rejeitadas.
+- [x] Descrição vazia é rejeitada e campos financeiros não possuem setters.
+- [x] Snapshot/restauração preservam postings sem compartilhar arrays.
+- [x] Pelo menos 11 testes direcionados cobrem todas as invariantes.
 
 **Tests**: unit
 **Gate**: Quick domain
