@@ -608,10 +608,10 @@ T29 -> T30 -> T31 -> T32 -> T33
 
 **Done when**:
 
-- [ ] Categoria válida possui kind `EXPENSE`, status ativo e versão zero.
-- [ ] Livro ausente, nome vazio e duplicidade falham sem escrita/evento.
-- [ ] Sucesso publica exatamente um `LedgerAccountCreated`.
-- [ ] Pelo menos 6 testes cross-layer passam.
+- [x] Categoria válida possui kind `EXPENSE`, status ativo e versão zero.
+- [x] Livro ausente, nome vazio e duplicidade falham sem escrita/evento.
+- [x] Sucesso publica exatamente um `LedgerAccountCreated`.
+- [x] Pelo menos 6 testes cross-layer passam.
 
 **Tests**: integration
 **Gate**: Full
