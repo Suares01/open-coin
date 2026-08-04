@@ -72,6 +72,29 @@ function dispatcher(publisher: Collector): DomainEventDispatcher {
 }
 
 describe("DomainEventDispatcher", () => {
+  it("versions every supported event from its immutable fact version", async () => {
+    const publisher = new Collector();
+    const allFacts = [
+      { type: "FinancialBookCreated", aggregateId: "book-1", aggregateVersion: 0, payload: { bookId: "book-1" } },
+      { type: "LedgerAccountCreated", aggregateId: "account-1", aggregateVersion: 0, payload: { bookId: "book-1" } },
+      { type: "JournalEntryPosted", aggregateId: "entry-1", aggregateVersion: 2, payload: { bookId: "book-1" } },
+      { type: "JournalEntryReversed", aggregateId: "entry-1", aggregateVersion: 3, payload: { bookId: "book-1" } },
+    ] as const;
+
+    await dispatcher(publisher).dispatch(allFacts);
+
+    expect(publisher.events.map(({ type, eventVersion, aggregateVersion }) => ({
+      type,
+      eventVersion,
+      aggregateVersion,
+    }))).toEqual([
+      { type: "FinancialBookCreated", eventVersion: 1, aggregateVersion: 0 },
+      { type: "LedgerAccountCreated", eventVersion: 1, aggregateVersion: 0 },
+      { type: "JournalEntryPosted", eventVersion: 1, aggregateVersion: 2 },
+      { type: "JournalEntryReversed", eventVersion: 1, aggregateVersion: 3 },
+    ]);
+  });
+
   it("creates deterministic envelopes in fact order with exact identity and payload", async () => {
     const publisher = new Collector();
 
@@ -81,16 +104,20 @@ describe("DomainEventDispatcher", () => {
       {
         eventId: "event-1",
         type: "FinancialBookCreated",
+        eventVersion: 1,
         occurredAt: "2026-08-04T12:00:00.000Z",
         aggregateId: "book-1",
+        aggregateVersion: 0,
         bookId: "book-1",
         payload: { id: "book-1", name: "Main" },
       },
       {
         eventId: "event-2",
         type: "LedgerAccountCreated",
+        eventVersion: 1,
         occurredAt: "2026-08-04T12:00:00.000Z",
         aggregateId: "account-1",
+        aggregateVersion: 0,
         bookId: "book-1",
         payload: { id: "account-1", bookId: "book-1", kind: "ASSET" },
       },

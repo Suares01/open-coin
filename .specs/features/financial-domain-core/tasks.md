@@ -939,10 +939,10 @@ T34 -> T35 -> T36 -> T37 -> T38 -> T39 -> T40 -> T41
 
 **Done when**:
 
-- [ ] Todo evento existente sai com `eventVersion: 1`.
-- [ ] `aggregateVersion` do envelope é igual ao valor imutável carregado pelo fato.
-- [ ] Ordem de publicação e comportamento de rollback permanecem inalterados.
-- [ ] O Full gate passa com assertions exatas para todos os tipos de evento.
+- [x] Todo evento existente sai com `eventVersion: 1`.
+- [x] `aggregateVersion` do envelope é igual ao valor imutável carregado pelo fato.
+- [x] Ordem de publicação e comportamento de rollback permanecem inalterados.
+- [x] O Full gate passa com assertions exatas para todos os tipos de evento.
 
 **Tests**: unit
 **Gate**: Full

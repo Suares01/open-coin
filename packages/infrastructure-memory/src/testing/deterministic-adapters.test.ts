@@ -9,8 +9,10 @@ import {
 const event = (eventId: string): DomainEventEnvelope => ({
   eventId,
   type: "LedgerAccountCreated",
+  eventVersion: 1,
   occurredAt: "2026-08-04T12:00:00.000Z",
   aggregateId: "account-1",
+  aggregateVersion: 0,
   bookId: "book-1",
   payload: { id: "account-1", kind: "ASSET" },
 });

@@ -9,8 +9,10 @@ export type ApplicationEventType =
 export interface DomainEventEnvelope {
   readonly eventId: string;
   readonly type: ApplicationEventType;
+  readonly eventVersion: 1;
   readonly occurredAt: string;
   readonly aggregateId: string;
+  readonly aggregateVersion: number;
   readonly bookId: string;
   readonly payload: unknown;
 }

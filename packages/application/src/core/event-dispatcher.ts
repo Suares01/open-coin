@@ -29,8 +29,10 @@ export class DomainEventDispatcher {
       const event: DomainEventEnvelope = {
         eventId: this.ids.nextEventId(),
         type,
+        eventVersion: 1,
         occurredAt: this.clock.now(),
         aggregateId: fact.aggregateId,
+        aggregateVersion: fact.aggregateVersion,
         bookId,
         payload: toSerializable(payload),
       };
