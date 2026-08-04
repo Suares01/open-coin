@@ -92,12 +92,12 @@ T19 → T20 → T21 → T22 → T23 → T24 → T25
 
 **Done when**:
 
-- [ ] O pacote expõe `dist/index.js` e `dist/index.d.ts` sob o nome aprovado.
-- [ ] Dependências de produção contêm somente domain e application.
-- [ ] `better-sqlite3`, seus types, Vitest e infrastructure-memory aparecem somente em devDependencies.
-- [ ] O lockfile é atualizado sem alterar versões não relacionadas.
-- [ ] Build, lint, typecheck e test vazio do pacote passam.
-- [ ] Test count: 0 novos casos; matrix confirma build-only.
+- [x] O pacote expõe `dist/index.js` e `dist/index.d.ts` sob o nome aprovado.
+- [x] Dependências de produção contêm somente domain e application.
+- [x] `better-sqlite3`, seus types, Vitest e infrastructure-memory aparecem somente em devDependencies.
+- [x] O lockfile é atualizado sem alterar versões não relacionadas.
+- [x] Build, lint, typecheck e test vazio do pacote passam.
+- [x] Test count: 0 novos casos; matrix confirma build-only.
 
 **Tests**: none (build gate only)
 **Gate**: build

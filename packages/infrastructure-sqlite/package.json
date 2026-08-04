@@ -1,0 +1,33 @@
+{
+  "name": "@open-coin/infrastructure-sqlite",
+  "version": "0.0.0",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "lint": "eslint . --max-warnings 0",
+    "check-types": "tsc --noEmit",
+    "test": "vitest run --passWithNoTests"
+  },
+  "dependencies": {
+    "@open-coin/application": "workspace:*",
+    "@open-coin/domain": "workspace:*"
+  },
+  "devDependencies": {
+    "@open-coin/infrastructure-memory": "workspace:*",
+    "@repo/eslint-config": "workspace:*",
+    "@repo/typescript-config": "workspace:*",
+    "@types/better-sqlite3": "^7.6.13",
+    "@types/node": "^22.15.3",
+    "better-sqlite3": "^11.10.0",
+    "eslint": "^9.39.1",
+    "typescript": "5.9.2",
+    "vitest": "^4.0.0"
+  }
+}
