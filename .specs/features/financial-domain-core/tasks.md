@@ -264,10 +264,10 @@ T29 -> T30 -> T31 -> T32 -> T33
 
 **Done when**:
 
-- [ ] Valor zero retorna `ZERO_POSTING_AMOUNT`.
-- [ ] Reversão preserva conta e moeda e nega exatamente o valor.
-- [ ] Snapshot/restauração não compartilham estado mutável.
-- [ ] Pelo menos 5 testes direcionados passam.
+- [x] Valor zero retorna `ZERO_POSTING_AMOUNT`.
+- [x] Reversão preserva conta e moeda e nega exatamente o valor.
+- [x] Snapshot/restauração não compartilham estado mutável.
+- [x] Pelo menos 5 testes direcionados passam.
 
 **Tests**: unit
 **Gate**: Quick domain

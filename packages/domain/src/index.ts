@@ -8,3 +8,4 @@ export type {
   FinancialBookSnapshot,
 } from "./book/financial-book.js";
 export * from "./ledger/accounts/index.js";
+export * from "./ledger/journal/index.js";
