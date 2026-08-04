@@ -607,14 +607,14 @@ T19 → T20 → T21 → T22 → T23 → T24 → T25
 
 **Done when**:
 
-- [ ] Balance respeita asOf, book/account e moeda-base vazia.
-- [ ] Cinco account kinds recebem sinal visual correto.
-- [ ] Statement calcula running balance ascendente e retorna descendente.
-- [ ] Mesmo dia ordena por sequência numérica, não ID.
-- [ ] Original/reversão permanecem visíveis e se anulam.
-- [ ] Acumulador BigInt evita SUM overflow e serializa exato.
-- [ ] Treze testes de integração passam.
-- [ ] Test count: 13 novos casos; nenhum teste removido.
+- [x] Balance respeita asOf, book/account e moeda-base vazia.
+- [x] Cinco account kinds recebem sinal visual correto.
+- [x] Statement calcula running balance ascendente e retorna descendente.
+- [x] Mesmo dia ordena por sequência numérica, não ID.
+- [x] Original/reversão permanecem visíveis e se anulam.
+- [x] Acumulador BigInt evita SUM overflow e serializa exato.
+- [x] Treze testes de integração passam.
+- [x] Test count: 13 novos casos; nenhum teste removido.
 
 **Tests**: integration
 **Gate**: full
