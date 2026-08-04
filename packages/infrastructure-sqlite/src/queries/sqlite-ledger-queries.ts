@@ -1,6 +1,4 @@
 import {
-  normalBalanceOf,
-  type LedgerAccountKind,
   type LedgerAccountId,
   type BookId,
   type LocalDate,
@@ -11,6 +9,13 @@ import type {
   LedgerQueries,
 } from "@open-coin/application";
 import type { SqliteExecutor } from "../database/sqlite-executor.js";
+import {
+  compareDecimalStrings,
+  readAccountKind,
+  readBigInt,
+  readString,
+  toDisplayMinor,
+} from "./sqlite-query-values.js";
 
 type AccountRow = {
   readonly account_id: unknown;
@@ -62,11 +67,11 @@ export class SqliteLedgerQueries implements LedgerQueries {
     return {
       accountId: readString(account.account_id, "account_id"),
       accountName: readString(account.account_name, "account_name"),
-      accountKind: readKind(account.kind),
+      accountKind: readAccountKind(account.kind),
       rawBalanceMinor: rawBalance.toString(),
-      displayBalanceMinor: toDisplayedAmount(rawBalance, readKind(account.kind)),
+      displayBalanceMinor: toDisplayMinor(rawBalance, readAccountKind(account.kind)),
       asOf: input.asOf?.value ?? null,
-      amountMinor: toDisplayedAmount(rawBalance, readKind(account.kind)),
+      amountMinor: toDisplayMinor(rawBalance, readAccountKind(account.kind)),
       currency: readString(account.base_currency, "base_currency"),
     };
   }
@@ -87,7 +92,7 @@ export class SqliteLedgerQueries implements LedgerQueries {
       [input.bookId, input.accountId],
     );
     const orderedRows = rows.slice().sort(compareAscending);
-    const kind = readKind(account.kind);
+    const kind = readAccountKind(account.kind);
     let rawRunningBalance = 0n;
     const statement = orderedRows.map((row) => {
       const amountMinor = readBigInt(row.amount_minor, "amount_minor");
@@ -100,7 +105,7 @@ export class SqliteLedgerQueries implements LedgerQueries {
         sequence: readString(row.sequence, "sequence"),
         description: readString(row.description, "description"),
         amountMinor: amountMinor.toString(),
-        runningBalanceMinor: toDisplayedAmount(rawRunningBalance, kind),
+        runningBalanceMinor: toDisplayMinor(rawRunningBalance, kind),
         currency: readString(row.currency, "currency"),
       } satisfies AccountStatementItemView;
     });
@@ -124,36 +129,6 @@ export class SqliteLedgerQueries implements LedgerQueries {
   }
 }
 
-function readString(value: unknown, field: string): string {
-  if (typeof value !== "string") {
-    throw new TypeError(`Invalid ledger query ${field}`);
-  }
-
-  return value;
-}
-
-function readBigInt(value: unknown, field: string): bigint {
-  try {
-    return BigInt(readString(value, field));
-  } catch {
-    throw new TypeError(`Invalid ledger query ${field}`);
-  }
-}
-
-function readKind(value: unknown): LedgerAccountKind {
-  if (
-    value !== "ASSET" &&
-    value !== "LIABILITY" &&
-    value !== "INCOME" &&
-    value !== "EXPENSE" &&
-    value !== "EQUITY"
-  ) {
-    throw new TypeError("Invalid ledger query kind");
-  }
-
-  return value;
-}
-
 function compareAscending(left: PostingRow, right: PostingRow): number {
   const dateOrder = readString(left.occurred_on, "occurred_on").localeCompare(
     readString(right.occurred_on, "occurred_on"),
@@ -166,18 +141,4 @@ function compareAscending(left: PostingRow, right: PostingRow): number {
     readString(left.sequence, "sequence"),
     readString(right.sequence, "sequence"),
   );
-}
-
-function compareDecimalStrings(left: string, right: string): number {
-  const normalizedLeft = left.replace(/^0+(?=\d)/, "");
-  const normalizedRight = right.replace(/^0+(?=\d)/, "");
-  if (normalizedLeft.length !== normalizedRight.length) {
-    return normalizedLeft.length - normalizedRight.length;
-  }
-
-  return normalizedLeft.localeCompare(normalizedRight);
-}
-
-function toDisplayedAmount(amountMinor: bigint, kind: LedgerAccountKind): string {
-  return (normalBalanceOf(kind) === "DEBIT" ? amountMinor : -amountMinor).toString();
 }

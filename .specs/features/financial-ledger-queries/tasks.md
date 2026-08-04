@@ -224,11 +224,11 @@ T12 -> T13 -> T14
 
 **Done when**:
 
-- [ ] Strings, inteiros seguros, booleanos e `bigint` válidos são convertidos sem coerção silenciosa.
-- [ ] Kinds, status e origins inválidos falham antes de montar um read model.
-- [ ] Sinais dos cinco kinds e sequências `1`, `2`, `9`, `10` e acima de safe integer produzem ordem exata.
-- [ ] `SqliteLedgerQueries` legado reutiliza os helpers sem mudar seus resultados.
-- [ ] Pelo menos 12 testes unitários cobrem todas as branches e limites.
+- [x] Strings, inteiros seguros, booleanos e `bigint` válidos são convertidos sem coerção silenciosa.
+- [x] Kinds, status e origins inválidos falham antes de montar um read model.
+- [x] Sinais dos cinco kinds e sequências `1`, `2`, `9`, `10` e acima de safe integer produzem ordem exata.
+- [x] `SqliteLedgerQueries` legado reutiliza os helpers sem mudar seus resultados.
+- [x] Pelo menos 12 testes unitários cobrem todas as branches e limites.
 
 **Tests**: unit
 **Gate**: SQLite full
