@@ -263,14 +263,14 @@ T19 → T20 → T21 → T22 → T23 → T24 → T25
 
 **Done when**:
 
-- [ ] Gerador atualiza o módulo TS e checksum da migration 0001.
-- [ ] Todas as tabelas são STRICT e possuem apenas os campos aprovados.
-- [ ] Relações cross-book são rejeitadas pelas FKs compostas.
-- [ ] Enums, moedas, versões, posição e amount não zero possuem checks.
-- [ ] Unicidades e índices correspondem ao design.
-- [ ] `integrity_check` retorna ok e `foreign_key_check` retorna vazio.
-- [ ] Quatorze testes de integração cobrem schema e constraints.
-- [ ] Test count: 14 novos casos; nenhum teste removido.
+- [x] Gerador atualiza o módulo TS e checksum da migration 0001.
+- [x] Todas as tabelas são STRICT e possuem apenas os campos aprovados.
+- [x] Relações cross-book são rejeitadas pelas FKs compostas.
+- [x] Enums, moedas, versões, posição e amount não zero possuem checks.
+- [x] Unicidades e índices correspondem ao design.
+- [x] `integrity_check` retorna ok e `foreign_key_check` retorna vazio.
+- [x] Quatorze testes de integração cobrem schema e constraints.
+- [x] Test count: 14 novos casos; nenhum teste removido.
 
 **Tests**: integration
 **Gate**: full

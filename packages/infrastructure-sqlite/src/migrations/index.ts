@@ -1,4 +1,5 @@
 export type { SqliteMigration } from "./migrations.js";
+export { sqliteMigrations } from "./generated-migrations.js";
 export {
   InvalidMigrationPlanError,
   ModifiedMigrationError,
