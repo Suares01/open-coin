@@ -406,12 +406,12 @@ T19 → T20 → T21 → T22 → T23 → T24 → T25
 
 **Done when**:
 
-- [ ] Round-trip preserva kind, status, normalizedName, purpose e version.
-- [ ] Null de system_purpose vira undefined e retorna a null na escrita.
-- [ ] Enums, numbers e strings inválidos são rejeitados.
-- [ ] Restore não levanta fatos.
-- [ ] Cinco testes unitários passam.
-- [ ] Test count: 5 novos casos; nenhum teste removido.
+- [x] Round-trip preserva kind, status, normalizedName, purpose e version.
+- [x] Null de system_purpose vira undefined e retorna a null na escrita.
+- [x] Enums, numbers e strings inválidos são rejeitados.
+- [x] Restore não levanta fatos.
+- [x] Cinco testes unitários passam.
+- [x] Test count: 5 novos casos; nenhum teste removido.
 
 **Tests**: unit
 **Gate**: quick
