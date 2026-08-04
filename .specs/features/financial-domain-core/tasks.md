@@ -521,10 +521,10 @@ T29 -> T30 -> T31 -> T32 -> T33
 
 **Done when**:
 
-- [ ] Clock retorna instante e data local fixos.
-- [ ] Gerador produz IDs branded previsíveis por tipo e IDs de evento previsíveis.
-- [ ] Publisher coleta envelopes em ordem sem falhar.
-- [ ] Pelo menos 6 testes direcionados passam.
+- [x] Clock retorna instante e data local fixos.
+- [x] Gerador produz IDs branded previsíveis por tipo e IDs de evento previsíveis.
+- [x] Publisher coleta envelopes em ordem sem falhar.
+- [x] Pelo menos 6 testes direcionados passam.
 
 **Tests**: integration
 **Gate**: Full
