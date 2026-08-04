@@ -1,0 +1,43 @@
+{
+  "version": 2,
+  "skills": {
+    "tlc-spec-driven": {
+      "name": "tlc-spec-driven",
+      "source": "local",
+      "contentHash": "9f4c793556001f3210a2d9fe3b41bf24e82e581c522d8dd50f65addfee169a29",
+      "installedAt": "2026-08-04T15:08:25.103Z",
+      "updatedAt": "2026-08-04T15:08:25.110Z",
+      "agents": [
+        "codex",
+        "github-copilot"
+      ],
+      "method": "copy",
+      "global": false
+    },
+    "codenavi": {
+      "name": "codenavi",
+      "source": "local",
+      "contentHash": "23ac05b7f2d8df8311129d41432eba248bdcf14e9ace3f17c581976f7d888ada",
+      "installedAt": "2026-08-04T15:08:34.870Z",
+      "updatedAt": "2026-08-04T15:08:34.874Z",
+      "agents": [
+        "codex",
+        "github-copilot"
+      ],
+      "method": "copy",
+      "global": false
+    },
+    "frontend-design": {
+      "name": "frontend-design",
+      "source": "local",
+      "contentHash": "b20162c8d6bcdd9137c4afceaeb4f9dce2c1ba3ccb57a96a3228b8cb33104ec4",
+      "installedAt": "2026-08-04T15:16:50.742Z",
+      "updatedAt": "2026-08-04T15:16:50.742Z",
+      "agents": [
+        "codex"
+      ],
+      "method": "copy",
+      "global": false
+    }
+  }
+}
