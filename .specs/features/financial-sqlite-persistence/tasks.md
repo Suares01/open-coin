@@ -147,12 +147,12 @@ T19 → T20 → T21 → T22 → T23 → T24 → T25
 
 **Done when**:
 
-- [ ] O gerador ordena versões, rejeita nome inválido, gap e duplicidade.
-- [ ] LF e newline final são normalizados antes do SHA-256.
-- [ ] `--check` não escreve e falha diante de drift.
-- [ ] A saída possui cabeçalho generated/do-not-edit e conteúdo estável.
-- [ ] Sete testes unitários derivados dos critérios passam.
-- [ ] Test count: 7 novos casos; nenhum teste removido.
+- [x] O gerador ordena versões, rejeita nome inválido, gap e duplicidade.
+- [x] LF e newline final são normalizados antes do SHA-256.
+- [x] `--check` não escreve e falha diante de drift.
+- [x] A saída possui cabeçalho generated/do-not-edit e conteúdo estável.
+- [x] Sete testes unitários derivados dos critérios passam.
+- [x] Test count: 7 novos casos; nenhum teste removido.
 
 **Tests**: unit
 **Gate**: quick
