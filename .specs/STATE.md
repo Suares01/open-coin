@@ -34,4 +34,12 @@
 - **Date**: 2026-08-04
 - **Status**: active
 
+### AD-005
+- **Decision**: Leituras orientadas a produto usarão query ports agrupados por contexto; read models complexos terão SQLite como implementação de referência, sem exigir um adapter em memória equivalente.
+- **Reason**: Repositories permanecem focados em agregados e relatórios não serão duplicados em arrays com uma segunda implementação contábil.
+- **Trade-off**: Testes de domínio e commands continuam rápidos em memória, enquanto listas e indicadores complexos dependem de SQLite `:memory:` para prova comportamental.
+- **Scope**: Queries, relatórios, dashboards e read models presentes e futuros.
+- **Date**: 2026-08-04
+- **Status**: active
+
 ## Handoff
