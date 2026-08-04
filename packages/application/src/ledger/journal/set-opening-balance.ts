@@ -59,6 +59,17 @@ export class SetOpeningBalance {
           );
         }
 
+        const activeOpeningBalance = await repositories.journalEntries.findActiveOpeningBalanceByAccount(
+          book.id,
+          account.id,
+        );
+        if (activeOpeningBalance !== null) {
+          throw new ApplicationError(
+            "OPENING_BALANCE_ALREADY_SET",
+            `An active opening balance already exists for account ${account.id}`,
+          );
+        }
+
         const entry = JournalEntryFactory.setOpeningBalance({
           id: journalEntryIdFromString(this.ids.nextJournalEntryId()),
           book,

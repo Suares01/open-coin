@@ -67,6 +67,9 @@ function conflictTransactionManager(base: TransactionManager): TransactionManage
       return base.execute((repositories) => {
         const journalEntries = {
           findById: repositories.journalEntries.findById.bind(repositories.journalEntries),
+          findActiveOpeningBalanceByAccount: repositories.journalEntries.findActiveOpeningBalanceByAccount.bind(
+            repositories.journalEntries,
+          ),
           reserveNextSequence: repositories.journalEntries.reserveNextSequence.bind(
             repositories.journalEntries,
           ),

@@ -24,6 +24,32 @@ export class InMemoryJournalEntryRepository implements JournalEntryRepository {
     return snapshot === undefined ? null : JournalEntry.restore(snapshot);
   }
 
+  async findActiveOpeningBalanceByAccount(
+    bookId: BookId,
+    accountId: LedgerAccountId,
+  ): Promise<JournalEntry | null> {
+    const openingBalanceAccountIds = new Set(
+      this.store
+        .listAccounts()
+        .filter(
+          (account) =>
+            account.bookId === bookId &&
+            account.systemPurpose === "OPENING_BALANCE",
+        )
+        .map((account) => account.id),
+    );
+    const snapshot = this.store.listJournalEntries().find(
+      (entry) =>
+        entry.bookId === bookId &&
+        entry.reversalOf === undefined &&
+        entry.reversedBy === undefined &&
+        entry.postings.some((posting) => posting.accountId === accountId) &&
+        entry.postings.some((posting) => openingBalanceAccountIds.has(posting.accountId)),
+    );
+
+    return snapshot === undefined ? null : JournalEntry.restore(snapshot);
+  }
+
   async reserveNextSequence(bookId: BookId): Promise<string> {
     return this.store.reserveNextSequence(bookId);
   }

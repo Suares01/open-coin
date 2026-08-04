@@ -876,10 +876,10 @@ T34 -> T35 -> T36 -> T37 -> T38 -> T39 -> T40 -> T41
 
 **Done when**:
 
-- [ ] Segundo saldo inicial ativo retorna `OPENING_BALANCE_ALREADY_SET` sem escrita ou evento.
-- [ ] Reverter o saldo inicial anterior permite criar um novo para a mesma conta.
-- [ ] Contas diferentes e livros diferentes mantêm isolamento.
-- [ ] O Full gate passa com caminhos feliz, duplicado, pós-reversão e rollback.
+- [x] Segundo saldo inicial ativo retorna `OPENING_BALANCE_ALREADY_SET` sem escrita ou evento.
+- [x] Reverter o saldo inicial anterior permite criar um novo para a mesma conta.
+- [x] Contas diferentes e livros diferentes mantêm isolamento.
+- [x] O Full gate passa com caminhos feliz, duplicado, pós-reversão e rollback.
 
 **Tests**: integration
 **Gate**: Full

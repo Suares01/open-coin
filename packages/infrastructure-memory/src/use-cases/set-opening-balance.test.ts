@@ -1,4 +1,8 @@
-import { SetOpeningBalance } from "@open-coin/application";
+import {
+  CreateFinancialAccount,
+  ReverseJournalEntry,
+  SetOpeningBalance,
+} from "@open-coin/application";
 import { describe, expect, it } from "vitest";
 import { createBook, createFinancialAccount, createHarness } from "./test-helpers.js";
 
@@ -24,6 +28,81 @@ function command(overrides: Record<string, string> = {}) {
 }
 
 describe("SetOpeningBalance", () => {
+  it("rejects a second active opening balance without writing or publishing", async () => {
+    const harness = createHarness();
+    await createBook(harness);
+    await createFinancialAccount(harness);
+
+    expect((await useCase(harness).execute(command())).ok).toBe(true);
+    harness.publisher.clear();
+    const before = harness.store.snapshot();
+
+    const result = await useCase(harness).execute(command({ amountMinor: "20000" }));
+
+    expect(result).toMatchObject({
+      ok: false,
+      error: { code: "OPENING_BALANCE_ALREADY_SET" },
+    });
+    expect(harness.store.snapshot()).toEqual(before);
+    expect(harness.publisher.events).toEqual([]);
+  });
+
+  it("allows a new opening balance after the previous one is reversed", async () => {
+    const harness = createHarness();
+    await createBook(harness);
+    await createFinancialAccount(harness);
+
+    expect((await useCase(harness).execute(command())).ok).toBe(true);
+    const reversal = await new ReverseJournalEntry(
+      harness.transactionManager,
+      harness.dispatcher,
+      harness.ids,
+      harness.clock,
+    ).execute({
+      bookId: "book-1",
+      journalEntryId: "entry-1",
+      occurredOn: "2026-08-05",
+      description: "Reverse opening",
+    });
+    expect(reversal.ok).toBe(true);
+
+    const replacement = await useCase(harness).execute(command({ amountMinor: "20000" }));
+
+    expect(replacement).toMatchObject({ ok: true, value: { id: "entry-3" } });
+    expect(harness.store.listJournalEntries()).toHaveLength(3);
+  });
+
+  it("isolates active opening balances by account and book", async () => {
+    const harness = createHarness();
+    await createBook(harness);
+    await createFinancialAccount(harness);
+    const secondAccount = await new CreateFinancialAccount(
+      harness.transactionManager,
+      harness.dispatcher,
+      harness.ids,
+    ).execute({ bookId: "book-1", name: "Savings", kind: "ASSET" });
+    expect(secondAccount.ok).toBe(true);
+    const firstBookSecondAccount = await useCase(harness).execute(command());
+    expect(firstBookSecondAccount.ok).toBe(true);
+    const secondAccountOpening = await useCase(harness).execute(
+      command({ accountId: "account-6" }),
+    );
+    expect(secondAccountOpening.ok).toBe(true);
+
+    await createBook(harness);
+    const secondBookAccount = await new CreateFinancialAccount(
+      harness.transactionManager,
+      harness.dispatcher,
+      harness.ids,
+    ).execute({ bookId: "book-2", name: "Other cash", kind: "ASSET" });
+    expect(secondBookAccount.ok).toBe(true);
+    const secondBookOpening = await useCase(harness).execute(
+      command({ bookId: "book-2", accountId: "account-11" }),
+    );
+
+    expect(secondBookOpening.ok).toBe(true);
+  });
+
   it("posts a positive debit to an ASSET and a credit to opening balance", async () => {
     const harness = createHarness();
     await createBook(harness);

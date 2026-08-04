@@ -35,6 +35,10 @@ export interface LedgerAccountRepository {
 
 export interface JournalEntryRepository {
   findById(id: JournalEntryId): Promise<JournalEntry | null>;
+  findActiveOpeningBalanceByAccount(
+    bookId: BookId,
+    accountId: LedgerAccountId,
+  ): Promise<JournalEntry | null>;
   reserveNextSequence(bookId: BookId): Promise<string>;
   add(entry: JournalEntry): Promise<void>;
   save(entry: JournalEntry, expectedVersion: number): Promise<void>;
