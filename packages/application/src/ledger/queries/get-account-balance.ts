@@ -45,6 +45,10 @@ export class GetAccountBalance {
 
       return Result.ok({
         accountId: view.accountId,
+        accountName: view.accountName,
+        accountKind: view.accountKind,
+        rawBalanceMinor: view.rawBalanceMinor,
+        displayBalanceMinor: view.displayBalanceMinor,
         asOf: view.asOf,
         amountMinor: view.amountMinor,
         currency: view.currency,

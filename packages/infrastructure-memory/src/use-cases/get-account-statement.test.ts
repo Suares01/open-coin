@@ -257,7 +257,7 @@ describe("GetAccountStatement", () => {
   it("rejects a missing account before querying", async () => {
     const store = new InMemoryStore();
     const queries: LedgerQueries = {
-      getAccountBalance: async () => ({ accountId: "missing", asOf: null, amountMinor: "0", currency: "BRL" }),
+      getAccountBalance: async () => ({ accountId: "missing", accountName: "Missing", accountKind: "ASSET", rawBalanceMinor: "0", displayBalanceMinor: "0", asOf: null, amountMinor: "0", currency: "BRL" }),
       getAccountStatement: async () => {
         throw new Error("missing account should not query");
       },
@@ -275,7 +275,7 @@ describe("GetAccountStatement", () => {
     const store = new InMemoryStore();
     store.putAccount(foreignAccountSnapshot());
     const queries: LedgerQueries = {
-      getAccountBalance: async () => ({ accountId: "account-foreign", asOf: null, amountMinor: "0", currency: "BRL" }),
+      getAccountBalance: async () => ({ accountId: "account-foreign", accountName: "Foreign", accountKind: "ASSET", rawBalanceMinor: "0", displayBalanceMinor: "0", asOf: null, amountMinor: "0", currency: "BRL" }),
       getAccountStatement: async () => {
         throw new Error("foreign account should not query");
       },
@@ -292,7 +292,7 @@ describe("GetAccountStatement", () => {
   it("rejects a valid account requested under another book without querying", async () => {
     const harness = await preparedExpense();
     const queries: LedgerQueries = {
-      getAccountBalance: async () => ({ accountId: "account-5", asOf: null, amountMinor: "0", currency: "BRL" }),
+      getAccountBalance: async () => ({ accountId: "account-5", accountName: "Checking", accountKind: "ASSET", rawBalanceMinor: "0", displayBalanceMinor: "0", asOf: null, amountMinor: "0", currency: "BRL" }),
       getAccountStatement: async () => {
         throw new Error("book mismatch should not query");
       },
@@ -309,7 +309,7 @@ describe("GetAccountStatement", () => {
   it("maps an unexpected statement query failure to the public error boundary", async () => {
     const harness = await preparedExpense();
     const queries: LedgerQueries = {
-      getAccountBalance: async () => ({ accountId: "account-5", asOf: null, amountMinor: "0", currency: "BRL" }),
+      getAccountBalance: async () => ({ accountId: "account-5", accountName: "Checking", accountKind: "ASSET", rawBalanceMinor: "0", displayBalanceMinor: "0", asOf: null, amountMinor: "0", currency: "BRL" }),
       getAccountStatement: async () => {
         throw new Error("statement query failed");
       },

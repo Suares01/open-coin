@@ -107,6 +107,10 @@ describe("SqliteLedgerQueries", () => {
       asOf: { value: "2026-08-01" } as never,
     })).resolves.toEqual({
       accountId: "account-asset",
+      accountName: "account-asset",
+      accountKind: "ASSET",
+      rawBalanceMinor: "100",
+      displayBalanceMinor: "100",
       asOf: "2026-08-01",
       amountMinor: "100",
       currency: "BRL",
@@ -121,6 +125,10 @@ describe("SqliteLedgerQueries", () => {
       accountId: "empty-account" as never,
     })).resolves.toEqual({
       accountId: "empty-account",
+      accountName: "empty-account",
+      accountKind: "ASSET",
+      rawBalanceMinor: "0",
+      displayBalanceMinor: "0",
       asOf: null,
       amountMinor: "0",
       currency: "BRL",
@@ -141,6 +149,8 @@ describe("SqliteLedgerQueries", () => {
     const result = await queries.getAccountBalance({ bookId, accountId: accountId as never });
 
     expect(result.amountMinor).toBe(expected);
+    expect(result.displayBalanceMinor).toBe(expected);
+    expect(result.amountMinor).toBe(result.displayBalanceMinor);
   });
 
   it("calculates running balances chronologically and returns the statement descending", async () => {

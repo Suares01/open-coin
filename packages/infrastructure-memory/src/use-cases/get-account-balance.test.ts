@@ -85,6 +85,10 @@ describe("GetAccountBalance", () => {
       ok: true,
       value: {
         accountId: "account-5",
+        accountName: "Checking",
+        accountKind: "ASSET",
+        rawBalanceMinor: "100",
+        displayBalanceMinor: "100",
         asOf: "2026-08-01",
         amountMinor: "100",
         currency: "BRL",

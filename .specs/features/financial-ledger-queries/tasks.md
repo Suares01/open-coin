@@ -170,12 +170,12 @@ T12 -> T13 -> T14
 
 **Done when**:
 
-- [ ] Os adapters retornam `accountName`, `accountKind`, `rawBalanceMinor` e `displayBalanceMinor` exatos.
-- [ ] `amountMinor` é idêntico a `displayBalanceMinor` nos cinco kinds.
-- [ ] Conta vazia, `asOf`, reversão, outro livro e valor acima de `Number.MAX_SAFE_INTEGER` preservam o resultado especificado.
-- [ ] `GetAccountStatement` legado permanece byte-for-byte compatível no formato observável.
-- [ ] Pelo menos 10 casos de contrato e integração cobrem memória e SQLite sem reduzir a suíte existente.
-- [ ] O gate completo do workspace passa.
+- [x] Os adapters retornam `accountName`, `accountKind`, `rawBalanceMinor` e `displayBalanceMinor` exatos.
+- [x] `amountMinor` é idêntico a `displayBalanceMinor` nos cinco kinds.
+- [x] Conta vazia, `asOf`, reversão, outro livro e valor acima de `Number.MAX_SAFE_INTEGER` preservam o resultado especificado.
+- [x] `GetAccountStatement` legado permanece byte-for-byte compatível no formato observável.
+- [x] Pelo menos 10 casos de contrato e integração cobrem memória e SQLite sem reduzir a suíte existente.
+- [x] O gate completo do workspace passa.
 
 **Tests**: integration
 **Gate**: Build

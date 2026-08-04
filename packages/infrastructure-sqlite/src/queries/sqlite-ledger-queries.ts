@@ -14,6 +14,7 @@ import type { SqliteExecutor } from "../database/sqlite-executor.js";
 
 type AccountRow = {
   readonly account_id: unknown;
+  readonly account_name: unknown;
   readonly kind: unknown;
   readonly base_currency: unknown;
 };
@@ -60,6 +61,10 @@ export class SqliteLedgerQueries implements LedgerQueries {
 
     return {
       accountId: readString(account.account_id, "account_id"),
+      accountName: readString(account.account_name, "account_name"),
+      accountKind: readKind(account.kind),
+      rawBalanceMinor: rawBalance.toString(),
+      displayBalanceMinor: toDisplayedAmount(rawBalance, readKind(account.kind)),
       asOf: input.asOf?.value ?? null,
       amountMinor: toDisplayedAmount(rawBalance, readKind(account.kind)),
       currency: readString(account.base_currency, "base_currency"),
@@ -105,7 +110,7 @@ export class SqliteLedgerQueries implements LedgerQueries {
 
   private async findAccount(bookId: BookId, accountId: LedgerAccountId): Promise<AccountRow> {
     const rows = await this.executor.query<AccountRow>(
-      "SELECT a.id AS account_id, a.kind, b.base_currency " +
+      "SELECT a.id AS account_id, a.name AS account_name, a.kind, b.base_currency " +
         "FROM ledger_accounts a JOIN financial_books b ON b.id = a.book_id " +
         "WHERE a.book_id = ? AND a.id = ?",
       [bookId, accountId],

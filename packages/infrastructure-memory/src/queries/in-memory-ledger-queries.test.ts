@@ -94,6 +94,10 @@ describe("InMemoryLedgerQueries", () => {
 
     expect(result).toEqual({
       accountId: "account-asset",
+      accountName: "account-asset",
+      accountKind: "ASSET",
+      rawBalanceMinor: "60",
+      displayBalanceMinor: "60",
       asOf: "2026-08-03",
       amountMinor: "60",
       currency: "BRL",
@@ -111,8 +115,13 @@ describe("InMemoryLedgerQueries", () => {
     });
 
     expect(result.currency).toBe("BRL");
+    expect(result.accountName).toBe("account-asset");
+    expect(result.accountKind).toBe("ASSET");
+    expect(result.rawBalanceMinor).toBe("100");
+    expect(result.displayBalanceMinor).toBe("100");
     expect(result.asOf).toBeNull();
     expect(result.amountMinor).toBe("100");
+    expect(result.amountMinor).toBe(result.displayBalanceMinor);
   });
 
   it.each([
@@ -292,6 +301,10 @@ describe("InMemoryLedgerQueries", () => {
 
     expect(result).toEqual({
       accountId,
+      accountName: accountId,
+      accountKind: kind,
+      rawBalanceMinor: "0",
+      displayBalanceMinor: "0",
       asOf: null,
       amountMinor: "0",
       currency: "BRL",

@@ -33,6 +33,10 @@ export class InMemoryLedgerQueries implements LedgerQueries {
 
     return {
       accountId: account.id,
+      accountName: account.name,
+      accountKind: account.kind,
+      rawBalanceMinor: rawBalance.toString(),
+      displayBalanceMinor: toDisplayedAmount(rawBalance, account.kind),
       asOf: input.asOf?.value ?? null,
       amountMinor: toDisplayedAmount(rawBalance, account.kind),
       currency: this.currencyForBook(input.bookId, entries[0]?.currency),

@@ -299,7 +299,7 @@ function defineQueryContracts(name: string, factory: AdapterFactory): void {
       await preparedExpense(adapter, "9007199254740993");
       await expect(balance(adapter).execute({ bookId: "book-1", accountId: "account-5", asOf: "2026-08-04" })).resolves.toEqual({
         ok: true,
-        value: { accountId: "account-5", asOf: "2026-08-04", amountMinor: "-9007199254740993", currency: "BRL" },
+        value: { accountId: "account-5", accountName: "Checking", accountKind: "ASSET", rawBalanceMinor: "-9007199254740993", displayBalanceMinor: "-9007199254740993", asOf: "2026-08-04", amountMinor: "-9007199254740993", currency: "BRL" },
       });
     }));
 

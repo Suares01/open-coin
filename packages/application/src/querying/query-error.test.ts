@@ -64,6 +64,10 @@ describe("legacy query handlers", () => {
     const queries = {
       getAccountBalance: async () => ({
         accountId: "account-1",
+        accountName: "Checking",
+        accountKind: "ASSET",
+        rawBalanceMinor: "0",
+        displayBalanceMinor: "0",
         asOf: null,
         amountMinor: "0",
         currency: "BRL",
