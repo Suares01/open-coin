@@ -637,12 +637,12 @@ T19 → T20 → T21 → T22 → T23 → T24 → T25
 
 **Done when**:
 
-- [ ] Uma mesma função de contrato recebe apenas a factory abstrata.
-- [ ] Memory e SQLite executam as mesmas assertions e outcomes da spec.
-- [ ] Contracts não inspecionam SQL nem classe concreta.
-- [ ] 38 cenários são definidos e executados duas vezes: 76 casos passam.
-- [ ] Os 164 testes memory preexistentes continuam passando.
-- [ ] Test count: 76 execuções compartilhadas; nenhum teste removido.
+- [x] Uma mesma função de contrato recebe apenas a factory abstrata.
+- [x] Memory e SQLite executam as mesmas assertions e outcomes da spec.
+- [x] Contracts não inspecionam SQL nem classe concreta.
+- [x] 38 cenários são definidos e executados duas vezes: 76 casos passam.
+- [x] Os 164 testes memory preexistentes continuam passando.
+- [x] Test count: 76 execuções compartilhadas; nenhum teste removido.
 
 **Tests**: integration
 **Gate**: full
