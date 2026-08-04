@@ -288,7 +288,7 @@ Toda ambiguidade está resolvida ou registrada aqui.
 | FDC-42 | P1: Consultar saldo e extrato | Design | Verified |
 | FDC-43 | P1: Consultar saldo e extrato | Design | Verified |
 | FDC-44 | P1: Consultar saldo e extrato | Design | Verified |
-| FDC-45 | P1: Execução atômica e determinística | Design | Pending |
+| FDC-45 | P1: Execução atômica e determinística | Design | Verified |
 | FDC-46 | P1: Execução atômica e determinística | Design | Pending |
 | FDC-47 | P1: Execução atômica e determinística | Design | Pending |
 | FDC-48 | P1: Execução atômica e determinística | Design | Pending |
@@ -301,7 +301,7 @@ Toda ambiguidade está resolvida ou registrada aqui.
 | FDC-55 | P1: Execução atômica e determinística | Design | Pending |
 | FDC-56 | P1: Execução atômica e determinística | Design | Pending |
 | FDC-57 | P1: Execução atômica e determinística | Design | Pending |
-| FDC-58 | P1: Execução atômica e determinística | Design | Pending |
+| FDC-58 | P1: Execução atômica e determinística | Design | Verified |
 
 **Coverage:** 58 requisitos, 58 mapeados para tarefas, 0 não mapeados.
 

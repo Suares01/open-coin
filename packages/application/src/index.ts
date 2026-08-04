@@ -10,3 +10,4 @@ export { RecordIncome } from "./ledger/journal/record-income.js";
 export { TransferMoney } from "./ledger/journal/transfer-money.js";
 export { ReverseJournalEntry } from "./ledger/journal/reverse-journal-entry.js";
 export { GetAccountBalance } from "./ledger/queries/get-account-balance.js";
+export { GetAccountStatement } from "./ledger/queries/get-account-statement.js";

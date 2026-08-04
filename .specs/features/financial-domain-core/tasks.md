@@ -780,11 +780,11 @@ T29 -> T30 -> T31 -> T32 -> T33
 
 **Done when**:
 
-- [ ] DTO contém ID, data, descrição, valor e running balance como strings exatas.
-- [ ] Ordenação, isolamento e reversão atendem FDC-41 a FDC-44.
-- [ ] Teste vertical cria livro, duas contas, categoria, saldo inicial, despesa, receita, transferência e reversão e confere saldos/extrato finais.
-- [ ] Execução repetida com adapters fixos produz resultados e eventos equivalentes.
-- [ ] Pelo menos 10 testes cross-layer novos passam e o Build gate completo fica verde.
+- [x] DTO contém ID, data, descrição, valor e running balance como strings exatas.
+- [x] Ordenação, isolamento e reversão atendem FDC-41 a FDC-44.
+- [x] Teste vertical cria livro, duas contas, categoria, saldo inicial, despesa, receita, transferência e reversão e confere saldos/extrato finais.
+- [x] Execução repetida com adapters fixos produz resultados e eventos equivalentes.
+- [x] Pelo menos 10 testes cross-layer novos passam e o Build gate completo fica verde.
 
 **Tests**: integration
 **Gate**: Build
