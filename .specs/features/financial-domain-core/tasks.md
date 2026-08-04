@@ -416,10 +416,10 @@ T29 -> T30 -> T31 -> T32 -> T33
 
 **Done when**:
 
-- [ ] Package depende de application e domain sem criar ciclo.
-- [ ] Store guarda somente snapshots planos e copia coleções no snapshot/restore.
-- [ ] Mutar um snapshot externo não altera o store.
-- [ ] Pelo menos 5 testes de integração passam.
+- [x] Package depende de application e domain sem criar ciclo.
+- [x] Store guarda somente snapshots planos e copia coleções no snapshot/restore.
+- [x] Mutar um snapshot externo não altera o store.
+- [x] Pelo menos 5 testes de integração passam.
 
 **Tests**: integration
 **Gate**: Full
