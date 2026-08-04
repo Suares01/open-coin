@@ -156,10 +156,10 @@ T29 -> T30 -> T31 -> T32 -> T33
 
 **Done when**:
 
-- [ ] IDs incompatíveis não são atribuíveis entre si em TypeScript.
-- [ ] `Currency` aceita exatamente três letras ASCII maiúsculas.
-- [ ] Igualdade e rejeição de moeda inválida têm testes exatos.
-- [ ] Pelo menos 6 testes direcionados passam sem redução da suíte.
+- [x] IDs incompatíveis não são atribuíveis entre si em TypeScript.
+- [x] `Currency` aceita exatamente três letras ASCII maiúsculas.
+- [x] Igualdade e rejeição de moeda inválida têm testes exatos.
+- [x] Pelo menos 6 testes direcionados passam sem redução da suíte.
 
 **Tests**: unit
 **Gate**: Quick domain
