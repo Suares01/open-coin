@@ -330,7 +330,12 @@ function defineQueryContracts(name: string, factory: AdapterFactory): void {
     it("maps an unexpected query failure to the public error boundary", async () => withAdapter(factory, async (adapter) => {
       await createBook(adapter);
       await createFinancialAccount(adapter);
-      await expect(balance(adapter, throwingQueries("query failed")).execute({ bookId: "book-1", accountId: "account-5" })).resolves.toMatchObject({ ok: false, error: { code: "UNEXPECTED_ERROR", message: "query failed" } });
+      const result = await balance(adapter, throwingQueries("query failed")).execute({ bookId: "book-1", accountId: "account-5" });
+      expect(result.ok).toBe(false);
+      if (!result.ok) {
+        expect(result.error.code).toBe("UNEXPECTED_ERROR");
+        expect(result.error.message).toBe("Financial query failed");
+      }
     }));
 
     it("returns exact serializable fields for each posting item", async () => withAdapter(factory, async (adapter) => {
@@ -376,7 +381,12 @@ function defineQueryContracts(name: string, factory: AdapterFactory): void {
 
     it("maps an unexpected statement query failure to the public error boundary", async () => withAdapter(factory, async (adapter) => {
       await preparedExpense(adapter);
-      await expect(statement(adapter, throwingQueries("statement query failed")).execute({ bookId: "book-1", accountId: "account-5" })).resolves.toMatchObject({ ok: false, error: { code: "UNEXPECTED_ERROR", message: "statement query failed" } });
+      const result = await statement(adapter, throwingQueries("statement query failed")).execute({ bookId: "book-1", accountId: "account-5" });
+      expect(result.ok).toBe(false);
+      if (!result.ok) {
+        expect(result.error.code).toBe("UNEXPECTED_ERROR");
+        expect(result.error.message).toBe("Financial query failed");
+      }
     }));
 
     it("reconstructs the complete asset statement with a reversed expense at zero net effect", async () => withAdapter(factory, async (adapter) => {

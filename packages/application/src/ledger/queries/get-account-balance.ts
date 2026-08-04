@@ -12,7 +12,7 @@ import type {
   LedgerQueries,
 } from "../../ports/index.js";
 import { ApplicationError } from "../../ports/errors.js";
-import { toApplicationError } from "../../core/use-case-executor.js";
+import { toQueryApplicationError } from "../../querying/query-error.js";
 
 export class GetAccountBalance {
   constructor(
@@ -50,7 +50,7 @@ export class GetAccountBalance {
         currency: view.currency,
       });
     } catch (error: unknown) {
-      return Result.fail(toApplicationError(error));
+      return Result.fail(toQueryApplicationError(error));
     }
   }
 }

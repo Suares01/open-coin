@@ -145,11 +145,11 @@ T12 -> T13 -> T14
 
 **Done when**:
 
-- [ ] `ApplicationError` e `DomainError` preservam seus códigos públicos.
-- [ ] Erros genéricos e valores não-Error viram `UNEXPECTED_ERROR` com `Financial query failed`.
-- [ ] `GetAccountBalance` e `GetAccountStatement` deixam de propagar mensagens genéricas de driver.
-- [ ] Pelo menos 5 testes unitários provam preservação, conversão e ausência de SQL, parâmetros ou caminhos.
-- [ ] Nenhum teste existente é removido, ignorado ou enfraquecido.
+- [x] `ApplicationError` e `DomainError` preservam seus códigos públicos.
+- [x] Erros genéricos e valores não-Error viram `UNEXPECTED_ERROR` com `Financial query failed`.
+- [x] `GetAccountBalance` e `GetAccountStatement` deixam de propagar mensagens genéricas de driver.
+- [x] Pelo menos 5 testes unitários provam preservação, conversão e ausência de SQL, parâmetros ou caminhos.
+- [x] Nenhum teste existente é removido, ignorado ou enfraquecido.
 
 **Tests**: unit
 **Gate**: Application quick

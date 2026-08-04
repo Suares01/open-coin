@@ -320,10 +320,11 @@ describe("GetAccountStatement", () => {
       accountId: "account-5",
     });
 
-    expect(result).toMatchObject({
-      ok: false,
-      error: { code: "UNEXPECTED_ERROR", message: "statement query failed" },
-    });
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.error.code).toBe("UNEXPECTED_ERROR");
+      expect(result.error.message).toBe("Financial query failed");
+    }
   });
 
   it("reconstructs the complete asset statement with a reversed expense at zero net effect", async () => {
