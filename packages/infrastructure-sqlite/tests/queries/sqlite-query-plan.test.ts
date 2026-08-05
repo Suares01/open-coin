@@ -1,9 +1,42 @@
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { configureSqliteConnection } from "../../src/database/configure-sqlite-connection.js";
+import type { SqliteParameters } from "../../src/database/sqlite-value.js";
 import { sqliteMigrations, SqliteMigrationRunner } from "../../src/migrations/index.js";
+import { SqliteLedgerQueries } from "../../src/queries/sqlite-ledger-queries.js";
 import { BetterSqliteDatabase } from "../support/better-sqlite-database.js";
 
 type PlanRow = { readonly detail: string };
+type QueryCall = {
+  readonly sql: string;
+  readonly parameters?: SqliteParameters;
+};
+
+async function captureQueries(
+  database: BetterSqliteDatabase,
+  work: () => Promise<unknown>,
+): Promise<readonly QueryCall[]> {
+  const calls: QueryCall[] = [];
+  const originalQuery = database.queryOnConnection.bind(database);
+  const querySpy = vi.spyOn(database, "queryOnConnection").mockImplementation(
+    (sql, parameters) => {
+      calls.push({ sql, parameters });
+      return originalQuery(sql, parameters);
+    },
+  );
+  await work();
+  querySpy.mockRestore();
+  return calls;
+}
+
+async function explain(
+  database: BetterSqliteDatabase,
+  call: QueryCall,
+): Promise<readonly PlanRow[]> {
+  return database.query<PlanRow>(
+    `EXPLAIN QUERY PLAN ${call.sql}`,
+    call.parameters,
+  );
+}
 
 describe("financial query SQLite plans", () => {
   let database: BetterSqliteDatabase;
@@ -76,6 +109,54 @@ describe("financial query SQLite plans", () => {
 
     expect(plan.some(({ detail }) =>
       detail.includes("ix_postings_book_account_entry_position"),
+    )).toBe(true);
+  });
+
+  it("explains the SQL emitted by the account balance list adapter", async () => {
+    const queries = new SqliteLedgerQueries(database);
+    const calls = await captureQueries(database, () => queries.listAccountBalances({
+      bookId: "book-1" as never,
+      includeArchived: true,
+      includeZeroBalance: true,
+    }));
+
+    expect(calls).toHaveLength(1);
+    const plan = await explain(database, calls[0] as QueryCall);
+
+    expect(plan.some(({ detail }) => detail.includes("ix_ledger_accounts_book"))).toBe(true);
+    expect(plan.some(({ detail }) =>
+      detail.includes("ix_postings_book_account_entry_position"),
+    )).toBe(true);
+  });
+
+  it("explains the SQL emitted by the paginated statement adapter", async () => {
+    const queries = new SqliteLedgerQueries(database);
+    const calls = await captureQueries(database, () => queries.listAccountStatement({
+      bookId: "book-1" as never,
+      accountId: "account-1" as never,
+      limit: 10,
+    }));
+
+    expect(calls).toHaveLength(2);
+    const plan = await explain(database, calls[0] as QueryCall);
+
+    expect(plan.some(({ detail }) =>
+      detail.includes("ix_postings_account_entry"),
+    )).toBe(true);
+  });
+
+  it("explains the SQL emitted by the paginated journal list adapter", async () => {
+    const queries = new SqliteLedgerQueries(database);
+    const calls = await captureQueries(database, () => queries.listJournalEntries({
+      bookId: "book-1" as never,
+      limit: 10,
+    }));
+
+    expect(calls).toHaveLength(2);
+    const plan = await explain(database, calls[0] as QueryCall);
+
+    expect(plan.some(({ detail }) =>
+      detail.includes("ix_journal_entries_book_date_sequence_numeric"),
     )).toBe(true);
   });
 });
