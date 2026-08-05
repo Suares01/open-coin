@@ -275,12 +275,12 @@ T12 -> T13 -> T14
 
 **Done when**:
 
-- [ ] Fluxos comuns são criados por casos de uso e produzem zero eventos pendentes depois do setup.
-- [ ] Split e edge cases usam builders de domínio e repositories, não SQL ad hoc.
-- [ ] Arquivamento e reversão preservam snapshots válidos.
-- [ ] IDs, datas, sequências e moeda são determinísticos por cenário.
-- [ ] Pelo menos 4 testes de integração provam fluxo comum, passivo, split e reversão/arquivamento.
-- [ ] O gate completo do workspace passa.
+- [x] Fluxos comuns são criados por casos de uso e produzem zero eventos pendentes depois do setup.
+- [x] Split e edge cases usam builders de domínio e repositories, não SQL ad hoc.
+- [x] Arquivamento e reversão preservam snapshots válidos.
+- [x] IDs, datas, sequências e moeda são determinísticos por cenário.
+- [x] Pelo menos 4 testes de integração provam fluxo comum, passivo, split e reversão/arquivamento.
+- [x] O gate completo do workspace passa.
 
 **Tests**: integration
 **Gate**: Build
