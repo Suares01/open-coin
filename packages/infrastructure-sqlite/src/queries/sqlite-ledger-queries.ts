@@ -5,13 +5,16 @@ import {
 } from "@open-coin/domain";
 import type {
   AccountBalanceView,
+  AccountBalanceItemView,
   AccountStatementItemView,
+  ListAccountBalancesInput,
   LedgerQueries,
 } from "@open-coin/application";
 import type { SqliteExecutor } from "../database/sqlite-executor.js";
 import {
   compareDecimalStrings,
   readAccountKind,
+  readAccountStatus,
   readBigInt,
   readString,
   toDisplayMinor,
@@ -22,6 +25,7 @@ type AccountRow = {
   readonly account_name: unknown;
   readonly kind: unknown;
   readonly base_currency: unknown;
+  readonly status: unknown;
 };
 
 type PostingRow = {
@@ -113,6 +117,71 @@ export class SqliteLedgerQueries implements LedgerQueries {
     return statement.reverse();
   }
 
+  public async listAccountBalances(
+    input: ListAccountBalancesInput,
+  ): Promise<readonly AccountBalanceItemView[]> {
+    if (input.accountKinds !== undefined && input.accountKinds.length === 0) {
+      return [];
+    }
+
+    const parameters: (string | null)[] = [];
+    let sql =
+      "SELECT a.id AS account_id, a.name AS account_name, a.kind, a.status, " +
+      "b.base_currency, " +
+      "CAST(COALESCE(SUM(CASE WHEN e.id IS NOT NULL " +
+      "THEN p.amount_minor ELSE 0 END), 0) AS TEXT) AS raw_balance_minor " +
+      "FROM ledger_accounts a JOIN financial_books b " +
+      "ON b.id = a.book_id " +
+      "LEFT JOIN postings p ON p.book_id = a.book_id " +
+      "AND p.account_id = a.id " +
+      "LEFT JOIN journal_entries e ON e.id = p.journal_entry_id " +
+      "AND e.book_id = p.book_id";
+
+    if (input.asOf !== undefined) {
+      sql += " AND e.occurred_on <= ?";
+      parameters.push(input.asOf.value);
+    }
+
+    sql += " WHERE a.book_id = ?";
+    parameters.push(input.bookId);
+
+    if (input.accountKinds !== undefined) {
+      sql += ` AND a.kind IN (${input.accountKinds.map(() => "?").join(", ")})`;
+      parameters.push(...input.accountKinds);
+    }
+
+    sql +=
+      " GROUP BY a.id, a.name, a.kind, a.status, b.base_currency " +
+      "ORDER BY a.kind ASC, a.name ASC, a.id ASC";
+
+    const rows = await this.executor.query<AccountBalanceRow>(sql, parameters);
+    return rows.flatMap((row) => {
+      const status = readAccountStatus(row.status);
+      if (!input.includeArchived && status === "ARCHIVED") {
+        return [];
+      }
+
+      const kind = readAccountKind(row.kind);
+      const rawBalanceMinor = readBigInt(row.raw_balance_minor, "raw_balance_minor");
+      if (!input.includeZeroBalance && rawBalanceMinor === 0n) {
+        return [];
+      }
+
+      const displayBalanceMinor = toDisplayMinor(rawBalanceMinor, kind);
+      return [{
+        accountId: readString(row.account_id, "account_id"),
+        accountName: readString(row.account_name, "account_name"),
+        accountKind: kind,
+        rawBalanceMinor: rawBalanceMinor.toString(),
+        displayBalanceMinor,
+        amountMinor: displayBalanceMinor,
+        currency: readString(row.base_currency, "base_currency"),
+        asOf: input.asOf?.value ?? null,
+        archived: status === "ARCHIVED",
+      } satisfies AccountBalanceItemView];
+    });
+  }
+
   private async findAccount(bookId: BookId, accountId: LedgerAccountId): Promise<AccountRow> {
     const rows = await this.executor.query<AccountRow>(
       "SELECT a.id AS account_id, a.name AS account_name, a.kind, b.base_currency " +
@@ -128,6 +197,15 @@ export class SqliteLedgerQueries implements LedgerQueries {
     return row;
   }
 }
+
+type AccountBalanceRow = {
+  readonly account_id: unknown;
+  readonly account_name: unknown;
+  readonly kind: unknown;
+  readonly status: unknown;
+  readonly base_currency: unknown;
+  readonly raw_balance_minor: unknown;
+};
 
 function compareAscending(left: PostingRow, right: PostingRow): number {
   const dateOrder = readString(left.occurred_on, "occurred_on").localeCompare(

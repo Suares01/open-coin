@@ -303,12 +303,12 @@ T12 -> T13 -> T14
 
 **Done when**:
 
-- [ ] Handler valida livro, kinds e `asOf` antes de chamar o port.
-- [ ] Adapter retorna todas as contas selecionadas em um statement constante, sem N+1.
-- [ ] Defaults de archived e zero, filtros vazios, cinco sinais, data inclusiva e ordem exata atendem a spec.
-- [ ] Outro livro nunca altera metadata, saldos ou existência observável.
-- [ ] Quantias acima de safe integer permanecem strings exatas e o plano usa índices book-scoped.
-- [ ] Pelo menos 15 testes unitários e de integração mapeiam todos os ACs aplicáveis.
+- [x] Handler valida livro, kinds e `asOf` antes de chamar o port.
+- [x] Adapter retorna todas as contas selecionadas em um statement constante, sem N+1.
+- [x] Defaults de archived e zero, filtros vazios, cinco sinais, data inclusiva e ordem exata atendem a spec.
+- [x] Outro livro nunca altera metadata, saldos ou existência observável.
+- [x] Quantias acima de safe integer permanecem strings exatas e o plano usa índices book-scoped.
+- [x] Pelo menos 15 testes unitários e de integração mapeiam todos os ACs aplicáveis.
 
 **Tests**: unit + integration
 **Gate**: SQLite full
