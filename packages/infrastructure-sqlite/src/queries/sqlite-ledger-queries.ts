@@ -8,6 +8,10 @@ import type {
   AccountBalanceItemView,
   AccountStatementItem,
   AccountStatementItemView,
+  JournalEntryListItem,
+  JournalEntryCursorKey,
+  ListJournalEntriesInput,
+  LedgerReadQueries,
   ListAccountStatementInput,
   QuerySlice,
   StatementCursorKey,
@@ -45,7 +49,7 @@ type PostingRow = {
   readonly currency: unknown;
 };
 
-export class SqliteLedgerQueries implements LedgerQueries {
+export class SqliteLedgerQueries implements LedgerQueries, LedgerReadQueries {
   public constructor(private readonly executor: SqliteDatabase) {}
 
   public async getAccountBalance(input: {
@@ -251,6 +255,129 @@ export class SqliteLedgerQueries implements LedgerQueries {
     });
   }
 
+  public async listJournalEntries(
+    input: ListJournalEntriesInput,
+  ): Promise<QuerySlice<JournalEntryListItem, JournalEntryCursorKey>> {
+    return this.executor.readTransaction(async (reader) => {
+      const rows = await this.readJournalPage(reader, input);
+      const hasMore = rows.length > input.limit;
+      const pageRows = hasMore ? rows.slice(0, input.limit) : rows;
+      const entries = await this.readJournalPostings(
+        reader,
+        input,
+        pageRows.map((row) => readString(row.entry_id, "entry_id")),
+      );
+      const items = pageRows.map((row) => {
+        const entryId = readString(row.entry_id, "entry_id");
+        const postings = entries.get(entryId) ?? [];
+        return toJournalItem(row, postings);
+      });
+      const last = items.at(-1);
+      return {
+        items,
+        nextKey: hasMore && last !== undefined
+          ? { occurredOn: last.occurredOn, sequence: last.sequence }
+          : null,
+      };
+    });
+  }
+
+  private async readJournalPage(
+    reader: SqliteReader,
+    input: ListJournalEntriesInput,
+  ): Promise<readonly JournalPageRow[]> {
+    const parameters: (string | number)[] = [input.bookId];
+    let sql =
+      "SELECT e.id AS entry_id, e.occurred_on, e.recorded_at, " +
+      "CAST(e.sequence AS TEXT) AS sequence, e.description, e.origin, " +
+      "e.currency, e.reversal_of_id, e.reversed_by_id " +
+      "FROM journal_entries e WHERE e.book_id = ?";
+
+    if (input.from !== undefined) {
+      sql += " AND e.occurred_on >= ?";
+      parameters.push(input.from.value);
+    }
+    if (input.to !== undefined) {
+      sql += " AND e.occurred_on <= ?";
+      parameters.push(input.to.value);
+    }
+    if (input.accountIds !== undefined) {
+      sql +=
+        " AND EXISTS (SELECT 1 FROM postings filter_posting " +
+        "WHERE filter_posting.book_id = e.book_id " +
+        "AND filter_posting.journal_entry_id = e.id " +
+        `AND filter_posting.account_id IN (${input.accountIds.map(() => "?").join(", ")}))`;
+      parameters.push(...input.accountIds);
+    }
+    if (input.categoryIds !== undefined) {
+      sql +=
+        " AND EXISTS (SELECT 1 FROM postings filter_category_posting " +
+        "WHERE filter_category_posting.book_id = e.book_id " +
+        "AND filter_category_posting.journal_entry_id = e.id " +
+        `AND filter_category_posting.account_id IN (${input.categoryIds.map(() => "?").join(", ")}))`;
+      parameters.push(...input.categoryIds);
+    }
+    if (input.origins !== undefined) {
+      sql += ` AND e.origin IN (${input.origins.map(() => "?").join(", ")})`;
+      parameters.push(...input.origins);
+    }
+    if (input.search !== undefined) {
+      sql += " AND instr(e.description, ?) > 0";
+      parameters.push(input.search);
+    }
+    if (input.cursor !== undefined) {
+      sql +=
+        " AND (e.occurred_on < ? OR (e.occurred_on = ? AND (" +
+        "length(e.sequence) < length(?) OR " +
+        "(length(e.sequence) = length(?) AND e.sequence < ?))))";
+      parameters.push(
+        input.cursor.occurredOn,
+        input.cursor.occurredOn,
+        input.cursor.sequence,
+        input.cursor.sequence,
+        input.cursor.sequence,
+      );
+    }
+
+    sql +=
+      " ORDER BY e.occurred_on DESC, length(e.sequence) DESC, e.sequence DESC " +
+      "LIMIT ?";
+    parameters.push(input.limit + 1);
+    return reader.query<JournalPageRow>(sql, parameters);
+  }
+
+  private async readJournalPostings(
+    reader: SqliteReader,
+    input: ListJournalEntriesInput,
+    entryIds: readonly string[],
+  ): Promise<ReadonlyMap<string, readonly JournalPostingRow[]>> {
+    const rows = entryIds.length === 0
+      ? await reader.query<JournalPostingRow>(
+          "SELECT p.journal_entry_id AS entry_id, p.amount_minor, " +
+            "a.id AS account_id, a.name AS account_name, a.kind AS account_kind " +
+            "FROM postings p JOIN ledger_accounts a ON a.id = p.account_id " +
+            "AND a.book_id = p.book_id WHERE 1 = 0",
+        )
+      : await reader.query<JournalPostingRow>(
+          "SELECT p.journal_entry_id AS entry_id, " +
+            "CAST(p.amount_minor AS TEXT) AS amount_minor, " +
+            "a.id AS account_id, a.name AS account_name, a.kind AS account_kind " +
+            "FROM postings p JOIN ledger_accounts a ON a.id = p.account_id " +
+            "AND a.book_id = p.book_id WHERE p.book_id = ? " +
+            `AND p.journal_entry_id IN (${entryIds.map(() => "?").join(", ")}) ` +
+            "ORDER BY a.name ASC, a.id ASC",
+          [input.bookId, ...entryIds],
+        );
+    const grouped = new Map<string, JournalPostingRow[]>();
+    for (const row of rows) {
+      const entryId = readString(row.entry_id, "entry_id");
+      const current = grouped.get(entryId) ?? [];
+      current.push(row);
+      grouped.set(entryId, current);
+    }
+    return grouped;
+  }
+
   private async readStatementPage(
     reader: SqliteReader,
     input: ListAccountStatementInput,
@@ -394,6 +521,95 @@ type AccountSummaryRow = {
   readonly name: string;
   readonly kind: LedgerAccountKind;
 };
+
+type JournalPageRow = {
+  readonly entry_id: unknown;
+  readonly occurred_on: unknown;
+  readonly recorded_at: unknown;
+  readonly sequence: unknown;
+  readonly description: unknown;
+  readonly origin: unknown;
+  readonly currency: unknown;
+  readonly reversal_of_id: unknown;
+  readonly reversed_by_id: unknown;
+};
+
+type JournalPostingRow = {
+  readonly entry_id: unknown;
+  readonly amount_minor: unknown;
+  readonly account_id: unknown;
+  readonly account_name: unknown;
+  readonly account_kind: unknown;
+};
+
+function toJournalItem(
+  row: JournalPageRow,
+  rows: readonly JournalPostingRow[],
+): JournalEntryListItem {
+  const financialAccounts = new Map<string, AccountSummaryRow>();
+  const categories = new Map<string, AccountSummaryRow>();
+  let incomeMinor = 0n;
+  let expenseMinor = 0n;
+  let categoryPostingCount = 0;
+  const postingAmounts: bigint[] = [];
+
+  for (const posting of rows) {
+    const accountId = readString(posting.account_id, "account_id");
+    const accountName = readString(posting.account_name, "account_name");
+    const kind = readAccountKind(posting.account_kind);
+    const summary = { id: accountId, name: accountName, kind } satisfies AccountSummaryRow;
+    if (kind === "ASSET" || kind === "LIABILITY") {
+      financialAccounts.set(accountId, summary);
+    }
+    if (kind === "INCOME" || kind === "EXPENSE") {
+      categories.set(accountId, summary);
+      categoryPostingCount += 1;
+      const amount = readBigInt(posting.amount_minor, "amount_minor");
+      postingAmounts.push(amount);
+      if (kind === "INCOME") {
+        incomeMinor += BigInt(toDisplayMinor(amount, kind));
+      } else {
+        expenseMinor += BigInt(toDisplayMinor(amount, kind));
+      }
+    } else {
+      postingAmounts.push(readBigInt(posting.amount_minor, "amount_minor"));
+    }
+  }
+
+  const isTransfer = rows.length === 2 &&
+    rows.every((posting) => {
+      const kind = readAccountKind(posting.account_kind);
+      return kind === "ASSET" || kind === "LIABILITY";
+    });
+  const transferMinor = isTransfer && postingAmounts[0] !== undefined
+    ? (postingAmounts[0] < 0n ? -postingAmounts[0] : postingAmounts[0]).toString()
+    : "0";
+
+  return {
+    id: readString(row.entry_id, "entry_id"),
+    occurredOn: readString(row.occurred_on, "occurred_on"),
+    recordedAt: readString(row.recorded_at, "recorded_at"),
+    sequence: readString(row.sequence, "sequence"),
+    description: readString(row.description, "description"),
+    origin: readJournalOrigin(row.origin),
+    financialAccounts: sortAccountSummaries([...financialAccounts.values()]),
+    categories: sortAccountSummaries([...categories.values()]),
+    incomeMinor: incomeMinor.toString(),
+    expenseMinor: expenseMinor.toString(),
+    transferMinor,
+    currency: readString(row.currency, "currency"),
+    isSplit: categoryPostingCount > 1,
+    isReversal: row.reversal_of_id !== null,
+    isReversed: row.reversed_by_id !== null,
+  };
+}
+
+function sortAccountSummaries(
+  summaries: readonly AccountSummaryRow[],
+): readonly AccountSummaryRow[] {
+  return summaries.slice().sort((left, right) =>
+    left.name.localeCompare(right.name) || left.id.localeCompare(right.id));
+}
 
 function compareAscending(left: PostingRow, right: PostingRow): number {
   const dateOrder = readString(left.occurred_on, "occurred_on").localeCompare(

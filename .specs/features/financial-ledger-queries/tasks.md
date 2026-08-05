@@ -356,14 +356,14 @@ T12 -> T13 -> T14
 
 **Done when**:
 
-- [ ] Handler valida datas, lists, origins, busca, limit e cursor antes do port.
-- [ ] União dentro de filtros e interseção entre grupos produzem IDs exatos sem multiplicar entries.
-- [ ] Busca usa substring literal case-sensitive e valores permanecem bindados.
-- [ ] Receita, despesa, transferência, ajuste, split e reversão produzem campos e classificações exatas.
-- [ ] Pages concatenadas respeitam data/sequência decimal sem lacuna ou duplicata.
-- [ ] A query usa dois statements constantes em um snapshot e o plano crítico usa o expression index.
-- [ ] Pelo menos 18 testes unitários e de integração cobrem todos os ACs e edge cases da lista.
-- [ ] O gate completo do workspace passa.
+- [x] Handler valida datas, lists, origins, busca, limit e cursor antes do port.
+- [x] União dentro de filtros e interseção entre grupos produzem IDs exatos sem multiplicar entries.
+- [x] Busca usa substring literal case-sensitive e valores permanecem bindados.
+- [x] Receita, despesa, transferência, ajuste, split e reversão produzem campos e classificações exatas.
+- [x] Pages concatenadas respeitam data/sequência decimal sem lacuna ou duplicata.
+- [x] A query usa dois statements constantes em um snapshot e o plano crítico usa o expression index.
+- [x] Pelo menos 18 testes unitários e de integração cobrem todos os ACs e edge cases da lista.
+- [x] O gate completo do workspace passa.
 
 **Tests**: unit + integration
 **Gate**: Build
