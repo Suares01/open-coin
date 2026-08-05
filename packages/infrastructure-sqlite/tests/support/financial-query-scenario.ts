@@ -109,8 +109,9 @@ export type FinancialQueryScenario = {
   close(): Promise<void>;
 };
 
-export async function createFinancialQueryScenario(): Promise<FinancialQueryScenario> {
-  const database = new BetterSqliteDatabase();
+export async function createFinancialQueryScenario(
+  database = new BetterSqliteDatabase(),
+): Promise<FinancialQueryScenario> {
   await initializeSqliteDatabase(database, { inMemory: true });
 
   const ids = new SequentialIdGenerator();
