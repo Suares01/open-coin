@@ -55,13 +55,14 @@ describe("SqliteInsightQueries.getCategorySpending", () => {
 
     const result = await queries.getCategorySpending(input());
 
-    expect(result).toEqual([expect.objectContaining({
+    expect(result).toEqual([{
       categoryId: foodId,
+      categoryName: "Food",
       amountMinor: "0",
       transactionCount: 1,
       archived: true,
       percentageBasisPoints: 0,
-    })]);
+    }]);
   });
 
   it("uses net positive amounts for truncated basis points", async () => {
@@ -92,14 +93,25 @@ describe("SqliteInsightQueries.getCategorySpending", () => {
   });
 
   it("orders ties by category name and then ID", async () => {
-    const alphaId = (await scenario.createExpenseCategory("Alpha")).id;
-    const zuluId = (await scenario.createExpenseCategory("Zulu")).id;
-    await scenario.recordExpense({ accountId: cashId, categoryId: zuluId, amountMinor: "10" });
-    await scenario.recordExpense({ accountId: cashId, categoryId: alphaId, amountMinor: "10" });
+    const firstId = (await scenario.createExpenseCategory("Same first")).id;
+    const secondId = (await scenario.createExpenseCategory("Same second")).id;
+    await scenario.database.execute(
+      "UPDATE ledger_accounts SET name = ? WHERE book_id = ? AND id = ?",
+      ["Same", "book-1", firstId],
+    );
+    await scenario.database.execute(
+      "UPDATE ledger_accounts SET name = ? WHERE book_id = ? AND id = ?",
+      ["Same", "book-1", secondId],
+    );
+    await scenario.recordExpense({ accountId: cashId, categoryId: secondId, amountMinor: "10" });
+    await scenario.recordExpense({ accountId: cashId, categoryId: firstId, amountMinor: "10" });
 
     const result = await queries.getCategorySpending(input());
 
-    expect(result.map(({ categoryName }) => categoryName)).toEqual(["Alpha", "Zulu"]);
+    expect(result.filter(({ categoryName }) => categoryName === "Same").map(({ categoryId }) => categoryId)).toEqual([
+      firstId,
+      secondId,
+    ]);
   });
 
   it("preserves signed int64 amounts as decimal strings", async () => {

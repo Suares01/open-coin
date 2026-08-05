@@ -83,6 +83,7 @@ describe("SqliteLedgerQueries.listJournalEntries", () => {
     for (const [id, kind] of [
       ["cash", "ASSET"],
       ["cash-two", "ASSET"],
+      ["card", "LIABILITY"],
       ["income", "INCOME"],
       ["expense", "EXPENSE"],
       ["expense-two", "EXPENSE"],
@@ -107,6 +108,10 @@ describe("SqliteLedgerQueries.listJournalEntries", () => {
       { accountId: "cash", amountMinor: -20n },
       { accountId: "cash-two", amountMinor: 20n },
     ], "3"));
+    await entries.add(makeEntry("liability-transfer", [
+      { accountId: "card", amountMinor: -15n },
+      { accountId: "cash", amountMinor: 15n },
+    ], "4"));
 
     const result = await queries.listJournalEntries({ bookId, limit: 10 });
 
@@ -116,11 +121,12 @@ describe("SqliteLedgerQueries.listJournalEntries", () => {
       expenseMinor,
       transferMinor,
     }))).toEqual([
+      { id: "liability-transfer", incomeMinor: "0", expenseMinor: "0", transferMinor: "15" },
       { id: "transfer", incomeMinor: "0", expenseMinor: "0", transferMinor: "20" },
       { id: "groceries", incomeMinor: "0", expenseMinor: "40", transferMinor: "0" },
       { id: "salary", incomeMinor: "100", expenseMinor: "0", transferMinor: "0" },
     ]);
-    expect(result.items[0]).toEqual(expect.objectContaining({
+    expect(result.items.find(({ id }) => id === "transfer")).toEqual(expect.objectContaining({
       financialAccounts: [
         { id: "cash", name: "cash", kind: "ASSET" },
         { id: "cash-two", name: "cash-two", kind: "ASSET" },
@@ -131,6 +137,26 @@ describe("SqliteLedgerQueries.listJournalEntries", () => {
       isReversed: false,
       currency: "BRL",
     }));
+    expect(result.items.find(({ id }) => id === "transfer")).toEqual({
+      id: "transfer",
+      occurredOn: "2026-08-04",
+      recordedAt: "2026-08-04T12:00:00.000Z",
+      sequence: "3",
+      description: "transfer",
+      origin: "MANUAL",
+      financialAccounts: [
+        { id: "cash", name: "cash", kind: "ASSET" },
+        { id: "cash-two", name: "cash-two", kind: "ASSET" },
+      ],
+      categories: [],
+      incomeMinor: "0",
+      expenseMinor: "0",
+      transferMinor: "20",
+      currency: "BRL",
+      isSplit: false,
+      isReversal: false,
+      isReversed: false,
+    });
   });
 
   it("marks split entries and assigns each category posting to the result", async () => {
@@ -157,26 +183,43 @@ describe("SqliteLedgerQueries.listJournalEntries", () => {
       { accountId: "cash", amountMinor: -10n },
       { accountId: "expense", amountMinor: 10n },
     ], "1", "2026-08-02"));
-    await entries.add(makeEntry("wrong-account", [
+    await entries.add(makeEntry("account-union", [
       { accountId: "cash-two", amountMinor: -10n },
       { accountId: "expense", amountMinor: 10n },
     ], "2", "2026-08-02"));
-    await entries.add(makeEntry("wrong-origin", [
+    await entries.add(makeEntry("category-union", [
+      { accountId: "cash", amountMinor: -10n },
+      { accountId: "expense-two", amountMinor: 10n },
+    ], "3", "2026-08-02"));
+    await entries.add(makeEntry("origin-union", [
       { accountId: "cash", amountMinor: -10n },
       { accountId: "expense", amountMinor: 10n },
-    ], "3", "2026-08-02", "SYSTEM"));
+    ], "4", "2026-08-02", "SYSTEM"));
+    await entries.add(makeEntry("outside-account", [
+      { accountId: "equity", amountMinor: -10n },
+      { accountId: "expense", amountMinor: 10n },
+    ], "5", "2026-08-02"));
+    await entries.add(makeEntry("outside-category", [
+      { accountId: "cash", amountMinor: -10n },
+      { accountId: "income", amountMinor: 10n },
+    ], "6", "2026-08-02"));
 
     const result = await queries.listJournalEntries({
       bookId,
       from: { value: "2026-08-02" } as never,
       to: { value: "2026-08-02" } as never,
-      accountIds: ["cash" as never],
-      categoryIds: ["expense" as never],
-      origins: ["MANUAL"],
+      accountIds: ["cash" as never, "cash-two" as never],
+      categoryIds: ["expense" as never, "expense-two" as never],
+      origins: ["MANUAL", "SYSTEM"],
       limit: 10,
     });
 
-    expect(result.items.map(({ id }) => id)).toEqual(["matching"]);
+    expect(result.items.map(({ id }) => id)).toEqual([
+      "origin-union",
+      "category-union",
+      "account-union",
+      "matching",
+    ]);
   });
 
   it("uses a literal, case-sensitive trimmed search", async () => {

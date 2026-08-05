@@ -28,12 +28,13 @@ function makeAccount(
   id: string,
   kind: LedgerAccountKind,
   bookId = mainBook,
+  name = id,
 ): LedgerAccount {
   return LedgerAccount.restore({
     id: id as never,
     bookId,
-    name: id,
-    normalizedName: id,
+    name,
+    normalizedName: name.toLowerCase(),
     kind,
     status: "ACTIVE",
     version: 0,
@@ -131,6 +132,86 @@ describe("SqliteLedgerQueries.listAccountBalances", () => {
         archived: false,
       }),
     ]);
+  });
+
+  it("omits a non-zero archived account by default and includes it explicitly", async () => {
+    await accounts.add(makeAccount("archived-nonzero", "ASSET"));
+    const archived = await accounts.findById("archived-nonzero" as never);
+    archived?.archive();
+    if (archived) await accounts.save(archived, 0);
+    await entries.add(makeEntry("archived-entry", "archived-nonzero", 125n, "1"));
+
+    await expect(queries.listAccountBalances({
+      bookId: mainBook,
+      includeArchived: false,
+      includeZeroBalance: true,
+    })).resolves.toEqual(expect.not.arrayContaining([
+      expect.objectContaining({ accountId: "archived-nonzero" }),
+    ]));
+    await expect(queries.listAccountBalances({
+      bookId: mainBook,
+      includeArchived: true,
+      includeZeroBalance: true,
+    })).resolves.toContainEqual({
+      accountId: "archived-nonzero",
+      accountName: "archived-nonzero",
+      accountKind: "ASSET",
+      rawBalanceMinor: "125",
+      displayBalanceMinor: "125",
+      amountMinor: "125",
+      currency: "BRL",
+      asOf: null,
+      archived: true,
+    });
+  });
+
+  it("uses account ID as the final tie-breaker for equal names", async () => {
+    await accounts.add(makeAccount("cash-z", "ASSET", mainBook, "Cash Z"));
+    await accounts.add(makeAccount("cash-a", "ASSET", mainBook, "Cash A"));
+    await database.execute(
+      "UPDATE ledger_accounts SET name = ? WHERE book_id = ? AND id = ?",
+      ["Cash", mainBook, "cash-z"],
+    );
+    await database.execute(
+      "UPDATE ledger_accounts SET name = ? WHERE book_id = ? AND id = ?",
+      ["Cash", mainBook, "cash-a"],
+    );
+
+    const result = await queries.listAccountBalances({
+      bookId: mainBook,
+      accountKinds: ["ASSET"],
+      includeArchived: true,
+      includeZeroBalance: true,
+    });
+
+    expect(result.filter(({ accountName }) => accountName === "Cash").map(({ accountId }) => accountId)).toEqual([
+      "cash-a",
+      "cash-z",
+    ]);
+  });
+
+  it("keeps an active zero account by default and removes it after asOf when disabled", async () => {
+    await accounts.add(makeAccount("future-zero", "ASSET"));
+    await entries.add(makeEntry("future-entry", "future-zero", 80n, "1", "2026-08-10"));
+
+    await expect(queries.listAccountBalances({
+      bookId: mainBook,
+      asOf: { value: "2026-08-01" } as never,
+      includeArchived: false,
+      includeZeroBalance: true,
+    })).resolves.toContainEqual(expect.objectContaining({
+      accountId: "future-zero",
+      rawBalanceMinor: "0",
+      displayBalanceMinor: "0",
+    }));
+    await expect(queries.listAccountBalances({
+      bookId: mainBook,
+      asOf: { value: "2026-08-01" } as never,
+      includeArchived: false,
+      includeZeroBalance: false,
+    })).resolves.not.toContainEqual(expect.objectContaining({
+      accountId: "future-zero",
+    }));
   });
 
   it.each([

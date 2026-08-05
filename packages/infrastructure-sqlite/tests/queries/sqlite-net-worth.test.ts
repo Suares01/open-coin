@@ -48,13 +48,60 @@ describe("SqliteInsightQueries.getNetWorth", () => {
 
   it("applies an inclusive historical date", async () => {
     await scenario.setOpeningBalance({ accountId: assetId, amountMinor: "100", occurredOn: "2026-08-01" });
+    await scenario.setOpeningBalance({ accountId: liabilityId, amountMinor: "200", occurredOn: "2026-08-01" });
     await scenario.recordExpense({ accountId: assetId, categoryId: expenseId, amountMinor: "25", occurredOn: "2026-08-10" });
 
     const historical = await queries.getNetWorth({ bookId: "book-1" as never, asOf: LocalDate.parse("2026-08-05") });
     const current = await queries.getNetWorth({ bookId: "book-1" as never, asOf: LocalDate.parse("2026-08-10") });
+    const omitted = await queries.getNetWorth({ bookId: "book-1" as never });
 
-    expect(historical).toEqual(expect.objectContaining({ assetMinor: "100", netWorthMinor: "100", asOf: "2026-08-05" }));
-    expect(current).toEqual(expect.objectContaining({ assetMinor: "75", netWorthMinor: "75", asOf: "2026-08-10" }));
+    expect(historical).toEqual({
+      assetMinor: "100",
+      liabilityMinor: "200",
+      netWorthMinor: "-100",
+      currency: "BRL",
+      asOf: "2026-08-05",
+    });
+    expect(current).toEqual({
+      assetMinor: "75",
+      liabilityMinor: "200",
+      netWorthMinor: "-125",
+      currency: "BRL",
+      asOf: "2026-08-10",
+    });
+    expect(omitted).toEqual({
+      assetMinor: "75",
+      liabilityMinor: "200",
+      netWorthMinor: "-125",
+      currency: "BRL",
+      asOf: null,
+    });
+  });
+
+  it("includes an archived liability and a negative displayed liability", async () => {
+    const archivedLiabilityId = (await scenario.createFinancialAccount({
+      name: "Archived liability",
+      kind: "LIABILITY",
+    })).id;
+    await scenario.recordExpense({
+      accountId: archivedLiabilityId,
+      categoryId: expenseId,
+      amountMinor: "75",
+    });
+    await scenario.archiveAccount(archivedLiabilityId);
+    await scenario.transfer({
+      sourceAccountId: assetId,
+      destinationAccountId: liabilityId,
+      amountMinor: "200",
+    });
+
+    await expect(queries.getNetWorth({ bookId: "book-1" as never })).resolves.toEqual({
+      assetMinor: "-200",
+      liabilityMinor: "-125",
+      netWorthMinor: "-75",
+      currency: "BRL",
+      asOf: null,
+    });
   });
 
   it("preserves negative balances and int64 strings", async () => {

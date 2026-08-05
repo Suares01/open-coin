@@ -24,12 +24,12 @@ function makeBook(): FinancialBook {
   });
 }
 
-function makeAccount(id: string, kind: LedgerAccountKind): LedgerAccount {
+function makeAccount(id: string, kind: LedgerAccountKind, name = id): LedgerAccount {
   return LedgerAccount.restore({
     id: id as never,
     bookId,
-    name: id,
-    normalizedName: id,
+    name,
+    normalizedName: name.toLowerCase(),
     kind,
     status: "ACTIVE",
     version: 0,
@@ -265,6 +265,80 @@ describe("SqliteLedgerQueries.listAccountStatement", () => {
       isReversal: false,
       isReversed: false,
     });
+  });
+
+  it("returns multiple unique counterparties ordered by name and ID", async () => {
+    await accounts.add(makeAccount("counter-z", "EQUITY", "Alpha Z"));
+    await accounts.add(makeAccount("counter-a", "EQUITY", "Alpha A"));
+    await accounts.add(makeAccount("counter-b", "EQUITY", "Beta"));
+    await database.execute(
+      "UPDATE ledger_accounts SET name = ? WHERE book_id = ? AND id = ?",
+      ["Alpha", bookId, "counter-z"],
+    );
+    await database.execute(
+      "UPDATE ledger_accounts SET name = ? WHERE book_id = ? AND id = ?",
+      ["Alpha", bookId, "counter-a"],
+    );
+    await entries.add(JournalEntry.restore({
+      id: "entry-multiple-counterparties" as never,
+      bookId,
+      occurredOn: "2026-08-04",
+      recordedAt: "2026-08-04T12:00:00.000Z",
+      sequence: "3",
+      description: "Multiple counterparties",
+      currency: "BRL",
+      origin: "MANUAL",
+      postings: [
+        { id: "target-multiple" as never, accountId: "target" as never, amountMinor: 60n, currency: "BRL" },
+        { id: "counter-z-posting" as never, accountId: "counter-z" as never, amountMinor: -20n, currency: "BRL" },
+        { id: "counter-a-posting" as never, accountId: "counter-a" as never, amountMinor: -20n, currency: "BRL" },
+        { id: "counter-b-posting" as never, accountId: "counter-b" as never, amountMinor: -20n, currency: "BRL" },
+      ],
+      version: 0,
+    }));
+
+    const result = await queries.listAccountStatement({
+      bookId,
+      accountId: "target" as never,
+      limit: 10,
+    });
+
+    expect(result.items.find(({ entryId }) => entryId === "entry-multiple-counterparties")?.counterpartyAccounts).toEqual([
+      { id: "counter-a", name: "Alpha", kind: "EQUITY" },
+      { id: "counter-z", name: "Alpha", kind: "EQUITY" },
+      { id: "counter-b", name: "Beta", kind: "EQUITY" },
+    ]);
+  });
+
+  it("zeros the running balance after an original entry is reversed", async () => {
+    await entries.add(makeEntry("entry-original-cancel", "target", 100n, "1"));
+    await entries.add(makeEntry("entry-reversal-cancel", "target", -100n, "2", "2026-08-05", "entry-original-cancel"));
+
+    const result = await queries.listAccountStatement({
+      bookId,
+      accountId: "target" as never,
+      limit: 10,
+    });
+
+    expect(result.items.map(({ entryId, rawAmountMinor, runningBalanceMinor, isReversal }) => ({
+      entryId,
+      rawAmountMinor,
+      runningBalanceMinor,
+      isReversal,
+    }))).toEqual([
+      {
+        entryId: "entry-reversal-cancel",
+        rawAmountMinor: "-100",
+        runningBalanceMinor: "0",
+        isReversal: true,
+      },
+      {
+        entryId: "entry-original-cancel",
+        rawAmountMinor: "100",
+        runningBalanceMinor: "100",
+        isReversal: false,
+      },
+    ]);
   });
 
   it("exposes an original entry as reversed when its link is persisted", async () => {
