@@ -124,6 +124,24 @@ describe("ListAccountStatement", () => {
     expect(queries.listAccountStatement).not.toHaveBeenCalled();
   });
 
+  it("returns ENTITY_NOT_FOUND for an absent account without returning items", async () => {
+    const { execute, accounts, queries } = handler();
+    vi.mocked(accounts.findById).mockResolvedValue(null);
+
+    const result = await execute.execute({
+      bookId: "book-1",
+      accountId: "missing",
+      limit: 10,
+    });
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.error.code).toBe("ENTITY_NOT_FOUND");
+      expect(result.error.message).toContain("missing");
+    }
+    expect(queries.listAccountStatement).not.toHaveBeenCalled();
+  });
+
   it("sanitizes adapter failures without leaking driver details", async () => {
     const { execute, queries } = handler();
     vi.mocked(queries.listAccountStatement).mockRejectedValue(

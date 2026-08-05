@@ -11,8 +11,13 @@ import {
   SqliteMigrationRunner,
   SqliteTransactionManager,
 } from "../src/index.js";
+import {
+  ListAccountBalances,
+  type FinancialBookRepository,
+} from "@open-coin/application";
 import * as api from "../src/index.js";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
+import { BetterSqliteDatabase } from "./support/better-sqlite-database.js";
 
 const publicEntrySource = readFileSync(new URL("../src/index.ts", import.meta.url), "utf8");
 const publicDistSource = readFileSync(new URL("../dist/index.js", import.meta.url), "utf8");
@@ -126,5 +131,25 @@ describe("infrastructure-sqlite public boundary", () => {
     expect(publicDistSource).toContain("SqliteLedgerQueries");
     expect(publicDistSource).toContain("SqliteInsightQueries");
     expect(publicDistSource).toContain("SqliteTransactionManager");
+  });
+
+  it("sanitizes a real closed-driver failure at the public application boundary", async () => {
+    const database = new BetterSqliteDatabase();
+    const books = {
+      findById: vi.fn().mockResolvedValue({}),
+    } as unknown as FinancialBookRepository;
+    const query = new SqliteLedgerQueries(database);
+
+    await database.close();
+    const result = await new ListAccountBalances(books, query).execute({
+      bookId: "book-1",
+    });
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.error.code).toBe("UNEXPECTED_ERROR");
+      expect(result.error.message).toBe("Financial query failed");
+      expect(result.error.message).not.toMatch(/SQL|parameters|closed|\.db|\//i);
+    }
   });
 });
