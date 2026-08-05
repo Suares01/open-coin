@@ -3,7 +3,7 @@
   "promote_threshold": 2,
   "window_days": 45,
   "quarantine_threshold": 2,
-  "next_id": 4,
+  "next_id": 8,
   "lessons": [
     {
       "id": "L-001",
@@ -58,6 +58,78 @@
       ],
       "created": "2026-08-04T21:54:25Z",
       "last_seen": "2026-08-04T21:54:25Z"
+    },
+    {
+      "id": "L-004",
+      "key": "ac_gap::query integration tests must snapshot database rows versions and event buffers before and after each read capability",
+      "text": "Query integration tests must snapshot database rows, versions, and event buffers before and after each read capability",
+      "signal": "ac_gap",
+      "scope": "sqlite-queries",
+      "status": "candidate",
+      "features": [
+        "financial-ledger-queries"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "FQR-06 (sqlite-queries)"
+      ],
+      "created": "2026-08-05T00:53:32Z",
+      "last_seen": "2026-08-05T00:53:32Z"
+    },
+    {
+      "id": "L-005",
+      "key": "ac_gap::query performance tests must compare statement counts across multiple result cardinalities",
+      "text": "Query performance tests must compare statement counts across multiple result cardinalities",
+      "signal": "ac_gap",
+      "scope": "sqlite-queries",
+      "status": "candidate",
+      "features": [
+        "financial-ledger-queries"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "FQR-66 (sqlite-queries)"
+      ],
+      "created": "2026-08-05T00:53:32Z",
+      "last_seen": "2026-08-05T00:53:32Z"
+    },
+    {
+      "id": "L-006",
+      "key": "ac_gap::sqlite query plan tests must inspect the sql emitted by the production adapter for each critical path",
+      "text": "SQLite query-plan tests must inspect the SQL emitted by the production adapter for each critical path",
+      "signal": "ac_gap",
+      "scope": "sqlite-queries",
+      "status": "candidate",
+      "features": [
+        "financial-ledger-queries"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "FQR-67 (sqlite-queries)"
+      ],
+      "created": "2026-08-05T00:53:32Z",
+      "last_seen": "2026-08-05T00:53:32Z"
+    },
+    {
+      "id": "L-007",
+      "key": "ac_gap::read model tests must assert complete dtos and every specified tie breaker and edge branch",
+      "text": "Read-model tests must assert complete DTOs and every specified tie-breaker and edge branch",
+      "signal": "ac_gap",
+      "scope": "sqlite-queries",
+      "status": "candidate",
+      "features": [
+        "financial-ledger-queries"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "FQR-14 (sqlite-queries)"
+      ],
+      "created": "2026-08-05T00:53:32Z",
+      "last_seen": "2026-08-05T00:53:32Z"
     }
   ]
 }

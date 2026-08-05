@@ -32,6 +32,30 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - evidence: validation.md:163 (workspace,gates)
 - last seen: 2026-08-04T21:54:25Z
 
+### L-004 - Query integration tests must snapshot database rows, versions, and event buffers before and after each read capability
+- signal: `ac_gap` · recurrence: 1 feature(s) · scope: `sqlite-queries` · harmful: 0
+- features: financial-ledger-queries
+- evidence: FQR-06 (sqlite-queries)
+- last seen: 2026-08-05T00:53:32Z
+
+### L-005 - Query performance tests must compare statement counts across multiple result cardinalities
+- signal: `ac_gap` · recurrence: 1 feature(s) · scope: `sqlite-queries` · harmful: 0
+- features: financial-ledger-queries
+- evidence: FQR-66 (sqlite-queries)
+- last seen: 2026-08-05T00:53:32Z
+
+### L-006 - SQLite query-plan tests must inspect the SQL emitted by the production adapter for each critical path
+- signal: `ac_gap` · recurrence: 1 feature(s) · scope: `sqlite-queries` · harmful: 0
+- features: financial-ledger-queries
+- evidence: FQR-67 (sqlite-queries)
+- last seen: 2026-08-05T00:53:32Z
+
+### L-007 - Read-model tests must assert complete DTOs and every specified tie-breaker and edge branch
+- signal: `ac_gap` · recurrence: 1 feature(s) · scope: `sqlite-queries` · harmful: 0
+- features: financial-ledger-queries
+- evidence: FQR-14 (sqlite-queries)
+- last seen: 2026-08-05T00:53:32Z
+
 ## Quarantined (failed when applied - ignore)
 
 A confirmed lesson that recurred alongside failure. Kept for the maintainer to review.
