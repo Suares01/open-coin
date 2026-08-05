@@ -10,7 +10,9 @@ import type {
 import type { SqliteDatabase } from "../database/index.js";
 import {
   readAccountKind,
+  readAccountStatus,
   readBigInt,
+  readInteger,
   readString,
   toDisplayMinor,
 } from "./sqlite-query-values.js";
@@ -79,8 +81,60 @@ export class SqliteInsightQueries implements InsightQueries {
   public async getCategorySpending(
     input: GetCategorySpendingInput,
   ): Promise<readonly CategorySpendingItem[]> {
-    void input;
-    throw new Error("Category spending is not implemented yet");
+    const parameters: (string | null)[] = [
+      input.bookId,
+      input.from.value,
+      input.to.value,
+    ];
+    let sql =
+      "SELECT a.id AS category_id, a.name AS category_name, a.status, " +
+      "CAST(COALESCE(SUM(p.amount_minor), 0) AS TEXT) AS amount_minor, " +
+      "COUNT(DISTINCT CASE WHEN p.amount_minor > 0 " +
+      "AND e.reversal_of_id IS NULL THEN e.id END) AS transaction_count " +
+      "FROM ledger_accounts a " +
+      "JOIN postings p ON p.book_id = a.book_id AND p.account_id = a.id " +
+      "JOIN journal_entries e ON e.book_id = p.book_id " +
+      "AND e.id = p.journal_entry_id " +
+      "WHERE a.book_id = ? AND a.kind = 'EXPENSE' " +
+      "AND e.occurred_on >= ? AND e.occurred_on <= ?";
+
+    if (input.categoryId !== undefined) {
+      sql += " AND a.id = ?";
+      parameters.push(input.categoryId);
+    }
+
+    sql += " GROUP BY a.id, a.name, a.status";
+    const rows = await this.database.query<CategorySpendingRow>(sql, parameters);
+    const values = rows.map((row) => ({
+      categoryId: readString(row.category_id, "category_id"),
+      categoryName: readString(row.category_name, "category_name"),
+      amount: readBigInt(row.amount_minor, "amount_minor"),
+      transactionCount: readInteger(row.transaction_count, "transaction_count"),
+      archived: readAccountStatus(row.status) === "ARCHIVED",
+    }));
+    const denominator = values.reduce(
+      (sum, value) => sum + (value.amount > 0n ? value.amount : 0n),
+      0n,
+    );
+
+    return values
+      .sort((left, right) => {
+        if (left.amount !== right.amount) {
+          return left.amount > right.amount ? -1 : 1;
+        }
+        const nameOrder = left.categoryName.localeCompare(right.categoryName);
+        return nameOrder !== 0 ? nameOrder : left.categoryId.localeCompare(right.categoryId);
+      })
+      .map((value) => ({
+        categoryId: value.categoryId,
+        categoryName: value.categoryName,
+        amountMinor: value.amount.toString(),
+        percentageBasisPoints: denominator === 0n
+          ? 0
+          : Number((BigInt(value.amount > 0n ? value.amount : 0n) * 10000n) / denominator),
+        transactionCount: value.transactionCount,
+        archived: value.archived,
+      }));
   }
 
   public async getNetWorth(input: GetNetWorthInput): Promise<NetWorthView> {
@@ -106,6 +160,14 @@ type MonthlyCashFlowRow = {
   readonly month: unknown;
   readonly account_kind: unknown;
   readonly amount_minor: unknown;
+};
+
+type CategorySpendingRow = {
+  readonly category_id: unknown;
+  readonly category_name: unknown;
+  readonly status: unknown;
+  readonly amount_minor: unknown;
+  readonly transaction_count: unknown;
 };
 
 function monthAfter(month: string): string {

@@ -413,13 +413,13 @@ T12 -> T13 -> T14
 
 **Done when**:
 
-- [ ] Handler valida livro, período e category ID antes do port.
-- [ ] Cada posting de split pertence somente à própria categoria e categoria arquivada permanece no histórico.
-- [ ] Original e reversor somam com sinais opostos; reversor não incrementa transaction count.
-- [ ] Basis points usam líquidos positivos, truncamento inteiro, zero denominator e nenhuma redistribuição.
-- [ ] Filtro retorna a categoria exata sem descendentes e período vazio retorna lista vazia.
-- [ ] Ordem por amount, nome e ID é determinística e statement count permanece constante.
-- [ ] Pelo menos 14 testes unitários e de integração cobrem todos os ACs e edge cases de categorias.
+- [x] Handler valida livro, período e category ID antes do port.
+- [x] Cada posting de split pertence somente à própria categoria e categoria arquivada permanece no histórico.
+- [x] Original e reversor somam com sinais opostos; reversor não incrementa transaction count.
+- [x] Basis points usam líquidos positivos, truncamento inteiro, zero denominator e nenhuma redistribuição.
+- [x] Filtro retorna a categoria exata sem descendentes e período vazio retorna lista vazia.
+- [x] Ordem por amount, nome e ID é determinística e statement count permanece constante.
+- [x] Pelo menos 14 testes unitários e de integração cobrem todos os ACs e edge cases de categorias.
 
 **Tests**: unit + integration
 **Gate**: SQLite full
