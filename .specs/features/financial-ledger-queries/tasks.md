@@ -329,13 +329,13 @@ T12 -> T13 -> T14
 
 **Done when**:
 
-- [ ] Handler rejeita conta ausente/cross-book, intervalo, limit e cursor inválidos antes do port.
-- [ ] CTE calcula running balance antes de aplicar `from`, `to` e cursor.
-- [ ] Ordem usa data, sequência decimal e posting position; pages concatenadas não têm lacuna ou duplicata.
-- [ ] Cada item possui todos os campos, sinais, flags e counterparties ordenados definidos na spec.
-- [ ] Original e reversor ficam visíveis e anulam o saldo depois do reversor.
-- [ ] A query usa dois statements constantes dentro de uma read transaction e busca `limit + 1` itens-base.
-- [ ] Pelo menos 18 testes unitários e de integração cobrem todos os ACs e edge cases do extrato.
+- [x] Handler rejeita conta ausente/cross-book, intervalo, limit e cursor inválidos antes do port.
+- [x] CTE calcula running balance antes de aplicar `from`, `to` e cursor.
+- [x] Ordem usa data, sequência decimal e posting position; pages concatenadas não têm lacuna ou duplicata.
+- [x] Cada item possui todos os campos, sinais, flags e counterparties ordenados definidos na spec.
+- [x] Original e reversor ficam visíveis e anulam o saldo depois do reversor.
+- [x] A query usa dois statements constantes dentro de uma read transaction e busca `limit + 1` itens-base.
+- [x] Pelo menos 18 testes unitários e de integração cobrem todos os ACs e edge cases do extrato.
 
 **Tests**: unit + integration
 **Gate**: SQLite full
