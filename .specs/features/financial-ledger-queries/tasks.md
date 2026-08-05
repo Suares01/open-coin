@@ -249,12 +249,12 @@ T12 -> T13 -> T14
 
 **Done when**:
 
-- [ ] `0002_financial_query_indexes.sql` cria o expression index de data/length/sequence e o índice de account/posting position.
-- [ ] A lista gerada contém V1 e V2 com checksums válidos e ordem contígua.
-- [ ] Banco vazio, upgrade de V1, reaplicação e adulteração de checksum mantêm os contratos existentes.
-- [ ] `EXPLAIN QUERY PLAN` de formas-base reconhece os novos índices pelo nome.
-- [ ] Pelo menos 7 testes de migration e plano passam, incluindo sequência `9`/`10`.
-- [ ] `check:migrations` e o Migration full gate passam.
+- [x] `0002_financial_query_indexes.sql` cria o expression index de data/length/sequence e o índice de account/posting position.
+- [x] A lista gerada contém V1 e V2 com checksums válidos e ordem contígua.
+- [x] Banco vazio, upgrade de V1, reaplicação e adulteração de checksum mantêm os contratos existentes.
+- [x] `EXPLAIN QUERY PLAN` de formas-base reconhece os novos índices pelo nome.
+- [x] Pelo menos 7 testes de migration e plano passam, incluindo sequência `9`/`10`.
+- [x] `check:migrations` e o Migration full gate passam.
 
 **Tests**: integration
 **Gate**: Migration full

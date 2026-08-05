@@ -370,13 +370,37 @@ describe("initial financial ledger migration", () => {
 
     expect(rows.map((row) => row.name)).toEqual([
       "ix_journal_entries_book_date_sequence",
+      "ix_journal_entries_book_date_sequence_numeric",
       "ix_journal_entries_reversal_of",
       "ix_journal_entries_reversed_by",
       "ix_ledger_accounts_book",
       "ix_postings_account_entry",
+      "ix_postings_book_account_entry_position",
       "ix_postings_entry",
       "ux_ledger_account_name",
       "ux_system_account_purpose",
+    ]);
+  });
+
+  it("defines numeric sequence ordering and posting position indexes", async () => {
+    const rows = await database.query<{ name: string; sql: string }>(
+      "SELECT name, sql FROM sqlite_schema WHERE type = 'index' " +
+        "AND name IN (?, ?) ORDER BY name",
+      [
+        "ix_journal_entries_book_date_sequence_numeric",
+        "ix_postings_book_account_entry_position",
+      ],
+    );
+
+    expect(rows).toEqual([
+      {
+        name: "ix_journal_entries_book_date_sequence_numeric",
+        sql: expect.stringContaining("length(sequence) DESC"),
+      },
+      {
+        name: "ix_postings_book_account_entry_position",
+        sql: expect.stringContaining("account_id, journal_entry_id, position"),
+      },
     ]);
   });
 
