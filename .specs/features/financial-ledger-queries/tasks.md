@@ -386,13 +386,13 @@ T12 -> T13 -> T14
 
 **Done when**:
 
-- [ ] Handler valida livro, meses e ordem do intervalo antes do port.
-- [ ] Todos os meses inclusivos aparecem, inclusive os zerados.
-- [ ] Receita, despesa e net usam sinais e aritmética inteira exatos.
-- [ ] Transferência e pagamento de passivo sem categoria não entram; compra em passivo entra na data da compra.
-- [ ] Reversão em outro mês preserva o efeito de cada mês e o líquido do período.
-- [ ] Statement count é constante e livros/moedas não se misturam.
-- [ ] Pelo menos 14 testes unitários e de integração cobrem todos os ACs e edge cases do fluxo.
+- [x] Handler valida livro, meses e ordem do intervalo antes do port.
+- [x] Todos os meses inclusivos aparecem, inclusive os zerados.
+- [x] Receita, despesa e net usam sinais e aritmética inteira exatos.
+- [x] Transferência e pagamento de passivo sem categoria não entram; compra em passivo entra na data da compra.
+- [x] Reversão em outro mês preserva o efeito de cada mês e o líquido do período.
+- [x] Statement count é constante e livros/moedas não se misturam.
+- [x] Pelo menos 14 testes unitários e de integração cobrem todos os ACs e edge cases do fluxo.
 
 **Tests**: unit + integration
 **Gate**: SQLite full
