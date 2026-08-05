@@ -7,6 +7,7 @@ import {
   SqliteJournalEntryRepository,
   SqliteLedgerAccountRepository,
   SqliteLedgerQueries,
+  SqliteInsightQueries,
   SqliteMigrationRunner,
   SqliteTransactionManager,
 } from "../src/index.js";
@@ -30,7 +31,8 @@ const productionFiles = [
   "migrations/migration-errors.ts",
   "migrations/migrations.ts",
   "migrations/sqlite-migration-runner.ts",
-  "queries/sqlite-ledger-queries.ts",
+    "queries/sqlite-ledger-queries.ts",
+  "queries/sqlite-insight-queries.ts",
   "repositories/create-sqlite-repository-context.ts",
   "repositories/sqlite-fact-collector.ts",
   "repositories/sqlite-financial-book-repository.ts",
@@ -49,6 +51,7 @@ describe("infrastructure-sqlite public boundary", () => {
     expect(SqliteJournalEntryRepository).toBeTypeOf("function");
     expect(SqliteLedgerAccountRepository).toBeTypeOf("function");
     expect(SqliteLedgerQueries).toBeTypeOf("function");
+    expect(SqliteInsightQueries).toBeTypeOf("function");
     expect(SqliteTransactionManager).toBeTypeOf("function");
   });
 
@@ -85,6 +88,7 @@ describe("infrastructure-sqlite public boundary", () => {
     expect(publicDeclarationSource).toContain("./migrations/index.js");
     expect(publicDeclarationSource).toContain("SqliteFinancialBookRepository");
     expect(publicDeclarationSource).toContain("SqliteLedgerQueries");
+    expect(publicDeclarationSource).toContain("SqliteInsightQueries");
     expect(publicDeclarationSource).toContain("SqliteTransactionManager");
     expect(databaseDeclarationSource).toContain("SqliteExecutionResult");
     expect(databaseDeclarationSource).toContain("SqliteParameters");
@@ -120,6 +124,7 @@ describe("infrastructure-sqlite public boundary", () => {
     );
     expect(databaseContractDeclarationSource).toContain("close(): Promise<void>;");
     expect(publicDistSource).toContain("SqliteLedgerQueries");
+    expect(publicDistSource).toContain("SqliteInsightQueries");
     expect(publicDistSource).toContain("SqliteTransactionManager");
   });
 });

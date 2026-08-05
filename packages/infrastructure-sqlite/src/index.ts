@@ -13,4 +13,5 @@ export {
   SqliteLedgerAccountRepository,
 } from "./repositories/sqlite-ledger-account-repository.js";
 export { SqliteLedgerQueries } from "./queries/sqlite-ledger-queries.js";
+export { SqliteInsightQueries } from "./queries/sqlite-insight-queries.js";
 export { SqliteTransactionManager } from "./transaction/sqlite-transaction-manager.js";

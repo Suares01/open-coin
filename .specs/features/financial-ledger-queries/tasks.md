@@ -440,14 +440,14 @@ T12 -> T13 -> T14
 
 **Done when**:
 
-- [ ] Handler valida livro e `asOf` antes do port.
-- [ ] Ativos e passivos incluem contas arquivadas, negativas, zeradas e data histórica.
-- [ ] `netWorthMinor` é exatamente `assetMinor - liabilityMinor` em `bigint`.
-- [ ] Livro sem contas financeiras retorna três strings `"0"` e a moeda-base.
-- [ ] Falhas do driver em qualquer nova query chegam como `UNEXPECTED_ERROR` sanitizado.
-- [ ] Entry points públicos exportam contratos, handlers e adapters de produção, mas não driver ou fixtures de teste.
-- [ ] Pelo menos 12 testes unitários, de integração e de API pública cobrem os ACs finais sem reduzir nenhuma suíte.
-- [ ] Build, lint, typecheck, migration check e todos os testes do workspace passam sem warnings ou testes ignorados.
+- [x] Handler valida livro e `asOf` antes do port.
+- [x] Ativos e passivos incluem contas arquivadas, negativas, zeradas e data histórica.
+- [x] `netWorthMinor` é exatamente `assetMinor - liabilityMinor` em `bigint`.
+- [x] Livro sem contas financeiras retorna três strings `"0"` e a moeda-base.
+- [x] Falhas do driver em qualquer nova query chegam como `UNEXPECTED_ERROR` sanitizado.
+- [x] Entry points públicos exportam contratos, handlers e adapters de produção, mas não driver ou fixtures de teste.
+- [x] Pelo menos 12 testes unitários, de integração e de API pública cobrem os ACs finais sem reduzir nenhuma suíte.
+- [x] Build, lint, typecheck, migration check e todos os testes do workspace passam sem warnings ou testes ignorados.
 
 **Tests**: unit + integration
 **Gate**: Build

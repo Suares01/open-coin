@@ -138,8 +138,54 @@ export class SqliteInsightQueries implements InsightQueries {
   }
 
   public async getNetWorth(input: GetNetWorthInput): Promise<NetWorthView> {
-    void input;
-    throw new Error("Net worth is not implemented yet");
+    const parameters: (string | null)[] = [];
+    let sql =
+      "SELECT b.base_currency, a.kind AS account_kind, " +
+      "CAST(COALESCE(SUM(CASE WHEN e.id IS NOT NULL " +
+      "THEN p.amount_minor ELSE 0 END), 0) AS TEXT) AS raw_balance_minor " +
+      "FROM financial_books b " +
+      "LEFT JOIN ledger_accounts a ON a.book_id = b.id " +
+      "AND a.kind IN ('ASSET', 'LIABILITY') " +
+      "LEFT JOIN postings p ON p.book_id = a.book_id AND p.account_id = a.id " +
+      "LEFT JOIN journal_entries e ON e.book_id = p.book_id " +
+      "AND e.id = p.journal_entry_id";
+    if (input.asOf !== undefined) {
+      sql += " AND e.occurred_on <= ?";
+      parameters.push(input.asOf.value);
+    }
+    sql += " WHERE b.id = ? GROUP BY b.base_currency, a.kind";
+    parameters.push(input.bookId);
+
+    const rows = await this.database.query<NetWorthRow>(sql, parameters);
+    let assetMinor = 0n;
+    let liabilityMinor = 0n;
+    let currency = "";
+    for (const row of rows) {
+      currency = readString(row.base_currency, "base_currency");
+      if (row.account_kind === null) {
+        continue;
+      }
+      const kind = readAccountKind(row.account_kind);
+      const displayBalance = BigInt(
+        toDisplayMinor(readBigInt(row.raw_balance_minor, "raw_balance_minor"), kind),
+      );
+      if (kind === "ASSET") {
+        assetMinor += displayBalance;
+      } else {
+        liabilityMinor += displayBalance;
+      }
+    }
+
+    if (currency.length === 0) {
+      throw new Error(`Financial book ${input.bookId} was not found`);
+    }
+    return {
+      assetMinor: assetMinor.toString(),
+      liabilityMinor: liabilityMinor.toString(),
+      netWorthMinor: (assetMinor - liabilityMinor).toString(),
+      currency,
+      asOf: input.asOf?.value ?? null,
+    };
   }
 
   private async readBookCurrency(bookId: string): Promise<string> {
@@ -168,6 +214,12 @@ type CategorySpendingRow = {
   readonly status: unknown;
   readonly amount_minor: unknown;
   readonly transaction_count: unknown;
+};
+
+type NetWorthRow = {
+  readonly base_currency: unknown;
+  readonly account_kind: unknown;
+  readonly raw_balance_minor: unknown;
 };
 
 function monthAfter(month: string): string {
